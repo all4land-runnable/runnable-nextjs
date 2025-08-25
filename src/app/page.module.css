@@ -1,19 +1,16 @@
-.source-link {
-    z-index: 1;
-    position: fixed;
-    left: 0.5rem;
-    top: 0.5rem;
-    font-family: sans-serif;
-    background-color: white;
-    color: blue;
-    padding: 0.25rem;
+/* 지도 래퍼: 전체 화면 채우기 + 스크롤 방지 */
+.mapShell {
+    position: relative;
+    overflow: hidden;          /* 내부 넘침 방지 */
 }
-.source-link:hover {
-    background-color: lightgray;
+
+.overlay {
+    position: absolute;
+    inset: 12px;
+    z-index: 10;
+    pointer-events: none; /* 지도 드래그/휠을 막지 않음 */
 }
-.source-link:active {
-    background-color: gray;
-}
-.source-link:focus {
-    outline: 1px solid blue;
+
+.overlay > * {
+    pointer-events: auto; /* 버튼 클릭은 가능 */
 }

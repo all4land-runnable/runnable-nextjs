@@ -1,0 +1,29 @@
+.chip {
+    /* 크기는 TSX에서 인라인 style로 63x30 지정 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 20px;           /* 완전한 pill 형태 */
+
+    padding: 8px; /* 텍스트 여유 */
+    border: none; /* 외곽선 제거 */
+}
+
+.chipFont {
+    color: #000;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: -0.072px;
+}
+
+.chip:focus-visible {
+    outline: 2px solid rgba(0,0,0,0.5);
+    outline-offset: 2px;
+}
+
+.chip:active {
+    transform: translateY(0.5px);
+}

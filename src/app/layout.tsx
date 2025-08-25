@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Header from "@/app/header/page";
 
 export const metadata: Metadata = {
     title: "Cesium in Next.js 14 with TypeScript",
@@ -23,7 +24,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-        <body>{children}</body>
+        <body>
+        <Header></Header>
+        {children}
+        </body>
         </html>
     );
 }
