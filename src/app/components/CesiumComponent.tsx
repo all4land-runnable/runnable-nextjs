@@ -4,7 +4,7 @@ import React from 'react'
 import type {CesiumType} from '../types/cesium'
 import type {Viewer} from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
-import {ensureMapPrime} from '../utils/ensureMapPrime'
+import {getMapPrimeExtension} from '../utils/getMapPrimeExtension'
 
 /**
  * 최소 구성의 Cesium + MapPrime
@@ -36,7 +36,7 @@ export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> 
 
         ;(async () => {
             try {
-                const MapPrime = await ensureMapPrime()
+                const MapPrime = await getMapPrimeExtension()
 
                 const v = viewerRef.current
                 if (disposed || !isAlive(v)) return
