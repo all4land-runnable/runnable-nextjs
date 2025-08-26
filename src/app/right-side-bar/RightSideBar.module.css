@@ -1,0 +1,11 @@
+.rightSideBar {
+    width: 280px;                 /* 원하는 폭 */
+    max-height: calc(100vh - 120px); /* 헤더/마진 만큼 빼주기(필요시 조절) */
+    overflow: hidden;             /* 바깥 넘침 숨김 */
+    border-radius: 12px;
+    background: rgba(243, 244, 246, 0.88);
+    backdrop-filter: blur(6px);
+    box-shadow:
+            0 10px 25px rgba(0,0,0,.12),
+            inset 0 0 0 1px rgba(0,0,0,.06);
+}

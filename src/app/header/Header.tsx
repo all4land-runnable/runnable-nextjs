@@ -1,9 +1,9 @@
 import Image from 'next/image';
-import styles from './page.module.css'
+import styles from './Header.module.css'
 
 export default function Header() {
     return (
-        <header className='row-start expand-width space-between padding-050rem'>
+        <header className={`${styles.header} row-start space-between justify-center padding-050rem`}>
             <div className={styles.titleFont+ 'row-start center'}>
                 <Image src="/resource/title-image.png" alt="title" width={22} height={22} />
                 <span>Runnable</span>

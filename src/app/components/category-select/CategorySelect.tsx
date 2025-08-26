@@ -1,5 +1,5 @@
 'use client';
-import styles from './CategorySelect.module.css';
+import styles from './Category.module.css';
 
 type Props = {
     categories?: string[];

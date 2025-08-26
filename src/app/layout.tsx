@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/app/header/page";
+import Header from "@/app/header/Header";
 
 export const metadata: Metadata = {
     title: "Cesium in Next.js 14 with TypeScript",

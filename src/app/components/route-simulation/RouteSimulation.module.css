@@ -1,0 +1,12 @@
+.routeSimulation {
+    display: flex;
+    height: 39px;
+    padding: 12px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    align-self: stretch;
+    border-radius: 8px;
+    background: #ACE5F6;
+}

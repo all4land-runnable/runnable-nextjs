@@ -1,3 +1,10 @@
+/* 헤더 고정 높이(예: 60px) —— 필요하면 숫자만 바꾸면 됨 */
+.header {
+    flex: 0 0 auto;
+    height: 60px;
+    background: #ffffff;
+}
+
 .font {
     color: #000;
     font-size: 15px;

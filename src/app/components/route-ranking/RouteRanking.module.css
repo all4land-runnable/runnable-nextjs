@@ -1,0 +1,39 @@
+.wrapper {
+    width: 100%;
+    padding: 12px 8px 24px 8px;
+}
+
+.header {
+    margin-bottom: 12px;
+}
+
+.center { text-align: center; }
+.left   { text-align: left;   }
+
+.title {
+    margin: 0 0 6px 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.rule {
+    height: 0;
+    border: none;
+    border-top: 5px solid rgba(107, 114, 128, 0.6); /* #6b7280 */
+    border-radius: 6px;
+    margin: 0 8px;
+}
+
+.body {
+    min-height: 140px;          /* 필요시 조절 */
+    display: grid;
+    place-items: center;
+}
+
+.placeholder {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
