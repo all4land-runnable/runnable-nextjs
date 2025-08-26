@@ -1,7 +1,7 @@
 import styles from './RouteCard.module.css'
 import Image from "next/image";
 
-type routeCardProps = {
+export type RouteCard = {
     title: string,
     distance: number,
     startTime: Date,
@@ -10,7 +10,11 @@ type routeCardProps = {
     imgUrl: string
 }
 
-export default function RouteCard({title, distance, startTime, endTime, description, imgUrl}: routeCardProps) {
+type routeCardProps = {
+    routeCard: RouteCard;
+}
+
+export default function RouteCard({routeCard}: routeCardProps) {
     const fmt = new Intl.DateTimeFormat("ko", {
         hour: "numeric",
         hour12: true, // 12시간제 (AM/PM)
@@ -18,10 +22,10 @@ export default function RouteCard({title, distance, startTime, endTime, descript
 
     return (
         <div className={styles.routeCard}>
-            <Image src={imgUrl} alt="profile" width={171} height={114} />
-            <span className={styles.title}>{title}</span>
-            <span className={styles.distance}>거리: {distance}km / 가능 시간:{fmt.format(startTime.getTime())}~{fmt.format(endTime.getTime())}</span>
-            <span className={styles.description}>{description}</span>
+            <Image src={routeCard.imgUrl} alt="profile" width={171} height={114} />
+            <span className={styles.title}>{routeCard.title}</span>
+            <span className={styles.distance}>거리: {routeCard.distance}km / 가능 시간:{fmt.format(routeCard.startTime.getTime())}~{fmt.format(routeCard.endTime.getTime())}</span>
+            <span className={styles.description}>{routeCard.description}</span>
         </div>
     )
 }

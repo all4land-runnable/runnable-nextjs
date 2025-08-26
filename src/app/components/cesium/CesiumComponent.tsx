@@ -4,7 +4,7 @@ import React from 'react'
 import type {CesiumType} from '../../types/cesium'
 import type {Viewer} from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
-import {getMapPrimeExtension} from '../../utils/getMapPrimeExtension'
+import {getMapPrimeExtension} from "@/app/components/cesium/getMapPrimeExtension";
 
 /**
  * 최소 구성의 Cesium + MapPrime

@@ -1,5 +1,5 @@
-import type { CesiumType } from '../types/cesium'
 import type { Viewer } from 'cesium'
+import {CesiumType} from "@/app/types/cesium";
 
 // ===== 전역 타입 선언: 필요한 최소만 =====
 declare global {

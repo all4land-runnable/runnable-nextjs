@@ -6,6 +6,7 @@ import PaceStrategy, { SectionStrategy } from '@/app/components/pace-strategy/Pa
 import RouteRanking, {UserRank} from "@/app/components/route-ranking/RouteRanking";
 import RouteSimulation from "@/app/components/route-simulation/RouteSimulation";
 import Chip from "@/app/components/chip/Chip";
+import { remToPx } from "@/app/utils/pxToRem";
 
 export default function RightSideBar() {
 
@@ -22,26 +23,26 @@ export default function RightSideBar() {
 
     const userRanking: UserRank[] = [
         {
-            name: '김명준',
-            rank: 2,
-            pace: 22800
-        }, {
             name: '김명민',
             rank: 1,
             pace: 21800
-        },
+        }, {
+            name: '김명준',
+            rank: 2,
+            pace: 22800
+        }
     ]
 
-    return <section className={`${styles.rightSideBar} col-top padding-050rem space-between collapse-width event`}>
+    return <section className={styles.rightSideBar}>
         <div className={styles.sidebarTop}>
             <PaceStrategy sectionStrategies={sectionStrategies}/>
             <RouteRanking userRanking={userRanking} />
         </div>
-        <div className="col-bottom">
-            <div className="row-start center">
-                <Chip label="경사도 그래프" backgroundColor="#FCDE8C"/>
-                <Chip label="구간 속도" backgroundColor="#FCDE8C"/>
-                <Chip label="페이스 그래프" backgroundColor="#FCDE8C"/>
+        <div className={styles.sidebarBottom}>
+            <div className={styles.detailInfo}>
+                <Chip label="경사도 그래프" backgroundColor="#FCDE8C" fontSize={remToPx(0.75)}/>
+                <Chip label="구간 속도" backgroundColor="#FCDE8C" fontSize={remToPx(0.75)}/>
+                <Chip label="페이스 그래프" backgroundColor="#FCDE8C" fontSize={remToPx(0.75)}/>
             </div>
             <RouteSimulation/>
         </div>

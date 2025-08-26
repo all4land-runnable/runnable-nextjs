@@ -29,7 +29,7 @@ export default function PaceStrategy({sectionStrategies}: PaceStrategyProps) {
     return (
         <section className={styles.sectionStrategyCard}>
             {/* 카드 이름 */}
-            <span className={styles.title}>페이스 전략</span>
+            <span className={styles.titleFont}>페이스 전략</span>
             {/* 이름 리스트 영역 구분선 */}
             <hr className={styles.splitter} />
 
@@ -44,13 +44,13 @@ export default function PaceStrategy({sectionStrategies}: PaceStrategyProps) {
                         </div>
 
                         <div className={styles.section}> {/* 각 전략 선회 */}
-                            <span className={styles.startPlace}> {/* 출발 지점 이름 */}
+                            <span className={styles.startPlaceFont}> {/* 출발 지점 이름 */}
                                 {sectionStrategy.startPlace}
                             </span>
                             <div className={styles.strategies}> {/* 각 구간 별 전략들 선회 */}
                                 {sectionStrategy.strategies.map((strategy, index) => (
                                     /* TODO: key 이름 변경할 것 */
-                                    <span className={[styles.strategy, styles.strategyFont].join()} key={`${2}_${index}`}>{strategy}</span>
+                                    <span className={[styles.strategy, styles.strategyFont].join(' ')} key={`${2}_${index}`}>{strategy}</span>
                                 ))}
                             </div>
                         </div>
