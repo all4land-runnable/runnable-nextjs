@@ -3,19 +3,27 @@
     justify-content: center;
     align-items: center;
 
-    border-radius: 20px;
     border: none;
-
+    border-radius: 20px;
     padding: 0.75rem;
+
+    transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+    cursor: pointer;
 }
 
-.chip:hover {
-    transform: translateY(0.05rem);
-}
+.chip:hover { transform: translateY(0.05rem); }
 
 .chipFont {
     color: black;
-
     font-weight: normal;
-    padding: 0.75rem;
+}
+
+/* 활성 상태 → 배경은 prop에서 지정됨 */
+.chipActive {
+    color: black;
+}
+
+.chipInactive {
+    background-color: #e5e7eb;
+    color: #6b7280;
 }

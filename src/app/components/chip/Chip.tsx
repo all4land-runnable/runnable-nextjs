@@ -4,34 +4,40 @@ import React from 'react';
 import styles from './Chip.module.css';
 
 /**
- * Chip을 생성하기 위한 인자
- */
-type ChipProps = {
-    label?: string;
-    backgroundColor?: React.CSSProperties['backgroundColor'];
-    fontSize?: React.CSSProperties['fontSize'];
-    onClick?: () => void;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>;
-
-/**
- * 캡슐형 버튼을 구현하는 함수
+ * 구간 별 전략 리스트를 구현하는 함수
  *
- * @param label 버튼에 들어갈 글자
- * @param backgroundColor 버튼의 배경 색
- * @param fontSize
- * @param onClick 클릭 시 발생할 동작
+ * @param sectionStrategies 구간 별 맞춤 전략
  * @constructor
  */
-export default function Chip({label, backgroundColor, fontSize=18, onClick}: ChipProps) {
+export type ChipData = {
+    label: string;
+    backgroundColor: React.CSSProperties['backgroundColor'];
+    fontSize: React.CSSProperties['fontSize'];
+    onClick: () => void;
+}
+
+type ChipProps = {
+    chipData: ChipData;
+};
+
+export default function Chip({chipData}: ChipProps) {
+    const [active, setActive] = React.useState(true);
+
+    const handleClick = () => {
+        setActive((prev) => !prev);
+
+        chipData.onClick();
+    };
+
     return (
         <button
             type="button"
-            className={[styles.chip, styles.chipFont].filter(Boolean).join(' ')}
-            style={{backgroundColor, fontSize}}
-            onClick={onClick}
-        >
-            {/* type="button"은 submit이 아님을 명시한다. */}
-            {label}
+            className={[styles.chip, styles.chipFont, active ? styles.chipActive : styles.chipInactive].join(' ')}
+            style={{fontSize: chipData.fontSize, backgroundColor: active ? chipData.backgroundColor : undefined,}}
+            aria-pressed={active}
+            onClick={handleClick}
+        > {/* 폰트 크기와 배경색은 인자 값으로 변경 가능하다. */}
+            {chipData.label}
         </button>
     );
 }
