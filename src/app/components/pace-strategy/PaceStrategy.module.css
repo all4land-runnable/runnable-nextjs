@@ -1,119 +1,101 @@
-.wrapper {
-    width: 100%;
-    overflow: auto;                 /* 항목이 많아도 스크롤 */
-    background: transparent;        /* 부모 배경 사용 */
-    padding: 12px 8px 24px 8px;
+.sectionStrategyCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background: transparent;
+    gap: 0.625rem;
 }
 
-/* ===== Header ===== */
-.header {
-    margin-bottom: 8px;
-}
+.titleFont {
+    color: black;
 
-.heading {
-    margin: 0 0 8px 0;
-    font-size: 8px;              /* 스샷처럼 굵고 큼 */
+    font-size: 0.75rem;
     font-weight: bold;
-    text-align: center;
 }
 
-.rule {
+.splitter {
     height: 0;
     border: none;
-    border-top: 6px solid rgba(107, 114, 128, 0.65); /* #6b7280 */
-    border-radius: 6px;
-    margin: 0 12px;
+    border-top: 0.1rem solid #9EA4AA;
+    border-radius: 20px;
+    margin: 0;
 }
 
-/* ===== Timeline ===== */
-.timeline {
+.sectionList {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
     list-style: none;
-    margin: 24px 0 0 0;
-    padding: 0 0 0 32px; /* 왼쪽 타임라인 공간 */
-    position: relative;
+    gap: 1rem;
 }
 
-.item {
+.sectionStrategy {
     display: grid;
-    grid-template-columns: 24px 1fr;
-    column-gap: 16px;
-    position: relative;
-    padding-bottom: 28px;
+    grid-template-columns: 1rem auto;
+    column-gap: 1rem;
 }
 
 .marker {
     position: relative;
 }
 
+/* 포인트 점 */
+.dot {
+    width: 0.25rem;
+    height: 0.25rem;
+    flex-shrink: 0;
+    aspect-ratio: 1;
+    fill: #49BE86;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+
+    gap: 0.25rem;
+}
+
+.startPlace {
+    font-size: 0.625rem;
+    font-weight: bold;
+}
+
+.strategies {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+}
+
+.strategy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+}
+
+.strategyFont {
+    font-weight: bold;
+    font-size: 0.375rem;
+
+    color: #72787F;
+}
+
 /* 세로 라인 */
 .marker::after {
     content: "";
     position: absolute;
-    left: 11px;                      /* 중앙 정렬 */
-    top: -4px;
-    bottom: -24px;                   /* 다음 아이템까지 잇도록 */
-    width: 4px;
-    background: linear-gradient(180deg, #34d399 0%, #10b981 100%); /* 티파니-그린 */
-    opacity: 0.85;
-    border-radius: 999px;
-}
-
-/* 포인트 점 */
-.dot {
-    position: absolute;
-    top: 10px;
-    left: 5px;
-    width: 14px;
-    height: 14px;
-    background: #34d399;
-    border: 3px solid #a7f3d0;       /* 연녹색 외곽 */
-    border-radius: 999px;
-    box-shadow: 0 1px 2px rgba(0,0,0,.15);
-}
-
-/* 마지막 아이템은 라인 꼬리 제거 */
-.item:last-child .marker::after {
-    bottom: 10px;
-}
-
-/* 내용 영역 */
-.content {}
-
-/* 장소명(큰 제목) */
-.place {
-    margin: 0 0 6px 0;
-    font-size: 6px;
-    font-weight: 800;
-}
-
-/* 강조 문구 */
-.headline {
-    margin: 0 0 6px 0;
-    color: #6b7280;                 /* 중간 회색 */
-    font-size: 4px;
-    font-weight: bold;
-}
-
-/* 페이스 강조 */
-.pace {
-    color: #111827;
-    font-weight: 800;
-}
-
-/* 상세 목록 */
-.details {
-    margin: 0;
-    padding-left: 1.1em;
-    color: #374151;
-    line-height: 1.5;
-    font-size: 4px;
-}
-
-.details > li + li { margin-top: 2px; }
-
-/* 반응형 */
-@media (max-width: 640px) {
-    .heading { font-size: 1.6rem; }
-    .place { font-size: 1.35rem; }
-    .headline, .details { font-size: .98rem; }
+    left: 1rem;
+    top: -0.25rem;
+    bottom: -0.25rem;
+    width: 0.125rem;
+    background: #6FD5A5;
+    border-radius: 1.25rem;
 }

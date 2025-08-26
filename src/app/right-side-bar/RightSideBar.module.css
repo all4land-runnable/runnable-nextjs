@@ -9,3 +9,11 @@
             0 10px 25px rgba(0,0,0,.12),
             inset 0 0 0 1px rgba(0,0,0,.06);
 }
+
+.sidebarTop {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    gap: 1rem;
+}

@@ -2,70 +2,61 @@
 
 import styles from './PaceStrategy.module.css';
 
-export type PacePoint = {
-    /** 장소(큰 제목) */
-    place: string;
-    /** 한 줄 요약 또는 강조 문장 */
-    headline?: string;
-    /** 상세 설명(여러 줄 가능) */
-    details?: string[];
-    /** 선택: 페이스 표기(예: 6’10’’) */
-    paceHint?: string;
+/**
+ * 각 구간 별 전송받을 데이터
+ * @param startPlace 구간 시작점
+ * @param strategies
+ */
+export type SectionStrategy = {
+    startPlace: string;
+    strategies: string[];
 };
 
-type Props = {
-    /** 타이틀(상단) */
-    title?: string;
-    /** 표시할 지점들(많아도 됨) */
-    points: PacePoint[];
-    /** 최대 높이(뷰포트에 맞게 스크롤) */
-    maxHeight?: string; // e.g. "60vh"
+/**
+ * PaceStrategy를 생성하기 위한 인자
+ */
+type PaceStrategyProps = {
+    sectionStrategies: SectionStrategy[];
 };
 
-export default function PaceStrategy({
-                                         title = '페이스 전략',
-                                         points,
-                                         maxHeight = '70vh',
-                                     }: Props) {
+/**
+ * 구간 별 전략 리스트를 구현하는 함수
+ *
+ * @param sectionStrategies 구간 별 맞춤 전략
+ * @constructor
+ */
+export default function PaceStrategy({sectionStrategies}: PaceStrategyProps) {
     return (
-        <section className={styles.wrapper} style={{ maxHeight }}>
-            <header className={styles.header}>
-                <h2 className={styles.heading}>{title}</h2>
-                <hr className={styles.rule} />
-            </header>
+        <section className={styles.sectionStrategyCard}>
+            {/* 카드 이름 */}
+            <span className={styles.title}>페이스 전략</span>
+            {/* 이름 리스트 영역 구분선 */}
+            <hr className={styles.splitter} />
 
-            <ol className={styles.timeline}>
-                {points.map((p, idx) => (
-                    <li className={styles.item} key={`${p.place}_${idx}`}>
-                        <div className={styles.marker}>
-                            <span className={styles.dot} />
+            {/* 구간 전략 영역 */}
+            <div className={styles.sectionList}>
+                {/* 각 전략 선회 */}
+                {sectionStrategies.map((sectionStrategy, index) => (
+                    <div className={styles.sectionStrategy} key={`${1}_${index}`}> {/* TODO: key 이름 변경할 것 */}
+                        <div className={styles.marker}> {/* 세로 선 구현 */}
+                            <span className={styles.dot} /> {/* TODO: 점 그리기 오류 있음 */}
                             {/* 세로 라인은 CSS ::after 로 처리 */}
                         </div>
 
-                        <div className={styles.content}>
-                            <h3 className={styles.place}>{p.place}</h3>
-
-                            {(p.headline || p.paceHint) && (
-                                <p className={styles.headline}>
-                                    {p.headline}
-                                    {p.headline && p.paceHint ? ' ' : ''}
-                                    {p.paceHint ? (
-                                        <strong className={styles.pace}> {p.paceHint} 페이스</strong>
-                                    ) : null}
-                                </p>
-                            )}
-
-                            {p.details && p.details.length > 0 && (
-                                <ul className={styles.details}>
-                                    {p.details.map((d, i) => (
-                                        <li key={i}>{d}</li>
-                                    ))}
-                                </ul>
-                            )}
+                        <div className={styles.section}> {/* 각 전략 선회 */}
+                            <span className={styles.startPlace}> {/* 출발 지점 이름 */}
+                                {sectionStrategy.startPlace}
+                            </span>
+                            <div className={styles.strategies}> {/* 각 구간 별 전략들 선회 */}
+                                {sectionStrategy.strategies.map((strategy, index) => (
+                                    /* TODO: key 이름 변경할 것 */
+                                    <span className={[styles.strategy, styles.strategyFont].join()} key={`${2}_${index}`}>{strategy}</span>
+                                ))}
+                            </div>
                         </div>
-                    </li>
+                    </div>
                 ))}
-            </ol>
+            </div>
         </section>
     );
 }

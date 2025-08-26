@@ -1,24 +1,36 @@
 /* 헤더 고정 높이(예: 60px) —— 필요하면 숫자만 바꾸면 됨 */
 .header {
-    flex: 0 0 auto;
-    height: 60px;
-    background: #ffffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0.50rem 2rem;
+    background: white;
 }
 
-.font {
-    color: #000;
-    font-size: 15px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: -0.09px;
+.headerLeft {
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
 }
 
-.title-font {
-    color: #000;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
-    letter-spacing: -0.096px;
+.headerLeftFont {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.headerRight {
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+
+    gap: 6rem;
+}
+
+.headerRightFont {
+    font-size: 1.25rem;
+    font-weight: normal;
 }

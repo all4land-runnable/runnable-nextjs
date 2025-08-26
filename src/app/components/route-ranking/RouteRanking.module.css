@@ -1,39 +1,36 @@
-.wrapper {
-    width: 100%;
-    padding: 12px 8px 24px 8px;
+.routeRankingCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background: transparent;
+    gap: 0.625rem;
 }
 
-.header {
-    margin-bottom: 12px;
+.titleFont {
+    color: black;
+
+    font-size: 0.75rem;
+    font-weight: bold;
 }
 
-.center { text-align: center; }
-.left   { text-align: left;   }
-
-.title {
-    margin: 0 0 6px 0;
-    font-size: 1.35rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-}
-
-.rule {
+.splitter {
+    margin: 0;
     height: 0;
+
     border: none;
-    border-top: 5px solid rgba(107, 114, 128, 0.6); /* #6b7280 */
-    border-radius: 6px;
-    margin: 0 8px;
+    border-top: 0.1rem solid #9EA4AA;
+    border-radius: 20px;
 }
 
 .body {
-    min-height: 140px;          /* 필요시 조절 */
-    display: grid;
-    place-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-.placeholder {
-    margin: 0;
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+.bodyFont {
+    font-size: 1rem;
 }
