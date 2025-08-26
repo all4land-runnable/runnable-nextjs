@@ -10,7 +10,7 @@ export default function LeftSideBar() {
 
     const categories = ['전체 카테고리', '인기 코스', '횡단보도', '도보 경로'];
 
-    const routeCards = Array.from({ length: 5 }, () => ({
+    const routeCards = Array.from({ length: 10 }, () => ({
         title: "여의도 고구마 런",
         distance:3.2,
         startTime: new Date(),
@@ -21,7 +21,7 @@ export default function LeftSideBar() {
 
     return (
         <section className={styles.leftSideBar}>
-            <CategorySelect categories={categories} value={cat} onChange={setCat} />
+            <CategorySelect categories={categories} value={cat} onChangeAction={setCat} />
 
             <div className={styles.routeCardList}>
                 {routeCards.map((routeCard, index) => (
