@@ -3,29 +3,29 @@
 import styles from './PaceStrategy.module.css';
 
 /**
- * 각 구간 별 전송받을 데이터
+ * 구간 전략 속성
  * @param startPlace 구간 시작점
- * @param strategies
+ * @param strategies 구간 내 전략들
  */
-export type SectionStrategy = {
+export type SectionStrategyParam = {
     startPlace: string;
     strategies: string[];
 };
 
 /**
- * PaceStrategy를 생성하기 위한 인자
+ * 구간 전략의 집합은 페이스 전략을 의미한다.
  */
 type PaceStrategyProps = {
-    sectionStrategies: SectionStrategy[];
+    sectionStrategyParams: SectionStrategyParam[];
 };
 
 /**
- * 구간 별 전략 리스트를 구현하는 함수
+ * 페이스 전략 카드를 구현하는 함수
  *
- * @param sectionStrategies 구간 별 맞춤 전략
+ * @param sectionStrategies 구간 전략들 속성
  * @constructor
  */
-export default function PaceStrategy({sectionStrategies}: PaceStrategyProps) {
+export default function PaceStrategy({sectionStrategyParams}: PaceStrategyProps) {
     return (
         <section className={styles.sectionStrategyCard}>
             {/* 카드 이름 */}
@@ -36,7 +36,7 @@ export default function PaceStrategy({sectionStrategies}: PaceStrategyProps) {
             {/* 구간 전략 영역 */}
             <div className={styles.sectionList}>
                 {/* 각 전략 선회 */}
-                {sectionStrategies.map((sectionStrategy, index) => (
+                {sectionStrategyParams.map((sectionStrategy, index) => (
                     <div className={styles.sectionStrategy} key={`${1}_${index}`}> {/* TODO: key 이름 변경할 것 */}
                         <div className={styles.marker}> {/* 세로 선 구현 */}
                             <span className={styles.dot} /> {/* TODO: 점 그리기 오류 있음 */}

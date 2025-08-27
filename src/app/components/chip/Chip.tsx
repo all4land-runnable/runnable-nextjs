@@ -4,12 +4,15 @@ import React from 'react';
 import styles from './Chip.module.css';
 
 /**
- * 구간 별 전략 리스트를 구현하는 함수
+ * 칩 버튼 속성
  *
- * @param sectionStrategies 구간 별 맞춤 전략
+ * @param label 텍스트
+ * @param backgroundColor 배경색
+ * @param fontSize 폰트 크기
+ * @param onClick 선택 시 수행될 동작
  * @constructor
  */
-export type ChipData = {
+export type ChipParam = {
     label: string;
     backgroundColor: React.CSSProperties['backgroundColor'];
     fontSize: React.CSSProperties['fontSize'];
@@ -17,27 +20,34 @@ export type ChipData = {
 }
 
 type ChipProps = {
-    chipData: ChipData;
+    chipParam: ChipParam;
 };
 
-export default function Chip({chipData}: ChipProps) {
+/**
+ * 칩 버튼을 구현하는 함수
+ *
+ * @param chipParam 칩 버튼 속성
+ * @constructor
+ */
+export default function Chip({chipParam}: ChipProps) {
+    // 활성화 상태
     const [active, setActive] = React.useState(true);
 
+    // Chip 버튼 선택 함수
     const handleClick = () => {
-        setActive((prev) => !prev);
-
-        chipData.onClick();
+        setActive((active) => !active);
+        chipParam.onClick();
     };
 
     return (
         <button
             type="button"
             className={[styles.chip, styles.chipFont, active ? styles.chipActive : styles.chipInactive].join(' ')}
-            style={{fontSize: chipData.fontSize, backgroundColor: active ? chipData.backgroundColor : undefined,}}
+            style={{fontSize: chipParam.fontSize, backgroundColor: active ? chipParam.backgroundColor : undefined,}}
             aria-pressed={active}
             onClick={handleClick}
         > {/* 폰트 크기와 배경색은 인자 값으로 변경 가능하다. */}
-            {chipData.label}
+            {chipParam.label}
         </button>
     );
 }
