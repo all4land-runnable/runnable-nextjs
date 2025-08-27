@@ -4,6 +4,7 @@ import {remToPx} from "@/app/utils/pxToRem";
 import Chip, {ChipParam} from "@/app/components/atom/chip/Chip";
 import {hospitalOnClick} from "@/app/components/molecules/emphasize-chips/chip-onclick/hospitalOnClick";
 import popularCourseOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/popularCourseOnClick";
+import drinkingFountainOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/drinkingFountainOnClick";
 
 /**
  * 구역 강조 버튼을 구현하는 함수
@@ -16,7 +17,7 @@ export default function EmphasizeChips() {
     const sidewalk:ChipParam = {label:"도보 경로", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick:()=>{}};
     const storageBox:ChipParam = {label:"물품보관함", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick:()=>{}};
     const hospital:ChipParam = { label:"병원", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: async () => { void hospitalOnClick(); }};
-    const drinkingFountain:ChipParam = {label:"음수대", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick:()=>{}};
+    const drinkingFountain:ChipParam = {label:"음수대", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick:()=>{ void drinkingFountainOnClick(); }};
 
     return (
         <div className={styles.emphasizeChips}>

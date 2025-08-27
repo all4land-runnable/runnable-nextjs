@@ -1,15 +1,13 @@
-import {viewerStore} from "@/app/components/templates/cesium/viewerStore";
-import * as Cesium from 'cesium';
 import apiClient from "@/api/apiClient";
-import {HospitalResponse} from "@/api/hospital/hospitalResponse";
-
-const SAMPLE_RADIUS = 500
+import {DrinkingFountainResponse} from "@/api/drinking-fountain/drinkingFountainResponse";
+import {viewerStore} from "@/app/components/templates/cesium/viewerStore";
+import * as Cesium from "cesium";
 
 /**
- * 병원 버튼을 누를 때 수행되는 동작을 구현한 함수
+ * 음수대 버튼을 누를 때 수행되는 동작을 구현한 함수
  * TODO: 한번 더 누르면 기존에 누른 값은 지워지도록 만들 것
  */
-export async function hospitalOnClick(){
+export default async function drinkingFountainOnClick() {
     try {
         // NOTE 1. 전역 Viewer 대기
         const viewer = await viewerStore.wait()
@@ -37,43 +35,29 @@ export async function hospitalOnClick(){
             return
         }
 
-        // NOTE 3: 좌표계 변환 (Cartesian3 > 일반 좌표계)
-        // TODO: 좌표계 무엇인지 정확하게 파악할 것
-        const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-        const cameraLon = Cesium.Math.toDegrees(cartographic.longitude);
-        const cameraLat = Cesium.Math.toDegrees(cartographic.latitude);
-
-        // NOTE 4. 병원 반경 검색 API
-        const response = await apiClient.get('/getHospBasisList', {
-            baseURL: 'https://apis.data.go.kr/B551182/hospInfoServicev2',
-            params: {
-                ServiceKey: process.env.NEXT_PUBLIC_OPEN_DATA_POTAL_ACCESS_KEY,
-                xPos: cameraLon,
-                yPos: cameraLat,
-                radius: SAMPLE_RADIUS
-            },
+        // NOTE 4. 음수대 조회 API
+        // TODO: 로컬 파일 이용하므로, 반경 검색 API 직접 구현해 볼 것
+        const response = await apiClient.get('/dataset/drinkingFountain.json', {
+            baseURL: 'http://localhost:3000',
         })
 
         // api response 데이터 반환
-        const hospitalResponse:HospitalResponse = response.data;
-        const hospitals = hospitalResponse.response.body.items.item ?? []
+        const drinkingFountainResponse: DrinkingFountainResponse = response.data
+        const drinkingFountains = drinkingFountainResponse.DATA
 
-        // NOTE 3. 예외처리 (병원이 조회되지 않았을 경우)
-        if(hospitals.length <= 0){
-            alert("주변에 조회된 병원이 없습니다.");
+        // NOTE 3. 예외처리 (음수대가 조회되지 않았을 경우)
+        if(drinkingFountains.length <= 0){
+            alert("주변에 조회된 음수대가 없습니다.");
             return
         }
 
-        // NOTE 4. 엔티티 추가
-        // NOTE 4-1. 카메라 이동 이벤트 리스너도 있으나 API 사용 수를 줄이기 위해 사용하지 않음.
-        hospitals.map((hospital)=>{
+        drinkingFountains.map((drinkingFountain)=>{
             viewer.entities.add({
-                // 병원 위치 TODO: 좌표계 확인하기
-                position: Cesium.Cartesian3.fromDegrees(Number(hospital.XPos), Number(hospital.YPos)),
-
-                // 병원 아이콘 (크기 50×50 고정) px임
+                // 음수대 위치 TODO: 좌표계 확인하기
+                position: Cesium.Cartesian3.fromDegrees(Number(drinkingFountain.lng), Number(drinkingFountain.lat)),
+                // 음수대 아이콘 (크기 50×50 고정) px임
                 billboard: {
-                    image: '/resource/hospital.png',
+                    image: '/resource/drinking-fountain.png',
                     verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                     heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
                     width: 50,
@@ -82,10 +66,8 @@ export async function hospitalOnClick(){
                     // 필요시 아이콘도 항상 위에 보이게
                     disableDepthTestDistance: Number.POSITIVE_INFINITY,
                 },
-
-                // 병원 이름 라벨
                 label: {
-                    text: hospital.yadmNm ?? '병원',
+                    text: drinkingFountain.cot_conts_name ?? '음수대',
                     font: '14px sans-serif',
                     fillColor: Cesium.Color.BLACK,
                     style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -107,10 +89,9 @@ export async function hospitalOnClick(){
 
                     // (선택) 카메라 쪽으로 살짝 당겨 z-fighting 방지
                     eyeOffset: new Cesium.Cartesian3(0, 0, -10),
-                },
+                }
             })
-
         })
         // TODO: 조회 실패시 버튼 활성화 복구하기
-    } catch (e) { alert(`병원 정보를 불러오지 못했습니다.\n에러 원인: ${e}`) }
+    } catch (e) { alert(`음수대 정보를 불러오지 못했습니다.\n에러 원인: ${e}`) }
 }

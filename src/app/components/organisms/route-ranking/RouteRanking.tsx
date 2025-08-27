@@ -36,7 +36,7 @@ export default function RouteRanking({routeRankingParam}: RouteRankingProps) {
                 <span>업데이트 예정</span> {/* TODO: 업데이트 예정 */}
                 <span>(예시)</span>
                 {routeRankingParam.map((userRank, index) => (
-                    <span key={`${3}_${index}`}>{userRank.rank}등 {userRank.name} {userRank.pace}</span>
+                    <span key={`user-rank_${index}`}>{userRank.rank}등 {userRank.name} {userRank.pace}</span>
                 ))}
             </div>
         </section>
