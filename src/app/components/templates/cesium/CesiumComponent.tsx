@@ -5,6 +5,7 @@ import type {Viewer} from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import {CesiumType} from "@/app/types/cesium";
 import {getMapPrimeExtension} from "@/app/components/templates/cesium/getMapPrimeExtension";
+import { viewerStore } from './viewerStore'
 
 /**
  * 최소 구성의 Cesium + MapPrime
@@ -13,6 +14,9 @@ import {getMapPrimeExtension} from "@/app/components/templates/cesium/getMapPrim
  * - Strict Mode/HMR에서 파괴된 viewer에 extend하지 않도록 방어 로직 포함
  */
 export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> = ({ CesiumJs }) => {
+    const SAMPLE_X_POS = 126.83931004897886 // 경도(lon)
+    const SAMPLE_Y_POS = 37.566365388276076 // 위도(lat)
+
     const viewerRef = React.useRef<Viewer | null>(null)
     const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -30,6 +34,9 @@ export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> 
 
         // Viewer 생성(최소)
         viewerRef.current = new CesiumJs.Viewer(containerRef.current)
+
+        // 생성 직후 전역 스토어에 등록 (다른 컴포넌트에서 사용 가능)
+        viewerStore.set(viewerRef.current)
 
         // 개발 모드 Strict/HMR 대비 플래그
         let disposed = false
@@ -69,8 +76,8 @@ export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> 
                     ],
                     credit: '<i>MapPrime</i>',
                     initialCamera: {
-                        longitude: 127.035,
-                        latitude: 37.519,
+                        longitude: SAMPLE_X_POS,
+                        latitude: SAMPLE_Y_POS,
                         height: 400,
                         heading: 340,
                         pitch: -50,
@@ -90,6 +97,7 @@ export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> 
                 if (isAlive(v)) v.destroy()
             } finally {
                 viewerRef.current = null
+                viewerStore.set(null)
             }
         }
     }, [CesiumJs])
