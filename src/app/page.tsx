@@ -1,13 +1,13 @@
 'use client';
 
-import CesiumWrapper from '@/app/components/cesium/CesiumWrapper'
-import LeftSideBar from "@/app/left-side-bar/LeftSideBar";
-import RightSideBar from "@/app/right-side-bar/RightSideBar";
 import styles from './page.module.css'
 import React from "react";
-import EmphasizeChips from "@/app/components/emphasize-chips/EmphasizeChips";
-import TileChips from "@/app/components/tile-chips/TileChips";
-import RouteChips from "@/app/components/route-chips/RouteChips";
+import CesiumWrapper from "@/app/components/templates/cesium/CesiumWrapper";
+import LeftSideBar from "@/app/components/templates/left-side-bar/LeftSideBar";
+import EmphasizeChips from "@/app/components/molecules/emphasize-chips/EmphasizeChips";
+import TileChips from "@/app/components/molecules/tile-chips/TileChips";
+import RightSideBar from "@/app/components/templates/right-side-bar/RightSideBar";
+import RouteChips from "@/app/components/molecules/route-chips/RouteChips";
 
 /**
  * 홈 화면을 구현하는 함수

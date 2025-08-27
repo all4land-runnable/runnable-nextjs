@@ -1,8 +1,8 @@
 import styles from "./RouteChips.module.css";
-import Chip, {ChipParam} from "@/app/components/chip/Chip";
 import React from "react";
 import {remToPx} from "@/app/utils/pxToRem";
-import {LeftSideBarState} from "@/app/left-side-bar/LeftSideBar";
+import Chip, {ChipParam} from "@/app/components/atom/chip/Chip";
+import {LeftSideBarState} from "@/app/components/templates/left-side-bar/LeftSideBar";
 
 type RouteChipsProps = {
     leftSideBarState: LeftSideBarState;

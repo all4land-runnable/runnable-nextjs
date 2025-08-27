@@ -1,7 +1,7 @@
 import styles from './emphasizeChips.module.css'
-import Chip, {ChipParam} from "@/app/components/chip/Chip";
 import React from "react";
 import {remToPx} from "@/app/utils/pxToRem";
+import Chip, {ChipParam} from "@/app/components/atom/chip/Chip";
 
 /**
  * 구역 강조 버튼을 구현하는 함수

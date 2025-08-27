@@ -2,11 +2,11 @@
 
 import React from 'react';
 import styles from './RightSideBar.module.css'
-import PaceStrategy, { SectionStrategyParam } from '@/app/components/pace-strategy/PaceStrategy';
-import RouteRanking, {RouteRankingParam} from "@/app/components/route-ranking/RouteRanking";
-import RouteSimulation from "@/app/components/route-simulation/RouteSimulation";
-import Chip, {ChipParam} from "@/app/components/chip/Chip";
 import { remToPx } from "@/app/utils/pxToRem";
+import PaceStrategy, {SectionStrategyParam} from "@/app/components/organisms/pace-strategy/PaceStrategy";
+import RouteRanking, {RouteRankingParam} from "@/app/components/organisms/route-ranking/RouteRanking";
+import Chip, {ChipParam} from "@/app/components/atom/chip/Chip";
+import RouteSimulation from "@/app/components/atom/route-simulation/RouteSimulation";
 
 /**
  * 오른쪽 사이드바 확장 상태

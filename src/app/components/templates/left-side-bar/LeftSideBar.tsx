@@ -1,8 +1,8 @@
-import CategorySelect, {CategorySelectParam} from "@/app/components/category-select/CategorySelect";
 import React from 'react';
 import styles from './LeftSideBar.module.css';
-import RouteCard from "@/app/components/route-card/RouteCard";
-import {RightSideBarState} from "@/app/right-side-bar/RightSideBar";
+import {RightSideBarState} from "@/app/components/templates/right-side-bar/RightSideBar";
+import CategorySelect, {CategorySelectParam} from "@/app/components/atom/category-select/CategorySelect";
+import RouteCard from "@/app/components/organisms/route-card/RouteCard";
 
 /**
  * 왼쪽 사이드바 확장 상태

@@ -1,7 +1,7 @@
 import styles from "./TileChips.module.css";
-import Chip, {ChipParam} from "@/app/components/chip/Chip";
 import React from "react";
 import {remToPx} from "@/app/utils/pxToRem";
+import Chip, {ChipParam} from "@/app/components/atom/chip/Chip";
 
 /**
  * 타일 버튼을 구현하는 함수

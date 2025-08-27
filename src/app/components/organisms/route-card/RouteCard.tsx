@@ -1,7 +1,7 @@
 import styles from './RouteCard.module.css'
 import Image from "next/image";
 import {amPmFormat} from "@/app/utils/formattingTime";
-import {RightSideBarState} from "@/app/right-side-bar/RightSideBar";
+import {RightSideBarState} from "@/app/components/templates/right-side-bar/RightSideBar";
 
 /**
  * 경로 카드 속성

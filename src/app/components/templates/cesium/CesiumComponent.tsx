@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import type {CesiumType} from '../../types/cesium'
 import type {Viewer} from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
-import {getMapPrimeExtension} from "@/app/components/cesium/getMapPrimeExtension";
+import {CesiumType} from "@/app/types/cesium";
+import {getMapPrimeExtension} from "@/app/components/templates/cesium/getMapPrimeExtension";
 
 /**
  * 최소 구성의 Cesium + MapPrime
