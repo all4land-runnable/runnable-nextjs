@@ -6,8 +6,8 @@ import {hospitalOnClick} from "@/app/components/molecules/emphasize-chips/chip-o
 import popularCourseOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/popularCourseOnClick";
 import drinkingFountainOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/drinkingFountainOnClick";
 import crosswalkOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/crosswalkOnClick";
-import sidewalkOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/sidewalkOnClick";
 import storageBoxOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/storageBoxOnClick";
+import {sidewalkOnClick} from "@/app/components/molecules/emphasize-chips/chip-onclick/sidewalkOnClick";
 
 /**
  * 구역 강조 버튼을 구현하는 함수

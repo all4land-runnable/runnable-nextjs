@@ -33,7 +33,7 @@ TODO: Writting Link!!
 # Dependency & Library
 | Name                | Description                                                  | Version |
 |---------------------|--------------------------------------------------------------|---------|
-| axios               | Promise-based HTTP client for API requests                   | .11.0   |
+| axios               | Promise-based HTTP client for API requests                   | 1.11.0   |
 | cesium              | 3D globe and map visualization library                       | 1.132.0 |
 | copy-webpack-plugin | Webpack plugin to copy static files during the build process | 13.0.1  |
 | next                | React-based full-stack framework (SSR/SSG support)           | 15.5.0  |
