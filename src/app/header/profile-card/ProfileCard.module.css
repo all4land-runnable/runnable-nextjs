@@ -1,0 +1,79 @@
+.profileCard {
+    position: fixed;
+    top: 80px;      /* 헤더 아래 적당히 */
+    right: 24px;    /* 우측 상단에 붙임 */
+    width: 340px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+    padding: 16px 16px 12px;
+    z-index: 1000;
+    display: grid;
+    gap: 12px;
+}
+
+.popupHeader {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #eaeefc, #f6f7ff);
+    border: 1px solid #e6e8f0;
+}
+
+.popupTitleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.popupTitle {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.closeBtn {
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    color: #808391;
+}
+
+.popupActions {
+    display: grid;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.btn {
+    height: 40px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.primary {
+    background: #111827;
+    color: #fff;
+    border: none;
+}
+
+.ghost {
+    background: #fff;
+    color: #111827;
+    border: 1px solid #e6e8f0;
+}
+
+.caption {
+    font-size: 12px;
+    color: #9aa1ad;
+    text-align: right;
+}

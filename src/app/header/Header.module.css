@@ -8,6 +8,8 @@
 
     padding: 0.5rem 2rem;
     background: white;
+
+    pointer-events: auto;
 }
 
 .headerLeft {
@@ -34,4 +36,9 @@
 .headerRightFont {
     font-size: 1.25rem;
     font-weight: normal;
+}
+
+.profileImage {
+    border-radius: 20px;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
 }

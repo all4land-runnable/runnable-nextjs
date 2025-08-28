@@ -55,7 +55,7 @@ export default function RightSideBar({rightSideBarState}:RightSideBarProps) {
     return (
         // openRightSideBar가 true일 때만 나타난다.
         <section className={styles.rightSideBar} style={{ display: rightSideBarState.openRightSideBar ? "flex" : "none" }}>
-            <span className={styles.closeBtn} onClick={handleClick}>x</span> {/* 닫기 버튼 */}
+            <span className={styles.closeBtn} onClick={handleClick}>×</span> {/* 닫기 버튼 */}
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
                 <PaceStrategy sectionStrategyParams={sectionStrategies}/> {/* 페이스 전략 카드 */}
                 <RouteRanking routeRankingParam={routeRankingParam} /> {/* 경로 랭킹 */}
