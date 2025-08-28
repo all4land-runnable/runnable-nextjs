@@ -1,4 +1,4 @@
-import Cesium from "cesium";
+import * as Cesium from "cesium";
 
 const DASH_LEN_M = 3;  // 대시(흰 줄) 길이(미터) - 필요에 따라 조절
 const GAP_LEN_M  = 2;  // 대시 사이 간격(미터) - 필요에 따라 조절
