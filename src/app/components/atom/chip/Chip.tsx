@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styles from './Chip.module.css';
+import {UnactiveError} from "@/error/unactiveError";
 
 /**
  * 칩 버튼 속성
@@ -23,20 +24,24 @@ type ChipProps = {
     chipParam: ChipParam;
 };
 
-/**
- * 칩 버튼을 구현하는 함수
- *
- * @param chipParam 칩 버튼 속성
- * @constructor
- */
-export default function Chip({chipParam}: ChipProps) {
+export function Chip({chipParam}: ChipProps) {
     // 활성화 상태
     const [active, setActive] = React.useState(true);
 
     // Chip 버튼 선택 함수
-    const handleClick = () => {
+    const handleClick = async () => {
         setActive((active) => !active);
-        chipParam.onClick();
+
+        try {
+            await chipParam.onClick();
+        } catch (e) {
+            if (e instanceof UnactiveError && e.code === -101) {
+                setActive(true);
+                return;
+            }
+            console.error(e);
+            setActive(true);
+        }
     };
 
     return (

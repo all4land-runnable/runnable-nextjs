@@ -5,7 +5,7 @@ import styles from './RightSideBar.module.css'
 import { remToPx } from "@/app/utils/pxToRem";
 import PaceStrategy, {SectionStrategyParam} from "@/app/components/organisms/pace-strategy/PaceStrategy";
 import RouteRanking, {RouteRankingParam} from "@/app/components/organisms/route-ranking/RouteRanking";
-import Chip, {ChipParam} from "@/app/components/atom/chip/Chip";
+import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import RouteSimulation from "@/app/components/atom/route-simulation/RouteSimulation";
 
 /**
