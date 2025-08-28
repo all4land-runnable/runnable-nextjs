@@ -6,6 +6,16 @@
 - npm Download
 
 # How to Start
+## Set .env
+```dotenv
+NEXT_PUBLIC_CESIUM_TOKEN=# 세슘 기능 활용을 위한 토큰
+NEXT_PUBLIC_SAMPLE_TERRAIN=# 서비스에 활용할 서울 시 터레인
+NEXT_PUBLIC_SAMPLE_TILESET=# 서비스에 활용할 서울 시 3D 타일셋
+NEXT_PUBLIC_BARO_TILESET_URL=# 바도e맵 타일셋 URL
+NEXT_PUBLIC_ARCGIS_TILESET_URL=# 아크GIT 타일셋 URL
+NEXT_PUBLIC_OPEN_DATA_POTAL_ACCESS_KEY=# 공공 데이터 포털 접근 키
+```
+
 ## Getting Started
 ```bash
 npm run dev
