@@ -61,7 +61,7 @@ export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> 
                             url: process.env.NEXT_PUBLIC_ARCGIS_TILESET_URL,
                             format: 'jpeg',
                             maximumLevel: 18,
-                            current: false,
+                            current: true,
                         },
                         {
                             title: '일반',
@@ -71,7 +71,7 @@ export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> 
                             url: process.env.NEXT_PUBLIC_BARO_TILESET_URL,
                             format: 'png',
                             maximumLevel: 19,
-                            current: true,
+                            current: false,
                         },
                     ],
                     credit: '<i>MapPrime</i>',

@@ -94,11 +94,11 @@ export default async function crosswalkOnClick() {
         throw new UnactiveError(-101, "버튼 비활성화");
     }
 
-    // 6) NODE 인덱스(반경 내 것만)
+    // NODE 인덱스(반경 내 것만)
     const nodeIdx = new Map<number, NodeWithLatLng>();
     for (const n of nodesInRadius) nodeIdx.set(n.node_id as number, n);
 
-    // 7) 중복 방지
+    // 중복 방지
     const drawn = new Set<string>();
 
     // NOTE 6. 횡단보도 양끝단 그리기
@@ -124,15 +124,15 @@ export default async function crosswalkOnClick() {
     }
 
     // NOTE 7. 횡단보도 경로(LINK) 그리기
-    for (const l of linksInRadius) {
+    for (const link of linksInRadius) {
         // 링크 엔티티에 이용할 고유 아이디 생성
-        const id = `crosswalk-link-${l.lnkg_id as number}`;
+        const id = `crosswalk-link-${link.lnkg_id as number}`;
 
         // 이미 그려졌거나(viewer.entities에 존재) drawn Set에 등록된 경우는 스킵
         if (drawn.has(id) || viewer.entities.getById(id)) continue;
 
         // 링크 좌표 배열 가져오기 (없거나 2개 미만이면 스킵)
-        const coords = linkCoordCache.get(l.lnkg_id as number);
+        const coords = linkCoordCache.get(link.lnkg_id as number);
         if (!coords || coords.length < 2) continue;
 
         // 좌표 배열을 [lon,lat,lon,lat,...] 형태로 변환
@@ -141,26 +141,114 @@ export default async function crosswalkOnClick() {
             if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
             degArray.push(lon, lat);
         }
-
         // 좌표가 2점 미만이면(최소 4개 숫자 필요) 스킵
         if (degArray.length < 4) continue;
 
-        // Cesium에서 사용 가능한 Cartesian3 polyline 좌표로 변환
-        const polylinePositions = Cesium.Cartesian3.fromDegreesArray(degArray);
+        // (변경) 연속 polyline 대신, 대시 세그먼트 생성 후 각각 polyline 엔티티로 추가
+        const dashSegments = buildDashedSegmentsFromDegrees(degArray, DASH_LEN_M, GAP_LEN_M);
 
-        // Viewer에 엔티티 추가 (Polyline)
-        viewer.entities.add({
-            id,
-            polyline: {
-                positions: polylinePositions, // 경로 좌표
-                width: 4, // 선 두께
-                material: Cesium.Color.fromBytes(40, 200, 255).withAlpha(0.9), // 선 색상
-                clampToGround: true, // 지표면에 붙이기
-            }
+        dashSegments.forEach((seg, idx) => {
+            const dashId = `crosswalk-link-${link.lnkg_id as number}-dash-${idx}`;
+            if (viewer.entities.getById(dashId)) return;
+
+            viewer.entities.add({
+                id: dashId,
+                polyline: {
+                    positions: Cesium.Cartesian3.fromDegreesArray(seg), // 대시 구간 좌표
+                    width: 12,                                           // 선 두께
+                    // '횡단보도 느낌'을 위해 거의 불투명한 흰색 추천 (원하면 기존 색으로 변경 가능)
+                    material: Cesium.Color.WHITE.withAlpha(0.95),
+                    clampToGround: true,                                 // 지표면에 붙이기
+                },
+                // (선택) 속성 태그
+                properties: new Cesium.PropertyBag({
+                    type: "CROSSWALK_DASH",
+                    lnkg_id: link.lnkg_id,
+                }),
+            });
         });
 
-        // 중복 방지 Set에 등록
+        // 중복 방지 Set에 등록 (해당 링크는 그려졌다고 표시)
         drawn.add(id);
+
+        // 7-8) 두 NODE 사이 중앙점에 아이콘 표시 (기존 로직 유지)
+        const iconId = `crosswalk-link-icon-${link.lnkg_id as number}`;
+        if (!viewer.entities.getById(iconId)) {
+            const startLon = degArray[0];
+            const startLat = degArray[1];
+            const endLon   = degArray[degArray.length - 2];
+            const endLat   = degArray[degArray.length - 1];
+
+            const midLon = (startLon + endLon) / 2;
+            const midLat = (startLat + endLat) / 2;
+
+            viewer.entities.add({
+                id: iconId,
+                position: Cesium.Cartesian3.fromDegrees(midLon, midLat),
+                billboard: {
+                    image: '/resource/crosswalk.png',           // 아이콘 URL
+                    width: 50,                                   // 아이콘 가로(px)
+                    height: 50,                                  // 아이콘 세로(px)
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    pixelOffset: new Cesium.Cartesian2(0, -10),  // 살짝 위로 띄워 가독성 확보
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY, // 항상 위에 보이게
+                },
+                properties: new Cesium.PropertyBag({
+                    type: "CROSSWALK_ICON",
+                    lnkg_id: link.lnkg_id,
+                }),
+            });
+        }
     }
 
+}
+
+const DASH_LEN_M = 3;  // 대시 길이(미터) - 취향에 맞게 조절
+const GAP_LEN_M  = 2;  // 대시 사이 간격(미터)
+
+/**
+ * [lon,lat,lon,lat,...] 형태의 경도/위도 배열을 받아
+ * 지오데식(타원체 지표면) 거리를 기준으로 '대시-갭' 패턴의
+ * 세그먼트들을 [lon,lat,lon,lat] 배열의 리스트로 반환
+ */
+function buildDashedSegmentsFromDegrees(
+    degArray: number[],
+    dashLen: number = DASH_LEN_M,
+    gapLen: number = GAP_LEN_M
+): number[][] {
+    const segments: number[][] = [];
+
+    for (let i = 0; i < degArray.length - 2; i += 2) {
+        const startLon = degArray[i];
+        const startLat = degArray[i + 1];
+        const endLon   = degArray[i + 2];
+        const endLat   = degArray[i + 3];
+
+        const start = Cesium.Cartographic.fromDegrees(startLon, startLat);
+        const end   = Cesium.Cartographic.fromDegrees(endLon,   endLat);
+        const geod  = new Cesium.EllipsoidGeodesic(start, end);
+
+        const total = geod.surfaceDistance;
+        if (!Number.isFinite(total) || total <= 0) continue;
+
+        // dash-gap 패턴으로 분할
+        for (let s = 0; s < total; s += (dashLen + gapLen)) {
+            const e  = Math.min(s + dashLen, total);
+            const f1 = s / total;
+            const f2 = e / total;
+
+            const c1 = geod.interpolateUsingFraction(f1);
+            const c2 = geod.interpolateUsingFraction(f2);
+
+            segments.push([
+                Cesium.Math.toDegrees(c1.longitude),
+                Cesium.Math.toDegrees(c1.latitude),
+                Cesium.Math.toDegrees(c2.longitude),
+                Cesium.Math.toDegrees(c2.latitude),
+            ]);
+        }
+    }
+
+    return segments;
 }
