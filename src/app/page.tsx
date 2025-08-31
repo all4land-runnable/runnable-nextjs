@@ -8,6 +8,7 @@ import EmphasizeChips from "@/app/components/molecules/emphasize-chips/Emphasize
 import TileChips from "@/app/components/molecules/tile-chips/TileChips";
 import RightSideBar from "@/app/components/templates/right-side-bar/RightSideBar";
 import RouteChips from "@/app/components/molecules/route-chips/RouteChips";
+import DrawingController from "@/app/components/molecules/drawing-controller/DrawingController";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -19,6 +20,12 @@ export default function Page() {
 
     // 오른쪽 사이드바 확장 상태
     const [openRightSideBar, setOpenRightSideBar] = React.useState(false);
+
+    // 경로 관련 버튼 확장 상태
+    const [openRouteChips, setOpenRouteChips] = React.useState(true);
+
+    // 경로 그리기 버튼 확장 상태
+    const [openDrawingController, setOpenDrawingController] = React.useState(false);
 
     return (
         <article>
@@ -39,7 +46,8 @@ export default function Page() {
 
             <section className={styles.bottomSheet}>
                 {/* 경로 관련 버튼 모음 */}
-                <RouteChips leftSideBarState={{openLeftSideBar: openLeftSideBar, setOpenLeftSideBar: setOpenLeftSideBar}}/>
+                <RouteChips routeChipsState={{openRouteChips: openRouteChips, setOpenRouteChips:setOpenRouteChips}} drawingControllerState={{openDrawingController: openDrawingController, setOpenDrawingController: setOpenDrawingController}} leftSideBarState={{openLeftSideBar: openLeftSideBar, setOpenLeftSideBar: setOpenLeftSideBar}}/>
+                <DrawingController drawingControllerState={{openDrawingController: openDrawingController, setOpenDrawingController: setOpenDrawingController}} routeChipsState={{openRouteChips: openRouteChips, setOpenRouteChips:setOpenRouteChips}}/>
             </section>
         </article>
     )

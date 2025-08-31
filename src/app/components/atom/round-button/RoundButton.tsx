@@ -1,19 +1,10 @@
 'use client';
 
-import React from 'react';
-import styles from './Chip.module.css';
+import React from "react";
 import {UnactiveError} from "@/error/unactiveError";
+import styles from './RoundButton.module.css'
 
-/**
- * 칩 버튼 속성
- *
- * @param label 텍스트
- * @param backgroundColor 배경색
- * @param fontSize 폰트 크기
- * @param onClick 선택 시 수행될 동작
- * @constructor
- */
-export type ChipParam = {
+export type RoundButtonParam = {
     label: string;
     backgroundColor: React.CSSProperties['backgroundColor'];
     fontSize: React.CSSProperties['fontSize'];
@@ -21,21 +12,18 @@ export type ChipParam = {
     onClick: () => void;
 }
 
-type ChipProps = {
-    chipParam: ChipParam;
-};
+type RoundButtonProps = { roundButtonParam: RoundButtonParam };
 
-export function Chip({chipParam}: ChipProps) {
+export function RoundButton({ roundButtonParam }: RoundButtonProps) {
     // 활성화 상태
     const [active, setActive] = React.useState(true);
-    const toggle = chipParam.toggle ?? true;
+    const toggle = roundButtonParam.toggle ?? true;
 
-    // Chip 버튼 선택 함수
     const handleClick = async () => {
         if(toggle) setActive((active) => !active);
 
         try {
-            chipParam.onClick();
+            roundButtonParam.onClick();
         } catch (e) {
             if (e instanceof UnactiveError && e.code === -101) {
                 setActive(true);
@@ -49,12 +37,12 @@ export function Chip({chipParam}: ChipProps) {
     return (
         <button
             type="button"
-            className={[styles.chip, styles.chipFont, active ? styles.chipActive : styles.chipInactive].join(' ')}
-            style={{fontSize: chipParam.fontSize, backgroundColor: active ? chipParam.backgroundColor : undefined,}}
+            className={[styles.roundButton, styles.roundButtonFont, active ? styles.roundButtonActive : styles.roundButtonInactive].join(' ')}
+            style={{fontSize: roundButtonParam.fontSize}}
             aria-pressed={active}
             onClick={handleClick}
         > {/* 폰트 크기와 배경색은 인자 값으로 변경 가능하다. */}
-            {chipParam.label}
+            {roundButtonParam.label}
         </button>
     );
 }
