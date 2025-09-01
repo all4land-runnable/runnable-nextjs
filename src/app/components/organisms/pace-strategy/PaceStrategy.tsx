@@ -4,6 +4,7 @@ import styles from './PaceStrategy.module.css';
 
 /**
  * 구간 전략 속성
+ *
  * @param startPlace 구간 시작점
  * @param strategies 구간 내 전략들
  */

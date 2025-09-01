@@ -1,3 +1,6 @@
+/**
+ * 횡단보도 반환타입
+ */
 export interface Crosswalk {
     sgg_cd: string; // 시군구코드
     emd_cd: string; // 읍면동코드

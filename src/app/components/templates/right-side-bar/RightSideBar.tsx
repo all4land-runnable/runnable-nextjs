@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styles from './RightSideBar.module.css'
-import { remToPx } from "@/app/utils/pxToRem";
+import {remToPx} from "@/app/utils/claculator/pxToRem";
 import PaceStrategy, {SectionStrategyParam} from "@/app/components/organisms/pace-strategy/PaceStrategy";
 import RouteRanking, {RouteRankingParam} from "@/app/components/organisms/route-ranking/RouteRanking";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
@@ -48,14 +48,12 @@ export default function RightSideBar({rightSideBarState}:RightSideBarProps) {
     const paceAnalyze: ChipParam = {label:"페이스 분석", backgroundColor:"#FCDE8C", fontSize:remToPx(0.75), onClick:()=>{}};
 
     // 닫기 버튼 선택 함수
-    const handleClick = () => {
-        rightSideBarState.setOpenRightSideBar(!open);
-    };
+    const rightSideBarCloseHandler = () => rightSideBarState.setOpenRightSideBar(!open);
 
     return (
         // openRightSideBar가 true일 때만 나타난다.
         <section className={styles.rightSideBar} style={{ display: rightSideBarState.openRightSideBar ? "flex" : "none" }}>
-            <span className={styles.closeBtn} onClick={handleClick}>×</span> {/* 닫기 버튼 */}
+            <span className={styles.closeBtn} onClick={rightSideBarCloseHandler}>×</span> {/* 닫기 버튼 */}
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
                 <PaceStrategy sectionStrategyParams={sectionStrategies}/> {/* 페이스 전략 카드 */}
                 <RouteRanking routeRankingParam={routeRankingParam} /> {/* 경로 랭킹 */}

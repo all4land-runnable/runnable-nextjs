@@ -1,4 +1,6 @@
-// 병원 1개 item
+/**
+ * 병원 반환타입
+ */
 export type Hospital = {
     addr: string; // 주소
     clCd: number; // 구분 코드

@@ -5,6 +5,7 @@ import {RightSideBarState} from "@/app/components/templates/right-side-bar/Right
 
 /**
  * 경로 카드 속성
+ *
  * @param title 제목
  * @param distance 총 거리
  * @param startTime 운동 가능 시간

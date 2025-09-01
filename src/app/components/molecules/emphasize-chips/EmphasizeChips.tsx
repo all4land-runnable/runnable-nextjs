@@ -1,6 +1,6 @@
 import styles from './emphasizeChips.module.css'
 import React from "react";
-import {remToPx} from "@/app/utils/pxToRem";
+import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import {hospitalOnClick} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/hospitalOnClick";
 import popularCourseOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/popularCourseOnClick";

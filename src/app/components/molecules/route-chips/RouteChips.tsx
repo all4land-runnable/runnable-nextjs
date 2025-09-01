@@ -1,12 +1,18 @@
 import styles from "./RouteChips.module.css";
 import React from "react";
-import {remToPx} from "@/app/utils/pxToRem";
+import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import {LeftSideBarState} from "@/app/components/templates/left-side-bar/LeftSideBar";
 import {DrawingControllerState} from "@/app/components/molecules/drawing-controller/DrawingController";
 import createRouteOnClick from "@/app/components/molecules/route-chips/route-onclick/createRouteOnClick";
 import routeListOnClick from "@/app/components/molecules/route-chips/route-onclick/routeListOnClick";
 
+/**
+ * 경로 관련 버튼 확장 상태
+ *
+ * @param openRouteChips 경로 관련 버튼 확장 상태
+ * @param setOpenRouteChips 경로 관련 버튼 확장 상태 변경
+ */
 export type RouteChipsState = {
     openRouteChips: boolean,
     setOpenRouteChips: (open: boolean) => void

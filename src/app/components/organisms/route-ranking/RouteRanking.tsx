@@ -4,6 +4,7 @@ import styles from './RouteRanking.module.css';
 
 /**
  * 경로 랭킹 속성
+ *
  * @param name 사용자 이름
  * @param rank 순위
  * @param pace 평균 페이스

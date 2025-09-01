@@ -1,8 +1,8 @@
 import styles from "./TileChips.module.css";
 import React from "react";
-import {remToPx} from "@/app/utils/pxToRem";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import altitudeOnClick from "@/app/components/molecules/tile-chips/title-onclick/altitudeOnClick";
+import {remToPx} from "@/app/utils/claculator/pxToRem";
 
 /**
  * 타일 버튼을 구현하는 함수

@@ -25,6 +25,12 @@ type ChipProps = {
     chipParam: ChipParam;
 };
 
+/**
+ * 칩 버튼을 구현하는 함수
+ *
+ * @param chipParam 칩 버튼 속성
+ * @constructor
+ */
 export function Chip({chipParam}: ChipProps) {
     // 활성화 상태
     const [active, setActive] = React.useState(true);

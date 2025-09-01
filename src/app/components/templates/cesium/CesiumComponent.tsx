@@ -5,7 +5,6 @@ import type {Viewer} from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import {CesiumType} from "@/app/types/cesium";
 import {getMapPrimeExtension} from "@/app/components/templates/cesium/getMapPrimeExtension";
-import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {viewerStore} from "@/app/components/templates/cesium/viewer/viewerStore";
 
 /**
@@ -63,17 +62,7 @@ export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> 
                             format: 'jpeg',
                             maximumLevel: 18,
                             current: true,
-                        },
-                        {
-                            title: '일반',
-                            credit: '바로e맵',
-                            type: 'WTMS',
-                            epsg: 'EPSG:5179',
-                            url: process.env.NEXT_PUBLIC_BARO_TILESET_URL,
-                            format: 'png',
-                            maximumLevel: 19,
-                            current: false,
-                        },
+                        }
                     ],
                     credit: '<i>MapPrime</i>',
                     initialCamera: {
