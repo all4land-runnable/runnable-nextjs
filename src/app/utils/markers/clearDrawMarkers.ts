@@ -1,6 +1,6 @@
 import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
-import {removeDrawPolyline} from "@/app/components/molecules/route-chips/route-onclick/drawingStart";
 import * as Cesium from "cesium";
+import {removeDrawPolyline} from "@/app/components/molecules/drawing-controller/drawing/drawingRoute";
 
 /** draw_marker_${i} 형태의 모든 마커 엔티티 제거 */
 export async function clearDrawMarkers(): Promise<number> {

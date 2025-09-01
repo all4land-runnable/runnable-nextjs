@@ -3,7 +3,7 @@ import {DrawingControllerState} from "@/app/components/molecules/drawing-control
 import {getDrawer} from "@/app/components/templates/cesium/drawer/getDrawer";
 import {clearDrawMarkers} from "@/app/utils/markers/clearDrawMarkers";
 
-export default async function closeDrawingControllerOnclick(drawingControllerState: DrawingControllerState, routeChipsState: RouteChipsState){
+export default async function closeDrawingControllerOnClick(drawingControllerState: DrawingControllerState, routeChipsState: RouteChipsState){
     const drawer = await getDrawer();
     await clearDrawMarkers()
     drawer.reset()
