@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import {getViewer} from "@/app/components/templates/cesium/getViewer";
+import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 
 export let sidewalkDS: Cesium.GeoJsonDataSource | null = null;
 
@@ -23,6 +23,6 @@ export async function initSidewalkLayer() {
     // 처음엔 보이지 않게
     sidewalkDS.show = false;
 
-    // (선택) requestRender 모드에서 즉시 반영
+    // requestRender 모드에서 즉시 반영
     viewer.scene.requestRender?.();
 }

@@ -5,6 +5,7 @@ import {RoundButton} from "@/app/components/atom/round-button/RoundButton";
 import React from "react";
 import {remToPx} from "@/app/utils/pxToRem";
 import {RouteChipsState} from "@/app/components/molecules/route-chips/RouteChips";
+import closeDrawingControllerOnclick from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/closeDrawingControllerOnclick";
 
 export type DrawingControllerState = {
     openDrawingController: boolean,
@@ -17,10 +18,7 @@ type DrawingControllerProps = {
 };
 
 export default function DrawingController({drawingControllerState, routeChipsState}:DrawingControllerProps) {
-    const closeDrawingControllerHandler = ()=> {
-        drawingControllerState.setOpenDrawingController(false);
-        routeChipsState.setOpenRouteChips(true);
-    }
+    const closeDrawingControllerHandler = () => closeDrawingControllerOnclick(drawingControllerState, routeChipsState);
 
     return (
         <div className={styles.drawingController} style={{ display: drawingControllerState.openDrawingController ? "flex" : "none" }}>

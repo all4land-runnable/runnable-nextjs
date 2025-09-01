@@ -2,12 +2,12 @@ import styles from './emphasizeChips.module.css'
 import React from "react";
 import {remToPx} from "@/app/utils/pxToRem";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
-import {hospitalOnClick} from "@/app/components/molecules/emphasize-chips/chip-onclick/hospitalOnClick";
-import popularCourseOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/popularCourseOnClick";
-import drinkingFountainOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/drinkingFountainOnClick";
-import crosswalkOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/crosswalkOnClick";
-import storageBoxOnClick from "@/app/components/molecules/emphasize-chips/chip-onclick/storageBoxOnClick";
-import {sidewalkOnClick} from "@/app/components/molecules/emphasize-chips/chip-onclick/sidewalkOnClick";
+import {hospitalOnClick} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/hospitalOnClick";
+import popularCourseOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/popularCourseOnClick";
+import drinkingFountainOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
+import crosswalkOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/crosswalkOnClick";
+import storageBoxOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/storageBoxOnClick";
+import {sidewalkOnClick} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/sidewalkOnClick";
 
 /**
  * 구역 강조 버튼을 구현하는 함수

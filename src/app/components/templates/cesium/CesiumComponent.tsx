@@ -5,8 +5,8 @@ import type {Viewer} from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import {CesiumType} from "@/app/types/cesium";
 import {getMapPrimeExtension} from "@/app/components/templates/cesium/getMapPrimeExtension";
-import { viewerStore } from './viewerStore'
-import {initSidewalkLayer} from "@/app/components/templates/cesium/initSidewalkLayer";
+import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
+import {viewerStore} from "@/app/components/templates/cesium/viewer/viewerStore";
 
 /**
  * 최소 구성의 Cesium + MapPrime
@@ -86,7 +86,7 @@ export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> 
                     },
                 })
 
-                await initSidewalkLayer();
+                // await initSidewalkLayer(); // TODO: 무거워서 잠깐 막아둠 최적화 필요
             } catch (err) {
                 console.error('[MapPrime] 적용 실패:', err)
             }
@@ -114,4 +114,4 @@ export const CesiumComponent: React.FunctionComponent<{ CesiumJs: CesiumType }> 
     )
 }
 
-export default CesiumComponent
+export default CesiumComponent;

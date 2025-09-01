@@ -1,4 +1,4 @@
-import { getViewer } from "@/app/components/templates/cesium/getViewer";
+import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {initSidewalkLayer, sidewalkDS} from "@/app/components/templates/cesium/initSidewalkLayer";
 
 export async function sidewalkOnClick() {
@@ -7,6 +7,9 @@ export async function sidewalkOnClick() {
 
 /** 2) 버튼 클릭 시 호출: show만 토글 */
 export async function toggleSidewalkVisible(force?: boolean) {
+    // TODO: 용량이 너무 커서 잠시 막아둠
+    alert("최적화 문제로 잠시 막아둠")
+
     const viewer = await getViewer();
 
     // 안전장치: 아직 안 불러졌으면 자동 초기화
@@ -19,7 +22,3 @@ export async function toggleSidewalkVisible(force?: boolean) {
     // (선택) 즉시 리렌더
     viewer.scene.requestRender?.();
 }
-
-/** 편의 함수 */
-export async function showSidewalk()  { await toggleSidewalkVisible(true);  }
-export async function hideSidewalk()  { await toggleSidewalkVisible(false); }

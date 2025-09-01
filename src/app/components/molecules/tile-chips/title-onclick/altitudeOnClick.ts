@@ -1,4 +1,4 @@
-import {viewerStore} from "@/app/components/templates/cesium/viewerStore";
+import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import * as Cesium from "cesium";
 
 /**
@@ -12,7 +12,7 @@ const MATERIAL_TAG = "ElevationColorContour";
 export default async function altitudeOnClick() {
     try {
         // NOTE 1. 전역 Viewer 준비 대기
-        const viewer = await viewerStore.wait();
+        const viewer = await getViewer();
         const globe = viewer.scene.globe;
 
         // NOTE 2. 토글 기능

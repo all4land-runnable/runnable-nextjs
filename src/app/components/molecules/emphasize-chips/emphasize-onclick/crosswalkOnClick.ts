@@ -1,12 +1,12 @@
 import apiClient from "@/api/apiClient";
 import { UnactiveError } from "@/error/unactiveError";
 import { CrosswalkResponse, Crosswalk } from "@/api/response/crosswalkResponse";
-import { getCameraPosition, getViewer } from "@/app/components/templates/cesium/getViewer";
 import * as Cesium from "cesium";
 import { parseFromWK } from "wkt-parser-helper";
 import type { Geometry, LineString } from "geojson";
 import radiusFilter from "@/app/utils/radiusFilter";
 import buildDashedSegmentsFromDegrees from "@/app/utils/buildDashedSegmentsFromDegrees";
+import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 
 /**
  * 카메라 기준 반경 내의 횡단보도(NODE/LINK)만 렌더링

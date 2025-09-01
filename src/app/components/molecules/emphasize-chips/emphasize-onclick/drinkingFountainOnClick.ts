@@ -3,7 +3,7 @@ import * as Cesium from "cesium";
 import radiusFilter from "@/app/utils/radiusFilter";
 import {UnactiveError} from "@/error/unactiveError";
 import {DrinkingFountainResponse} from "@/api/response/drinkingFountainResponse";
-import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/getViewer";
+import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 
 const drinkingFountainEntityId = (name: string, lat:number, lon:number) => `drinking-${name}-${lat}-${lon}`;
 

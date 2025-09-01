@@ -2,7 +2,7 @@ import * as Cesium from 'cesium';
 import apiClient from "@/api/apiClient";
 import { UnactiveError } from "@/error/unactiveError";
 import { HospitalResponse } from "@/api/response/hospitalResponse";
-import { getCameraPosition, getViewer } from "@/app/components/templates/cesium/getViewer";
+import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 
 const SAMPLE_RADIUS = 500;
 
