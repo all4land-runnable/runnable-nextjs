@@ -1,6 +1,8 @@
 import * as Cesium from "cesium";
 import type { Cartesian3 } from "cesium";
 
+export const drawMarkerEntities:Cesium.Entity[] = [];
+
 /**
  * 마지막 엔티티에 라벨을 지정하는 함수
  *
@@ -45,22 +47,11 @@ export default function upsertDrawMarkers(
     distance: number
 ) {
     // NOTE 1. 마커 위치 업서트
-    const keepIds = new Set<string>();
-
     points.forEach((position, index) => {
-        // 마커 아이디 할당
-        const id = `draw_marker_${index}`;
-
-        // 컨테이너에 할당
-        keepIds.add(id);
-
-        const entity = viewer.entities.getById(id);
-
-        if (entity) // 만약 이미 엔티티가 존재하면
-            entity.position = new Cesium.ConstantPositionProperty(position); // 위치 재갱신
-        else
-            viewer.entities.add({ //없으면 새로 생성
-                id,
+        if (drawMarkerEntities.length > index) // 만약 이미 엔티티가 존재하면
+            drawMarkerEntities[index].position = new Cesium.ConstantPositionProperty(position); // 위치 재갱신
+        else {
+            const drawMarkerEntity = viewer.entities.add({ //없으면 새로 생성
                 position: new Cesium.ConstantPositionProperty(position),
                 point: {
                     pixelSize: 10,
@@ -72,6 +63,9 @@ export default function upsertDrawMarkers(
                 },
             });
 
+            drawMarkerEntities.push(drawMarkerEntity);
+        }
+
     })
 
     // NOTE 2. 거리 라벨 실시간 갱신
@@ -79,7 +73,7 @@ export default function upsertDrawMarkers(
 
     points.forEach((_, index) => {
         // 마커 조회
-        const entity = viewer.entities.getById(`draw_marker_${index}`);
+        const entity = drawMarkerEntities[index];
 
         if (!entity) return; // 예외처리: 없다면 종료
 
@@ -94,12 +88,10 @@ export default function upsertDrawMarkers(
             entity.label = undefined; // 이전 마커들의 라벨은 제거
     })
 
-    // NOTE 3. 초과된 마커는 정리한다.
-    viewer.entities.values.forEach(entity => {
-        // 만약 draw_marker_로 시작하고 id값이 keepIds에 존재하지 않다면,
-        if (entity.id.startsWith("draw_marker_") && !keepIds.has(entity.id)) {
-            // 엔티티를 제거한다.
-            viewer.entities.remove(entity)
-        }
-    })
+    // NOTE 3. 초과된 마커만 정리한다.
+    while (drawMarkerEntities.length > points.length) {
+        const ent = drawMarkerEntities.pop()!; // 마지막 요소만 제거
+        viewer.entities.remove(ent);
+    }
+    viewer.scene.requestRender?.();
 }

@@ -10,5 +10,7 @@ export default async function clearMarkers(entities: Cesium.Entity[]) {
     const viewer = await getViewer();
 
     entities.forEach(entity => {viewer.entities.remove(entity);})
+    entities.length = 0 // 베열 초기화
+
     viewer.scene.requestRender?.(); // 실시간으로 렌더링 한다.
 }
