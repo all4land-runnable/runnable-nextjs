@@ -5,13 +5,15 @@ import {UnactiveError} from "@/error/unactiveError";
 import {DrinkingFountainResponse} from "@/api/response/drinkingFountainResponse";
 import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 
+export const drinkingFountainEntities: Cesium.Entity[] = []
+
 const drinkingFountainEntityId = (name: string, lat:number, lon:number) => `drinking_${name}-${lat}-${lon}`;
 
 /**
  * 음수대 버튼을 누를 때 수행되는 동작을 구현한 함수
  * TODO: 한번 더 누르면 기존에 누른 값은 지워지도록 만들 것
  */
-export default async function drinkingFountainOnClick() {
+export async function drinkingFountainOnClick() {
     // NOTE 1. 전역 Viewer 대기
     const viewer = await getViewer()
     const point = await getCameraPosition(viewer);
@@ -45,7 +47,7 @@ export default async function drinkingFountainOnClick() {
         // 이미 추가된 엔티티가 있으면 스킵
         if (drawn.has(id) || viewer.entities.getById(id)) return;
 
-        viewer.entities.add({
+        const drinkingFountainEntity = viewer.entities.add({
             id, // 고유 엔티티 ID 지정
             position: Cesium.Cartesian3.fromDegrees(Number(drinkingFountain.lng), Number(drinkingFountain.lat)), // 음수대 위치
             billboard: { // 음수대 아이콘 (크기 50×50 고정) px임
@@ -82,6 +84,8 @@ export default async function drinkingFountainOnClick() {
                 eyeOffset: new Cesium.Cartesian3(0, 0, -10),
             },
         });
+
+        drinkingFountainEntities.push(drinkingFountainEntity);
 
         // 중복 방지 세트에 등록
         drawn.add(id);

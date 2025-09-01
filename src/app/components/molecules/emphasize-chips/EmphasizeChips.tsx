@@ -2,10 +2,10 @@ import styles from './emphasizeChips.module.css'
 import React from "react";
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
-import {hospitalOnClick} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/hospitalOnClick";
 import popularCourseOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/popularCourseOnClick";
-import drinkingFountainOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
-import crosswalkOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/crosswalkOnClick";
+import {hospitalOnClick, hospitalEntities} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/hospitalOnClick";
+import {drinkingFountainOnClick, drinkingFountainEntities} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
+import {crosswalkOnClick, crosswalkEntities} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/crosswalkOnClick";
 import storageBoxOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/storageBoxOnClick";
 import {sidewalkOnClick} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/sidewalkOnClick";
 import clearMarkers from "@/app/utils/markers/clearMarkers";
@@ -17,11 +17,11 @@ import clearMarkers from "@/app/utils/markers/clearMarkers";
 export default function EmphasizeChips() {
     // chip 버튼 속성 선언
     const popularCourse:ChipParam = { label:"인기 코스", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: popularCourseOnClick};
-    const crosswalk:ChipParam = {label:"횡단보도", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: crosswalkOnClick, inActiveOnClick: async ()=>{ await clearMarkers('crosswalk-link_') }};
+    const crosswalk:ChipParam = {label:"횡단보도", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: crosswalkOnClick, inActiveOnClick: async ()=>{ await clearMarkers(crosswalkEntities) }};
     const sidewalk:ChipParam = {label:"도보 경로", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: sidewalkOnClick};
     const storageBox:ChipParam = {label:"물품보관함", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: storageBoxOnClick};
-    const hospital:ChipParam = { label:"병원", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: hospitalOnClick, inActiveOnClick: async ()=>{ await clearMarkers('hospital_') }};
-    const drinkingFountain:ChipParam = {label:"음수대", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: drinkingFountainOnClick, inActiveOnClick: async ()=>{ await clearMarkers('drinking_') } };
+    const hospital:ChipParam = { label:"병원", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: hospitalOnClick, inActiveOnClick: async ()=>{ await clearMarkers(hospitalEntities) }};
+    const drinkingFountain:ChipParam = {label:"음수대", backgroundColor:"#A1F0CB", fontSize:remToPx(1.125), onClick: drinkingFountainOnClick, inActiveOnClick: async ()=>{ await clearMarkers(drinkingFountainEntities) } };
 
     return (
         <div className={styles.emphasizeChips}>

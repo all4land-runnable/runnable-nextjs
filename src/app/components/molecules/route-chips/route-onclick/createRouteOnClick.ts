@@ -1,7 +1,7 @@
 import {RouteChipsState} from "@/app/components/molecules/route-chips/RouteChips";
 import {DrawingControllerState} from "@/app/components/molecules/drawing-controller/DrawingController";
 import drawingRoute, {removeDrawPolyline} from "@/app/components/molecules/drawing-controller/drawing/drawingRoute";
-import clearMarkers from "@/app/utils/markers/clearMarkers";
+import {clearDrawMarkers} from "@/app/components/molecules/drawing-controller/drawing/clearDrawMarkers";
 
 /**
  * 경로 생성 버튼을 클릭했을 때 수행되는 동작을 구현한 함수
@@ -17,7 +17,7 @@ export default function createRouteOnClick(routeChipsState:RouteChipsState, draw
     drawingControllerState.setOpenDrawingController(true);
 
     // 모든 그리기 마커를 제거한다.
-    clearMarkers('draw_marker_').then(()=>{ // 그 후
+    clearDrawMarkers().then(()=>{ // 그 후
         removeDrawPolyline().then(() => {// Polyline도 제거한다.
             // 새 경로 그리기를 시작한다.
             drawingRoute(()=>{}).then();

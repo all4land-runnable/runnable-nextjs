@@ -6,6 +6,8 @@ import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/vi
 
 const SAMPLE_RADIUS = 500;
 
+export const hospitalEntities:Cesium.Entity[] = []
+
 const hospitalEntityId = (name: string, lat: number, lon: number) => `hospital_${name}-${lat}-${lon}`;
 
 /**
@@ -49,7 +51,7 @@ export async function hospitalOnClick() {
         if (drawn.has(id) || viewer.entities.getById(id)) return;
 
         // 엔티티 추가
-        viewer.entities.add({
+        const hospitalEntity = viewer.entities.add({
             id, // 고유 엔티티 ID
             // 병원 위치
             position: Cesium.Cartesian3.fromDegrees(Number(hospital.XPos), Number(hospital.YPos)),
@@ -83,6 +85,8 @@ export async function hospitalOnClick() {
                 eyeOffset: new Cesium.Cartesian3(0, 0, -10),
             }
         });
+
+        hospitalEntities.push(hospitalEntity);
 
         // 중복 방지 Set에 등록
         drawn.add(id);

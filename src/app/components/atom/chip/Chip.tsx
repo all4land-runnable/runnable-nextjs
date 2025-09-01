@@ -39,14 +39,13 @@ export function Chip({chipParam}: ChipProps) {
 
     // Chip 버튼 선택 함수
     const handleClick = async () => {
-        if(toggle)
-            setActive((active) => !active);
-
         try {
             if(chipParam.inActiveOnClick != null && !active)
                 await chipParam.inActiveOnClick()
             else
                 await chipParam.onClick();
+
+            if(toggle) setActive(!active);
         } catch (e) {
             if (e instanceof UnactiveError && e.code === -101) {
                 setActive(true);

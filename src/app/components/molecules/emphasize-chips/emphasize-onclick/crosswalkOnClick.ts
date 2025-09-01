@@ -8,10 +8,12 @@ import radiusFilter from "@/app/utils/radiusFilter";
 import buildDashedSegmentsFromDegrees from "@/app/utils/buildDashedSegmentsFromDegrees";
 import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 
+export const crosswalkEntities: Cesium.Entity[] = []
+
 /**
  * 카메라 기준 반경 내의 횡단보도(NODE/LINK)만 렌더링
  */
-export default async function crosswalkOnClick() {
+export async function crosswalkOnClick() {
     // NOTE 1. 전역 Viewer 대기
     const viewer = await getViewer();
     const point = await getCameraPosition(viewer);
@@ -88,7 +90,7 @@ export default async function crosswalkOnClick() {
             const dashId = `crosswalk-link_${link.lnkg_id as number}-dash-${idx}`;
             if (viewer.entities.getById(dashId)) return;
 
-            viewer.entities.add({
+            const crosswalkEntity = viewer.entities.add({
                 id: dashId,
                 polyline: {
                     positions: Cesium.Cartesian3.fromDegreesArray(seg), // 대시 구간 좌표
@@ -103,6 +105,9 @@ export default async function crosswalkOnClick() {
                     lnkg_id: link.lnkg_id,
                 }),
             });
+
+            // 횡단보도 엔티티 저장
+            crosswalkEntities.push(crosswalkEntity);
         });
 
         // 두 NODE 사이 중앙점에 아이콘 표시
@@ -116,7 +121,7 @@ export default async function crosswalkOnClick() {
             const midLon = (startLon + endLon) / 2;
             const midLat = (startLat + endLat) / 2;
 
-            viewer.entities.add({
+            const crosswalkIconEntity = viewer.entities.add({
                 id: iconId,
                 position: Cesium.Cartesian3.fromDegrees(midLon, midLat),
                 billboard: {
@@ -129,6 +134,9 @@ export default async function crosswalkOnClick() {
                     disableDepthTestDistance: Number.POSITIVE_INFINITY, // 항상 위에 보이게
                 }
             });
+
+            // 횡단보도 엔티티 저장
+            crosswalkEntities.push(crosswalkIconEntity);
         }
     }
 }
