@@ -18,7 +18,8 @@ export type ChipParam = {
     backgroundColor: React.CSSProperties['backgroundColor'];
     fontSize: React.CSSProperties['fontSize'];
     toggle?: boolean;
-    onClick: () => void;
+    onClick: () => void | Promise<void>;
+    inActiveOnClick?: ()=>void | Promise<void>;
 }
 
 type ChipProps = {
@@ -38,10 +39,14 @@ export function Chip({chipParam}: ChipProps) {
 
     // Chip 버튼 선택 함수
     const handleClick = async () => {
-        if(toggle) setActive((active) => !active);
+        if(toggle)
+            setActive((active) => !active);
 
         try {
-            chipParam.onClick();
+            if(chipParam.inActiveOnClick != null && !active)
+                await chipParam.inActiveOnClick()
+            else
+                await chipParam.onClick();
         } catch (e) {
             if (e instanceof UnactiveError && e.code === -101) {
                 setActive(true);

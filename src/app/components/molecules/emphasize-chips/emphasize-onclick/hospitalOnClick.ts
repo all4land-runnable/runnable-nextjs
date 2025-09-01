@@ -6,7 +6,7 @@ import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/vi
 
 const SAMPLE_RADIUS = 500;
 
-const hospitalEntityId = (name: string, lat: number, lon: number) => `hospital-${name}-${lat}-${lon}`;
+const hospitalEntityId = (name: string, lat: number, lon: number) => `hospital_${name}-${lat}-${lon}`;
 
 /**
  * 병원 버튼을 누를 때 수행되는 동작을 구현한 함수

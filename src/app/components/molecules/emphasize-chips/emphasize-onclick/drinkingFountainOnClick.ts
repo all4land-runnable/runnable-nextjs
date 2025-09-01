@@ -5,7 +5,7 @@ import {UnactiveError} from "@/error/unactiveError";
 import {DrinkingFountainResponse} from "@/api/response/drinkingFountainResponse";
 import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 
-const drinkingFountainEntityId = (name: string, lat:number, lon:number) => `drinking-${name}-${lat}-${lon}`;
+const drinkingFountainEntityId = (name: string, lat:number, lon:number) => `drinking_${name}-${lat}-${lon}`;
 
 /**
  * 음수대 버튼을 누를 때 수행되는 동작을 구현한 함수

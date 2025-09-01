@@ -85,7 +85,7 @@ export default async function crosswalkOnClick() {
         const dashSegments = buildDashedSegmentsFromDegrees(degArray);
 
         dashSegments.forEach((seg, idx) => {
-            const dashId = `crosswalk-link-${link.lnkg_id as number}-dash-${idx}`;
+            const dashId = `crosswalk-link_${link.lnkg_id as number}-dash-${idx}`;
             if (viewer.entities.getById(dashId)) return;
 
             viewer.entities.add({
@@ -106,7 +106,7 @@ export default async function crosswalkOnClick() {
         });
 
         // 두 NODE 사이 중앙점에 아이콘 표시
-        const iconId = `crosswalk-link-icon-${link.lnkg_id as number}`;
+        const iconId = `crosswalk-link_icon-${link.lnkg_id as number}`;
         if (!viewer.entities.getById(iconId)) {
             const startLon = degArray[0];
             const startLat = degArray[1];

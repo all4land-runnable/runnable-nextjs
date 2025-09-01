@@ -1,4 +1,4 @@
-import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
+import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {initSidewalkLayer, sidewalkDS} from "@/app/components/templates/cesium/initSidewalkLayer";
 
 export async function sidewalkOnClick() {

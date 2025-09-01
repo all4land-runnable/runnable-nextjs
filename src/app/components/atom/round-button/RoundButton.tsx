@@ -17,7 +17,7 @@ export type RoundButtonParam = {
     backgroundColor: React.CSSProperties['backgroundColor'];
     fontSize: React.CSSProperties['fontSize'];
     toggle?: boolean;
-    onClick: () => void;
+    onClick: () => void | Promise<void>;
 }
 
 type RoundButtonProps = { roundButtonParam: RoundButtonParam };
@@ -40,7 +40,7 @@ export function RoundButton({ roundButtonParam }: RoundButtonProps) {
         if(toggle) setActive((active) => !active);
 
         try {
-            roundButtonParam.onClick();
+            await roundButtonParam.onClick();
         } catch (e) { // 에러 발생 시,
             // 버튼 상태를 다시 되돌린다.
             if (e instanceof UnactiveError && e.code === -101) {
