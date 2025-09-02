@@ -1,62 +1,93 @@
 'use client';
 
 import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
-import Modal1 from '@/app/components/common/modal/modal1/Modal1';
-import Modal2 from '@/app/components/common/modal/modal2/Modal2';
+import ConfirmModal from '@/app/components/common/modal/confirm-modal/ConfirmModal';
+import AlertModal from "@/app/components/common/modal/alert-modal/AlertModal";
 
-type OpenConfirmArgs = {
+/**
+ * 확인 모달에 필요한 인자
+ *
+ * @param title
+ * @param content
+ * @param onConfirm
+ * @param onCancel
+ */
+type OpenConfirmProp = {
     title: string;
     content: string;
-    onConfirm?: () => void;
+    onConfirm: () => void;
     onCancel?: () => void;
 };
 
-type OpenAlertArgs = {
+/**
+ * 알림 모달에 필요한 인자
+ *
+ * @param title
+ * @param content
+ * @param onConfirm
+ */
+type OpenAlertProp = {
     title: string;
     content: string;
-    onConfirm?: () => void;       // 확인 후 닫힘
-    // onCancel 없음(배경 클릭 닫기 원하면 openAlert 호출 시 onBackgroundClose 옵션을 Modal1에 추가 구현해도 됨)
+    onConfirm: () => void;
 };
 
-type ModalCtx = {
-    open: (args: OpenConfirmArgs) => void;      // 기존 API: Confirm(Modal2)
-    openConfirm: (args: OpenConfirmArgs) => void;
-    openAlert: (args: OpenAlertArgs) => void;   // 신규 API: Alert(Modal1)
+/**
+ * ???
+ */
+type ModalContext = {
+    openConfirm: (args: OpenConfirmProp) => void;
+    openAlert: (args: OpenAlertProp) => void;
     close: () => void;
 };
 
-const ModalContext = createContext<ModalCtx | null>(null);
+// 컨텍스트 할당
+const ModalContext = createContext<ModalContext | null>(null);
 
+/**
+ * Modal을 요청하는 함수
+ */
 export function useModal() {
-    const ctx = useContext(ModalContext);
-    if (!ctx) throw new Error('useModal must be used within <ModalProvider>');
-    return ctx;
+    const context = useContext(ModalContext);
+    if (!context) throw new Error('useModal must be used within <ModalProvider>');
+    return context;
 }
 
 type ActiveType = 'confirm' | 'alert' | null;
 
+/**
+ * 모달창을 제어해주는 Privider 함수이다.
+ *
+ * @param children 모달과 관련 없는 기본 컴포넌트
+ * @constructor
+ */
 export default function ModalProvider({ children }: { children: React.ReactNode }) {
+    // 모달창 개폐 여부
     const [isOpen, setOpen] = useState(false);
     const [active, setActive] = useState<ActiveType>(null);
 
+    // 제목 본문 내용
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
 
+    // 확인, 취소 버튼 클릭 리스너
     const [confirmHandler, setConfirmHandler] = useState<() => void>(() => () => {});
     const [cancelHandler, setCancelHandler]   = useState<() => void>(() => () => {});
 
+    // 닫을 때 기본으로 실행될 함수
     const close = useCallback(() => {
         setOpen(false);
         setActive(null);
+
         setTitle('');
         setContent('');
-        // 핸들러는 비워두지 않아도 되지만 깔끔히 초기화하고 싶으면 아래 주석 해제
-        // setConfirmHandler(() => () => {});
-        // setCancelHandler(() => () => {});
+
+        setConfirmHandler(() => () => {});
+        setCancelHandler(() => () => {});
     }, []);
 
-    // Modal2 (확인/취소) 열기
-    const openConfirm = useCallback((args: OpenConfirmArgs) => {
+    // ConfirmModal (확인/취소) 열기
+    const openConfirm = useCallback((args: OpenConfirmProp) => {
         setActive('confirm');
         setTitle(args.title);
         setContent(args.content);
@@ -71,8 +102,8 @@ export default function ModalProvider({ children }: { children: React.ReactNode 
         setOpen(true);
     }, [close]);
 
-    // Modal1 (확인만) 열기
-    const openAlert = useCallback((args: OpenAlertArgs) => {
+    // ConfirmModal (확인) 열기
+    const openAlert = useCallback((args: OpenAlertProp) => {
         setActive('alert');
         setTitle(args.title);
         setContent(args.content);
@@ -84,12 +115,11 @@ export default function ModalProvider({ children }: { children: React.ReactNode 
         setOpen(true);
     }, [close]);
 
-    // 기존 API 유지: open === openConfirm
-    const api = useMemo<ModalCtx>(() => ({
-        open: openConfirm,
-        openConfirm,
-        openAlert,
-        close,
+    // ModalProvider가 노출할 API
+    const api = useMemo<ModalContext>(() => ({
+        openConfirm, // 확인/취소가 있는 Confirm 모달 띄우기
+        openAlert, // 확인만 있는 Alert 모달 띄우기
+        close, // 현재 떠 있는 모달을 강제로 닫기
     }), [openConfirm, openAlert, close]);
 
     return (
@@ -97,32 +127,10 @@ export default function ModalProvider({ children }: { children: React.ReactNode 
             {children}
 
             {/* Confirm 모달(취소/확인) */}
-            {active === 'confirm' && (
-                <Modal2
-                    modal2Param={{
-                        open: isOpen,
-                        title,
-                        content,
-                        onConfirm: confirmHandler,
-                        onCancel:  cancelHandler,
-                    }}
-                />
-            )}
+            {active === 'confirm' && <ConfirmModal confirmModalParam={{open: isOpen, title, content, onConfirm: confirmHandler, onCancel: close}}/>}
 
-            {/* Alert 모달(확인만) */}
-            {active === 'alert' && (
-                <Modal1
-                    modal1Param={{
-                        open: isOpen,
-                        title,
-                        content,
-                        onConfirm: confirmHandler,
-                        // onCancel은 Modal1에서 optional.
-                        // 배경 클릭으로 닫히게 하고 싶다면 아래 주석 제거:
-                        // onCancel: close,
-                    }}
-                />
-            )}
+            {/* Alert 모달(확인) */}
+            {active === 'alert' && <AlertModal alertModalParam={{open: isOpen, title, content, onConfirm: confirmHandler, onCancel: cancelHandler}}/>}
         </ModalContext.Provider>
     );
 }

@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import styles from './Modal2.module.css'
+import styles from './ConfirmModal.module.css'
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 
 /**
@@ -14,7 +14,7 @@ import {remToPx} from "@/app/utils/claculator/pxToRem";
  * @param content 내용
  * @param onConfirm 확인 버튼
  */
-type Modal2Param = {
+type ConfirmModalParam = {
     open: boolean;
     title: string;
     content: string;
@@ -22,8 +22,8 @@ type Modal2Param = {
     onCancel: () => void;
 };
 
-type Modal2Props = {
-    modal2Param: Modal2Param;
+type ConfirmModalProps = {
+    confirmModalParam: ConfirmModalParam;
 }
 
 /**
@@ -32,35 +32,34 @@ type Modal2Props = {
  * @param moda1lParam 모달 속성
  * @constructor
  */
-export default function Modal2({modal2Param}: Modal2Props) {
+export default function ConfirmModal({confirmModalParam}: ConfirmModalProps) {
     useEffect(() => {
         // 예외처리: 열려있을 때만 진행
-        if (!modal2Param.open) return;
+        if (!confirmModalParam.open) return;
 
         // 스크롤 잠금
         const prev = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
 
         return () => { document.body.style.overflow = prev; };
-    }, [modal2Param.open]); // ← open 값만 감시
-
+    }, [confirmModalParam.open]); // ← open 값만 감시
 
     // 예외처리: 열려있을 때만 진행
-    if (!modal2Param.open) return null;
+    if (!confirmModalParam.open) return null;
 
     const modal = (
         <div className={styles.background}>
-            <div className={styles.modal2} onClick={() => modal2Param.onCancel()}>  {/* 바깥 클릭 시, 닫기 */}
+            <div className={styles.confirmModal} onClick={() => confirmModalParam.onCancel()}>  {/* 바깥 클릭 시, 닫기 */}
                 {/* 내용 클릭은 전파 막기 */}
-                <div className={styles.modal2Title} onClick={(e) => e.stopPropagation()}>
+                <div className={styles.confirmModalTitle} onClick={(e) => e.stopPropagation()}>
                     <Image
                         src="/resource/success-icon.svg" width={remToPx(3)} height={remToPx(3)} alt={""}/>
-                    <span className={styles.titleFont}>{modal2Param.title}</span> {/* 제목 */}
-                    <span className={styles.contentFont}>{modal2Param.content}</span> {/* 본문 */}
+                    <span className={styles.titleFont}>{confirmModalParam.title}</span> {/* 제목 */}
+                    <span className={styles.contentFont}>{confirmModalParam.content}</span> {/* 본문 */}
 
                     <div className={styles.buttons}>
-                        <button className={styles.cancelButton} onClick={() => modal2Param.onCancel()}>취소</button> {/* 취소 버튼 */}
-                        <button className={styles.confirmButton} onClick={() => modal2Param.onConfirm()}>확인</button> {/* 확인 버튼 */}
+                        <button className={styles.cancelButton} onClick={() => confirmModalParam.onCancel()}>취소</button> {/* 취소 버튼 */}
+                        <button className={styles.confirmButton} onClick={() => confirmModalParam.onConfirm()}>확인</button> {/* 확인 버튼 */}
                     </div>
                 </div>
             </div>

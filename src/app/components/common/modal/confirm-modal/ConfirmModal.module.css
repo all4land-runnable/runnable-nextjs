@@ -14,7 +14,7 @@
     pointer-events: auto;
 }
 
-.modal1 {
+.confirmModal {
     width: 21.25rem;
 
     display: flex;
@@ -29,7 +29,7 @@
     gap: 1.5rem;
 }
 
-.modal1Title {
+.confirmModalTitle {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -62,6 +62,19 @@
     gap: 8px;
 }
 
+.cancelButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0.75rem 1.5rem;
+    flex: 1 0 0;
+
+    border: none;
+    border-radius: 0.5rem;
+    background: #E8EBED;
+}
+
 .confirmButton {
     display: flex;
     justify-content: center;
@@ -75,6 +88,6 @@
     background: #ACE5F6;
 }
 
-.confirmButton:hover {
+.cancelButton:hover, .confirmButton:hover {
     filter: brightness(0.98);
 }

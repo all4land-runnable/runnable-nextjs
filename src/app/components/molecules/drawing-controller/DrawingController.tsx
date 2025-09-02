@@ -9,9 +9,6 @@ import closeDrawingControllerOnClick from "@/app/components/molecules/drawing-co
 import workoutAvailabilityOnClick from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/workoutAvailabilityOnClick";
 import saveDrinkingFountainsInfoOnClick from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/saveDrinkingFountainsInfoOnClick";
 import {useModal} from "@/app/components/common/modal/ModalProvider";
-import {
-    completeDrawingOnClick
-} from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/completeDrawingOnClick";
 
 /**
  * 경로 그리기 컨트롤러 확장 상태
@@ -37,13 +34,13 @@ type DrawingControllerProps = {
  * @constructor
  */
 export default function DrawingController({drawingControllerState, routeChipsState}:DrawingControllerProps) {
-    const { open, close } = useModal();
+    const { openConfirm, close } = useModal();
 
     // 뒤로가기 버튼 선택 함수
     const closeDrawingController:RoundButtonParam = {label: "뒤로 가기", backgroundColor: "#D9D9D9", fontSize: remToPx(0.75), toggle:false, onClick: () => closeDrawingControllerOnClick(drawingControllerState, routeChipsState)}
     const workoutAvailability:RoundButtonParam = {label: "운동 가능 시간", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: workoutAvailabilityOnClick}
     const saveDrinkingFountainsInfo:RoundButtonParam = {label: "음수대 정보 표시", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: saveDrinkingFountainsInfoOnClick}
-    const completeDrawing:RoundButtonParam = {label: "경로 완성", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: () => {completeDrawingOnClick(open, close)}}
+    const completeDrawing:RoundButtonParam = {label: "경로 완성", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: () => { openConfirm({title: "모달 텍스트를 넣어주세요.", content: "서브 텍스트를 넣어주세요.", onConfirm: close, onCancel: close}) }}
 
     return (
         <div className={styles.drawingController} style={{ display: drawingControllerState.openDrawingController ? "flex" : "none" }}>
