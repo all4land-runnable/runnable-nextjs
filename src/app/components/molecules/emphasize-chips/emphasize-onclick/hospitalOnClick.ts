@@ -19,10 +19,10 @@ export async function hospitalOnClick() {
     const position = await getCameraPosition(viewer);
 
     // NOTE 1. 병원 반경 검색 API
-    const response = await apiClient.get('/getHospBasisList', {
-        baseURL: 'https://apis.data.go.kr/B551182/hospInfoServicev2',
+    const response = await apiClient.get("/getHospBasisList", {
+        baseURL: "https://apis.data.go.kr/B551182/hospInfoServicev2",
         params: {
-            ServiceKey: process.env.NEXT_PUBLIC_OPEN_DATA_POTAL_ACCESS_KEY,
+            ServiceKey: process.env.NEXT_PUBLIC_OPEN_DATA_POTAL_ACCESS_KEY!,
             xPos: position.lon,
             yPos: position.lat,
             radius: SAMPLE_RADIUS,

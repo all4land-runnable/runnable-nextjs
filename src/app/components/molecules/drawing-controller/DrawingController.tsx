@@ -9,6 +9,10 @@ import closeDrawingControllerOnClick from "@/app/components/molecules/drawing-co
 import workoutAvailabilityOnClick from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/workoutAvailabilityOnClick";
 import saveDrinkingFountainsInfoOnClick from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/saveDrinkingFountainsInfoOnClick";
 import {useModal} from "@/app/components/common/modal/ModalProvider";
+import {
+    completeDrawingOnClick
+} from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/completeDrawingOnClick";
+import {drawMarkerEntities} from "@/app/components/molecules/drawing-controller/drawing/upsertDrawMarkers";
 
 /**
  * 경로 그리기 컨트롤러 확장 상태
@@ -40,7 +44,15 @@ export default function DrawingController({drawingControllerState, routeChipsSta
     const closeDrawingController:RoundButtonParam = {label: "뒤로 가기", backgroundColor: "#D9D9D9", fontSize: remToPx(0.75), toggle:false, onClick: () => closeDrawingControllerOnClick(drawingControllerState, routeChipsState)}
     const workoutAvailability:RoundButtonParam = {label: "운동 가능 시간", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: workoutAvailabilityOnClick}
     const saveDrinkingFountainsInfo:RoundButtonParam = {label: "음수대 정보 표시", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: saveDrinkingFountainsInfoOnClick}
-    const completeDrawing:RoundButtonParam = {label: "경로 완성", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: () => { openConfirm({title: "모달 텍스트를 넣어주세요.", content: "서브 텍스트를 넣어주세요.", onConfirm: close, onCancel: close}) }}
+    const completeDrawing:RoundButtonParam = {label: "경로 완성", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: () => {
+        openConfirm({title: "경로 저장", content: "경로를 저장하시겠습니까?",
+            onConfirm: ()=>{
+                close();
+                completeDrawingOnClick(drawMarkerEntities).then();
+            },
+            onCancel: close
+        })
+    }}
 
     return (
         <div className={styles.drawingController} style={{ display: drawingControllerState.openDrawingController ? "flex" : "none" }}>

@@ -1,18 +1,40 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
-/**
- * REST API를 효율적으로 활용하기 위한 요청 인터페이스
- */
-const apiClient = axios.create({
-    baseURL: 'https://localhost:8080/api/v1',
-    withCredentials: false // 따로 쿠키는 사용하지 않음
+const instance = axios.create({
+    withCredentials: false,
 });
 
-apiClient.interceptors.response.use(
+instance.interceptors.request.use(
+    (config) => {
+        if (config.baseURL) {
+            config.url = `${config.baseURL}${config.url}`;
+            config.baseURL = "";
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+instance.interceptors.response.use(
     (response) => response,
     (error) => {
-        return Promise.reject(error); // 공통 에러 처리
+        console.error("API Error:", error?.response?.data || error.message);
+        return Promise.reject(error);
     }
 );
+
+export const apiClient = {
+    get: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+        instance.get<T>(url, config),
+
+    post: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+        instance.post<T>(url, data, config),
+
+    put: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+        instance.put<T>(url, data, config),
+
+    delete: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+        instance.delete<T>(url, config),
+};
 
 export default apiClient;

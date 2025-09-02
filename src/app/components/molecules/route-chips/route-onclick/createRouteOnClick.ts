@@ -1,7 +1,6 @@
 import {RouteChipsState} from "@/app/components/molecules/route-chips/RouteChips";
 import {DrawingControllerState} from "@/app/components/molecules/drawing-controller/DrawingController";
 import drawingRoute, {removeDrawPolyline} from "@/app/components/molecules/drawing-controller/drawing/drawingRoute";
-import {clearDrawMarkers} from "@/app/components/molecules/drawing-controller/drawing/clearDrawMarkers";
 import clearMarkers from "@/app/utils/markers/clearMarkers";
 import {drawMarkerEntities} from "@/app/components/molecules/drawing-controller/drawing/upsertDrawMarkers";
 

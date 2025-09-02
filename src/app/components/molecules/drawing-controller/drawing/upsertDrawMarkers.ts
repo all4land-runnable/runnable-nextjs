@@ -81,8 +81,8 @@ export default function upsertDrawMarkers(
         if (index === lastIdx && points.length > 0) {
             // 1km 전까진 m 단위로 표시
             const text = distance < 1000
-                ? `${distance.toFixed(0)} m`
-                : `${(distance / 1000).toFixed(2)} km`;
+                ? `예상거리: ${distance.toFixed(0)} m`
+                : `예상거리: ${(distance / 1000).toFixed(2)} km`;
             setTailLabel(entity, text);
         } else
             entity.label = undefined; // 이전 마커들의 라벨은 제거

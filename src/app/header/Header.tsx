@@ -30,7 +30,7 @@ export default function Header() {
                 <span onClick={expandProfileCard}>기록</span>
                 {/* 프로필 이미지 */}
                 <div onClick={expandProfileCard}>
-                    <Image src="/resource/profile-image.png" alt="profile" width={65} height={65} className={styles.profileImage}/>
+                    <Image src="/resource/profile-image.png" alt="profile" width={65} height={65} className={styles.profileImage} priority/>
                 </div>
             </div>
 
