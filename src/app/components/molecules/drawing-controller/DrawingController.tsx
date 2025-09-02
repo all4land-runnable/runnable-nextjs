@@ -1,13 +1,17 @@
 'use client';
 
 import styles from "./DrawingController.module.css";
-import {RoundButton} from "@/app/components/atom/round-button/RoundButton";
+import {RoundButton, RoundButtonParam} from "@/app/components/atom/round-button/RoundButton";
 import React from "react";
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {RouteChipsState} from "@/app/components/molecules/route-chips/RouteChips";
 import closeDrawingControllerOnClick from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/closeDrawingControllerOnClick";
 import workoutAvailabilityOnClick from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/workoutAvailabilityOnClick";
-import saveDrinkingFountainsInfoOnclick from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/saveDrinkingFountainsInfoOnclick";
+import saveDrinkingFountainsInfoOnClick from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/saveDrinkingFountainsInfoOnClick";
+import {useModal} from "@/app/components/common/modal/ModalProvider";
+import {
+    completeDrawingOnClick
+} from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/completeDrawingOnClick";
 
 /**
  * 경로 그리기 컨트롤러 확장 상태
@@ -33,14 +37,20 @@ type DrawingControllerProps = {
  * @constructor
  */
 export default function DrawingController({drawingControllerState, routeChipsState}:DrawingControllerProps) {
+    const { open, close } = useModal();
+
     // 뒤로가기 버튼 선택 함수
-    const closeDrawingControllerHandler = () => closeDrawingControllerOnClick(drawingControllerState, routeChipsState);
+    const closeDrawingController:RoundButtonParam = {label: "뒤로 가기", backgroundColor: "#D9D9D9", fontSize: remToPx(0.75), toggle:false, onClick: () => closeDrawingControllerOnClick(drawingControllerState, routeChipsState)}
+    const workoutAvailability:RoundButtonParam = {label: "운동 가능 시간", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: workoutAvailabilityOnClick}
+    const saveDrinkingFountainsInfo:RoundButtonParam = {label: "음수대 정보 표시", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: saveDrinkingFountainsInfoOnClick}
+    const completeDrawing:RoundButtonParam = {label: "경로 완성", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: () => {completeDrawingOnClick(open, close)}}
 
     return (
         <div className={styles.drawingController} style={{ display: drawingControllerState.openDrawingController ? "flex" : "none" }}>
-            <RoundButton roundButtonParam={{label: "뒤로 가기", backgroundColor: "#D9D9D9", fontSize: remToPx(0.75), toggle:false, onClick: closeDrawingControllerHandler}}/> {/* 뒤로가기 */}
-            <RoundButton roundButtonParam={{label: "운동 가능 시간", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: workoutAvailabilityOnClick}}/> {/* 운동 가능 시간 */}
-            <RoundButton roundButtonParam={{label: "음수대 정보 표시", backgroundColor: "#D9D9D9", fontSize:remToPx(0.75), onClick: saveDrinkingFountainsInfoOnclick}}/> {/* 음수대 정보 표시 */}
+            <RoundButton roundButtonParam={closeDrawingController}/> {/* 뒤로가기 */}
+            <RoundButton roundButtonParam={workoutAvailability}/> {/* 운동 가능 시간 */}
+            <RoundButton roundButtonParam={saveDrinkingFountainsInfo}/> {/* 음수대 정보 표시 */}
+            <RoundButton roundButtonParam={completeDrawing}/> {/* 경로 완성 */}
         </div>
     )
 }
