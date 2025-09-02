@@ -19,7 +19,7 @@ export async function drinkingFountainOnClick() {
     const point = await getCameraPosition(viewer);
 
     // NOTE 2. 음수대 조회 API
-    const response = await apiClient.get('/dataset/drinkingFountain.json', {
+    const response = await apiClient.get<DrinkingFountainResponse>('/dataset/drinkingFountain.json', {
         baseURL: 'http://localhost:3000',
     })
 

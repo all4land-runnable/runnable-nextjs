@@ -19,7 +19,7 @@ export async function crosswalkOnClick() {
     const point = await getCameraPosition(viewer);
 
     // NOTE 2. 음수대 조회 API
-    const response = await apiClient.get("/dataset/crosswalk.json", {
+    const response = await apiClient.get<CrosswalkResponse>("/dataset/crosswalk.json", {
         baseURL: "http://localhost:3000",
     });
 

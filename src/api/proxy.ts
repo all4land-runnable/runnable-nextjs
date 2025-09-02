@@ -27,9 +27,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("Proxy Error:", error.message);
-        res
-            .status(error.response?.status || 500)
-            .json(error.response?.data || { error: error.message });
+        console.error("Proxy Error:", error);
     }
 }

@@ -1,8 +1,8 @@
 import * as Cesium from 'cesium';
 import apiClient from "@/api/apiClient";
 import { UnactiveError } from "@/error/unactiveError";
-import { HospitalResponse } from "@/api/response/hospitalResponse";
 import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
+import {HospitalResponse} from "@/api/response/hospitalResponse";
 
 const SAMPLE_RADIUS = 500;
 
@@ -19,7 +19,7 @@ export async function hospitalOnClick() {
     const position = await getCameraPosition(viewer);
 
     // NOTE 1. 병원 반경 검색 API
-    const response = await apiClient.get("/getHospBasisList", {
+    const response = await apiClient.get<HospitalResponse>("/getHospBasisList", {
         baseURL: "https://apis.data.go.kr/B551182/hospInfoServicev2",
         params: {
             ServiceKey: process.env.NEXT_PUBLIC_OPEN_DATA_POTAL_ACCESS_KEY!,

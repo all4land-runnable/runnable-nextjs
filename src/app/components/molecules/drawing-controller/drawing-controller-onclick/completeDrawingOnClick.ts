@@ -13,9 +13,27 @@ export async function completeDrawingOnClick(drawMarkerEntities: Entity[]) {
     const routeCourse:[number, number][] = []
 
     // 모든 좌표들을 순회
-    for(let i = 0; i < drawMarkerEntities.length - 1; i++) {
+    for(let i = 0; i < drawMarkerEntities.length - 1; i+=5) {
         const [startX, startY] = getEntityLngLat(drawMarkerEntities[i], when);
-        const [endX, endY] = getEntityLngLat(drawMarkerEntities[i + 1], when);
+
+        // 남은 점 개수 체크
+        const remaining = drawMarkerEntities.length - (i + 1);
+
+        // 이번 구간에서 사용할 점 (최대 5개 경유지 + 도착점)
+        const stepCount = Math.min(5, remaining);
+
+
+        // 경유지 좌표 목록
+        const passListCoords: string[] = [];
+        for (let j = 1; j < stepCount; j++) {
+            const [viaX, viaY] = getEntityLngLat(drawMarkerEntities[i + j], when);
+            passListCoords.push(`${viaX},${viaY}`);
+        }
+
+        const [endX, endY] = getEntityLngLat(drawMarkerEntities[i + stepCount], when);
+
+        // passList 문자열 만들기 (있을 때만)
+        const passList = passListCoords.length > 0 ? passListCoords.join("_") : undefined;
 
         // NOTE 1. 보행자 경로 API를 조회한다.
         const response = await apiClient.post<PedestrianResponse>(
@@ -25,7 +43,7 @@ export async function completeDrawingOnClick(drawMarkerEntities: Entity[]) {
                 startY,
                 endX, // 목적지 좌표
                 endY,
-                // passList: '126.92774822,37.55395475_126.92577620,37.55337145', // 경유지의 X 좌표, Y 좌표
+                passList, // 최대 5개의 경유지를 문자열로 전달
                 reqCoordType: "WGS84GEO", // 요청 좌표계
                 resCoordType: "WGS84GEO", // 응답 좌표계
                 searchOption: "30", // 0(기본값): 추천, 30: 최단거리+계단 제외
@@ -36,7 +54,7 @@ export async function completeDrawingOnClick(drawMarkerEntities: Entity[]) {
             {
                 baseURL: "https://apis.openapi.sk.com",
                 headers: {
-                    appKey: process.env.NEXT_PUBLIC_TMAP_APP_KEY!,
+                    appKey: process.env.NEXT_PUBLIC_TMAP_APP_KEY,
                 },
             }
         );
