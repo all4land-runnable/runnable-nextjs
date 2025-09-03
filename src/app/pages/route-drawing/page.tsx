@@ -4,7 +4,7 @@ import React from "react";
 import styles from '../../page.module.css'
 import TileChips from "@/app/components/molecules/tile-chips/TileChips";
 import EmphasizeChips from "@/app/components/molecules/emphasize-chips/EmphasizeChips";
-import DrawingController from "@/app/components/molecules/drawing-chips/DrawingController";
+import DrawingChips from "@/app/components/molecules/drawing-chips/DrawingChips";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -22,7 +22,7 @@ export default function Page() {
             </div>
 
             <section className={styles.bottomSheet}>
-                <DrawingController/>
+                <DrawingChips/>
             </section>
         </>
     )

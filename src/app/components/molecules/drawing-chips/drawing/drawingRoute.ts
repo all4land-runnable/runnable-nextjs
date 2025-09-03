@@ -4,6 +4,9 @@ import { getViewer } from "@/app/components/templates/cesium/viewer/getViewer";
 import { getDrawer } from "@/app/components/templates/cesium/drawer/getDrawer";
 import calcDistance from "@/app/utils/claculator/calcDistance";
 import upsertDrawMarkers from "@/app/components/molecules/drawing-chips/drawing/upsertDrawMarkers";
+import clearMarkers from "@/app/utils/markers/clearMarkers";
+import {drawMarkerEntities} from "@/app/staticVariables";
+import { setDrawPolylineEntity, drawPolylineEntity } from "@/app/staticVariables"; // ✅ 추가
 
 /**
  * 그리기에서 만들어지는 Polyline의 id를 담아두는 전역 변수이다.
@@ -43,6 +46,7 @@ export default async function drawingRoute(
         },
         onEnd: (entity, positions) => {
             drawPolyline = entity.id; // 새로운 Polyline의 id 값을 저장
+            setDrawPolylineEntity(entity); // 엔티티 참조도 함께 저장
             onEnd(entity, positions); // 엔티티 생성 후 수행할 작업
         },
     });
@@ -54,5 +58,29 @@ export default async function drawingRoute(
 export function removeDrawPolyline() {
     getViewer().then(viewer => {
         viewer.entities.removeById(drawPolyline);
+        clearMarkers(drawMarkerEntities) // 기존에 그려진 경로 마커들을 제거한다.
+    });
+}
+
+export function getDrawPolyline() {
+    return drawPolyline;
+}
+
+export function setDrawPolylineVisibility(visible: boolean) {
+    // 엔티티 참조가 있으면 그것을 우선 사용
+    if (drawPolylineEntity) {
+        drawPolylineEntity.show = visible;
+        getViewer().then(viewer => viewer.scene.requestRender?.());
+        return;
+    }
+
+    getViewer().then(viewer => {
+        if (!drawPolyline) return;
+
+        const entity = viewer.entities.getById(drawPolyline);
+        if (entity) {
+            entity.show = visible;
+            viewer.scene.requestRender?.();
+        }
     });
 }

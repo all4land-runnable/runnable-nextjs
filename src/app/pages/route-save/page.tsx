@@ -1,9 +1,9 @@
 'use client';
 
-import styles from '../../page.module.css'
+import styles from './page.module.css'
 import React from "react";
 import RightSideBar from "@/app/components/templates/right-side-bar/RightSideBar";
-import DrawingController from "@/app/components/molecules/drawing-chips/DrawingController";
+import SaveChips from "@/app/components/molecules/save-chips/SaveChips";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -19,7 +19,7 @@ export default function Page() {
             </div>
 
             <section className={styles.bottomSheet}>
-                <DrawingController/>
+                <SaveChips/>
             </section>
         </>
     )

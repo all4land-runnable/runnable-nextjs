@@ -19,13 +19,16 @@ import {drawMarkerEntities} from "@/app/staticVariables";
  * 경로 그리기 컨트롤러 함수를 구현하는 함수
  * @constructor
  */
-export default function DrawingController() {
+export default function DrawingChips() {
     const router = useRouter();
     const { openConfirm, close } = useModal();
     const [ circular, setCircular ] = useState<boolean>(true);
 
     // 뒤로가기 버튼 선택 함수
-    const closeDrawingController:ChipParam = {label: "뒤로 가기", backgroundColor: "#FF9F9F", fontSize: remToPx(1.125), toggle:false, onClick: closeOnClick}
+    const closeDrawingController:ChipParam = {label: "뒤로 가기", backgroundColor: "#FF9F9F", fontSize: remToPx(1.125), toggle:false, onClick: ()=>{
+        removeTempLineString();
+        router.back();
+    }}
     const workoutAvailability:ChipParam = {label: "운동 가능 시간", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: workoutAvailabilityOnClick}
     const saveDrinkingFountainsInfo:ChipParam = {label: "음수대 정보 표시", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: saveDrinkingFountainsInfoOnClick}
     const circularRoute:ChipParam = {label: "원형 경로", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: ()=>{
@@ -37,13 +40,14 @@ export default function DrawingController() {
             onConfirm: ()=>{
                 close();
                 completeDrawingOnClick(drawMarkerEntities, circular).then();
-                router.push('/route-save')
+                // removeTempLineString();
+                router.push('/pages/route-save')
             },
             onCancel: close
         })
     }}
 
-    // NOTE 1. 화면 생성 시 작동
+    // NOTE 1. 처음 화면 생성 시 작동
     const initializedRef = useRef(false);
     useEffect(()=>{
         if (initializedRef.current) return;
@@ -64,14 +68,11 @@ export default function DrawingController() {
         </div>
     )
 
-    function closeOnClick(){
+    function removeTempLineString(){
         getDrawer().then((drawer)=>{
             drawer.reset() // 그리기를 완료하지 않고, 초기화 했으면, 자동으로 종료된다.
 
-            clearMarkers(drawMarkerEntities) // 기존에 그려진 경로 마커들을 제거한다.
             removeDrawPolyline(); // Polyline도 제거한다.
-
-            router.back()
         }); // drawer 호출
     }
 }

@@ -1,0 +1,11 @@
+.saveChips {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    height: fit-content;
+    gap: 0.75rem;
+
+    pointer-events: auto;
+}

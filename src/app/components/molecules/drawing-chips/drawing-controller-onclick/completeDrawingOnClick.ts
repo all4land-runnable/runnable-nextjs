@@ -3,8 +3,7 @@ import apiClient from "@/api/apiClient";
 import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {PedestrianResponse} from "@/api/response/pedestrianResponse";
 import * as Cesium from "cesium";
-
-export let newRoute: Cesium.Entity | null = null;
+import {newRouteEntity, setNewRouteEntity} from "@/app/staticVariables"; // ✅ 추가
 
 /**
  * 임시 경로 그리기를 완료할 때 실행되는 함수이다.
@@ -97,7 +96,7 @@ export async function completeDrawingOnClick(drawMarkerEntities: Entity[], isCir
     }
 
     // NOTE 3. 엔티티를 추가한다.
-    newRoute = viewer.entities.add({
+    const newRoute = viewer.entities.add({
         polyline: {
             positions: Cesium.Cartesian3.fromDegreesArray(routeCourse.flat()),
             width: 5,
@@ -105,6 +104,7 @@ export async function completeDrawingOnClick(drawMarkerEntities: Entity[], isCir
             clampToGround: true, // 경로를 지면에 고정
         }
     });
+    setNewRouteEntity(newRoute);
 }
 
 function getEntityLngLat(entity: Entity, when: Cesium.JulianDate): [number, number] {
@@ -112,4 +112,28 @@ function getEntityLngLat(entity: Entity, when: Cesium.JulianDate): [number, numb
     if (!cart) throw new Error("Entity has no position");
     const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(cart);
     return [Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude)];
+}
+
+/**
+ * newRoute를 viewer에서 삭제하는 함수
+ */
+export function removeNewRoute() {
+    if (newRouteEntity) {
+        console.log("1"+newRouteEntity);
+        getViewer().then((viewer) => {
+            console.log("2"+newRouteEntity);
+            viewer.entities.remove(newRouteEntity as Cesium.Entity); // 완전히 제거
+        });
+    }
+}
+
+/**
+ * newRoute를 화면에서 숨기거나 다시 보이게 하는 함수
+ * @param visible true면 보이게, false면 숨기기
+ */
+export function setNewRouteVisibility(visible: boolean) {
+    if (newRouteEntity) {
+        console.log("3"+newRouteEntity);
+        newRouteEntity.show = visible;
+    } // true = 보이기, false = 숨기기
 }
