@@ -1,7 +1,6 @@
 import * as Cesium from "cesium";
 import type { Cartesian3 } from "cesium";
-
-export const drawMarkerEntities:Cesium.Entity[] = [];
+import {drawMarkerEntities} from "@/app/staticVariables";
 
 /**
  * 마지막 엔티티에 라벨을 지정하는 함수

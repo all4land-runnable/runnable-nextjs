@@ -7,8 +7,7 @@ import type { Geometry, LineString } from "geojson";
 import radiusFilter from "@/app/utils/radiusFilter";
 import buildDashedSegmentsFromDegrees from "@/app/utils/buildDashedSegmentsFromDegrees";
 import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
-
-export const crosswalkEntities: Cesium.Entity[] = []
+import {crosswalkEntities} from "@/app/staticVariables";
 
 /**
  * 카메라 기준 반경 내의 횡단보도(NODE/LINK)만 렌더링

@@ -8,7 +8,7 @@ import upsertDrawMarkers from "@/app/components/molecules/drawing-chips/drawing/
 /**
  * 그리기에서 만들어지는 Polyline의 id를 담아두는 전역 변수이다.
  */
-let draw_polyline: string = "";
+let drawPolyline: string = "";
 
 /**
  * 경로를 제작할 때 실행되는 함수이다.
@@ -42,7 +42,7 @@ export default async function drawingRoute(
             viewer.scene.requestRender?.(); // 실시간 렌더링
         },
         onEnd: (entity, positions) => {
-            draw_polyline = entity.id; // 새로운 Polyline의 id 값을 저장
+            drawPolyline = entity.id; // 새로운 Polyline의 id 값을 저장
             onEnd(entity, positions); // 엔티티 생성 후 수행할 작업
         },
     });
@@ -53,5 +53,5 @@ export default async function drawingRoute(
  */
 export async function removeDrawPolyline() {
     const viewer = await getViewer();
-    viewer.entities.removeById(draw_polyline);
+    viewer.entities.removeById(drawPolyline);
 }

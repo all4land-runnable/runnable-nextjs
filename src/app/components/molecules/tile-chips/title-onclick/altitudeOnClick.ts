@@ -2,11 +2,6 @@ import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import * as Cesium from "cesium";
 
 /**
- *  등고선 타일 아이디(태그)
- */
-const MATERIAL_TAG = "ElevationColorContour";
-
-/**
  * 고도 표시 Chip 버튼을 누를 때 수행되는 동작을 구현한 함수
  */
 export default async function altitudeOnClick() {
@@ -17,7 +12,7 @@ export default async function altitudeOnClick() {
 
         // NOTE 2. 토글 기능
         // globe.material이 ElevationColorContour라면 이미 켜져 있다면,
-        if (globe.material?.type === MATERIAL_TAG) {
+        if (globe.material?.type === "ElevationColorContour") {
             globe.material = undefined; // 머티리얼 제거 (끄기)
             return;
         }
@@ -58,7 +53,7 @@ export default async function altitudeOnClick() {
         // NOTE 5. 실제 등고선 제작
         globe.material = new Cesium.Material({
             fabric: {
-                type: MATERIAL_TAG, // 머티리얼 타입 태그 (토글 판별용)
+                type: "ElevationColorContour", // 머티리얼 타입 태그 (토글 판별용)
                 materials: {
                     // 등고선 재질
                     contourMaterial: {

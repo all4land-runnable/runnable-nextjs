@@ -3,12 +3,13 @@ import React from "react";
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import popularCourseOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/popularCourseOnClick";
-import {hospitalOnClick, hospitalEntities} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/hospitalOnClick";
-import {drinkingFountainOnClick, drinkingFountainEntities} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
-import {crosswalkOnClick, crosswalkEntities} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/crosswalkOnClick";
 import storageBoxOnClick from "@/app/components/molecules/emphasize-chips/emphasize-onclick/storageBoxOnClick";
 import {sidewalkOnClick} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/sidewalkOnClick";
 import clearMarkers from "@/app/utils/markers/clearMarkers";
+import {crosswalkOnClick} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/crosswalkOnClick";
+import {crosswalkEntities, drinkingFountainEntities, hospitalEntities} from "@/app/staticVariables";
+import {hospitalOnClick} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/hospitalOnClick";
+import {drinkingFountainOnClick} from "@/app/components/molecules/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
 
 /**
  * 구역 강조 버튼을 구현하는 함수

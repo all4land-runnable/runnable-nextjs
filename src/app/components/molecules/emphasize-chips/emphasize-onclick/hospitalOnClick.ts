@@ -3,10 +3,9 @@ import apiClient from "@/api/apiClient";
 import { UnactiveError } from "@/error/unactiveError";
 import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {HospitalResponse} from "@/api/response/hospitalResponse";
+import {hospitalEntities} from "@/app/staticVariables";
 
 const SAMPLE_RADIUS = 500;
-
-export const hospitalEntities:Cesium.Entity[] = []
 
 const hospitalEntityId = (name: string, lat: number, lon: number) => `hospital_${name}-${lat}-${lon}`;
 

@@ -7,13 +7,13 @@ import workoutAvailabilityOnClick from "@/app/components/molecules/drawing-chips
 import saveDrinkingFountainsInfoOnClick from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/saveDrinkingFountainsInfoOnClick";
 import {useModal} from "@/app/components/common/modal/ModalProvider";
 import {completeDrawingOnClick} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
-import {drawMarkerEntities} from "@/app/components/molecules/drawing-chips/drawing/upsertDrawMarkers";
 import circularRouteOnClick from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
 import { useRouter } from "next/navigation";
 import clearMarkers from "@/app/utils/markers/clearMarkers";
 import drawingRoute, { removeDrawPolyline } from "./drawing/drawingRoute";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import {getDrawer} from "@/app/components/templates/cesium/drawer/getDrawer";
+import {drawMarkerEntities} from "@/app/staticVariables";
 
 /**
  * 경로 그리기 컨트롤러 함수를 구현하는 함수
@@ -37,6 +37,7 @@ export default function DrawingController() {
             onConfirm: ()=>{
                 close();
                 completeDrawingOnClick(drawMarkerEntities, circular).then();
+                router.push('/route-save')
             },
             onCancel: close
         })
@@ -48,13 +49,8 @@ export default function DrawingController() {
         if (initializedRef.current) return;
         initializedRef.current = true;
 
-        // 모든 그리기 마커를 제거한다.
-        clearMarkers(drawMarkerEntities).then(()=>{ // 그 후
-            removeDrawPolyline().then(() => { // Polyline도 제거한다.
-                // 새 경로 그리기를 시작한다.
-                drawingRoute(()=>{}).then();
-            });
-        });
+        // 새 경로 그리기를 시작한다.
+        drawingRoute(()=>{}).then();
     }, [])
 
     // NOTE 2. UI 구현
