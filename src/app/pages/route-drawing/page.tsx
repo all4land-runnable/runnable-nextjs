@@ -1,10 +1,10 @@
 'use client';
 
 import React from "react";
-import styles from './page.module.css'
+import styles from '../../page.module.css'
 import TileChips from "@/app/components/molecules/tile-chips/TileChips";
-import RouteChips from "@/app/components/molecules/route-chips/RouteChips";
 import EmphasizeChips from "@/app/components/molecules/emphasize-chips/EmphasizeChips";
+import DrawingController from "@/app/components/molecules/drawing-controller/DrawingController";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -15,7 +15,6 @@ export default function Page() {
     return (
         <>
             <div className={styles.onViewer}>
-                {/* 왼쪽 사이드 바 */}
                 <div className={styles.topSheet}>
                     <EmphasizeChips/> {/* 구역 강조 버튼 모음 */}
                     <TileChips/> {/* 타일 버튼 모음 */}
@@ -23,8 +22,7 @@ export default function Page() {
             </div>
 
             <section className={styles.bottomSheet}>
-                {/* 경로 관련 버튼 모음 */}
-                <RouteChips/>
+                <DrawingController/>
             </section>
         </>
     )
