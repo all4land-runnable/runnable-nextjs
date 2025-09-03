@@ -43,7 +43,6 @@ export default function RightSideBar({rightSideBarState}:RightSideBarProps) {
     ]
 
     // chip 버튼 속성 선언
-    const slopeGraph: ChipParam = {label:"경사도 그래프", backgroundColor:"#FCDE8C", fontSize:remToPx(0.75), onClick:()=>{}};
     const sectionSpeed: ChipParam = {label:"구간 속도", backgroundColor:"#FCDE8C", fontSize:remToPx(0.75), onClick:()=>{}};
     const paceAnalyze: ChipParam = {label:"페이스 분석", backgroundColor:"#FCDE8C", fontSize:remToPx(0.75), onClick:()=>{}};
 
@@ -60,7 +59,6 @@ export default function RightSideBar({rightSideBarState}:RightSideBarProps) {
             </div>
             <div className={styles.sidebarBottom}> {/* 오른쪽 사이드바 하단 */}
                 <div className={styles.detailInfo}>
-                    <Chip chipParam={slopeGraph}/> {/* 경사도 그래프 */}
                     <Chip chipParam={sectionSpeed}/> {/* 구간 속도 */}
                     <Chip chipParam={paceAnalyze}/> {/* 페이스 분석 */}
                 </div>

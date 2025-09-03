@@ -6,11 +6,21 @@ import * as Cesium from "cesium";
 
 export let newRoute: Cesium.Entity | null = null;
 
-export async function completeDrawingOnClick(drawMarkerEntities: Entity[]) {
+/**
+ * 임시 경로 그리기를 완료할 때 실행되는 함수이다.
+ *
+ * @param drawMarkerEntities 사용자가 선택한 경로들
+ * @param isCircular 원형 경로 선택 여부
+ */
+export async function completeDrawingOnClick(drawMarkerEntities: Entity[], isCircular: boolean) {
     const viewer = await getViewer();
     const when = viewer.clock.currentTime;
 
     const routeCourse:[number, number][] = []
+
+    // 사용자가 원형 경로를 선택했다면, 마지막 지점을 시작점으로 지정
+    if(isCircular)
+        drawMarkerEntities.push(drawMarkerEntities[0]);
 
     // 모든 좌표들을 순회
     for(let i = 0; i < drawMarkerEntities.length - 1; i+=5) {

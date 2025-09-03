@@ -1,5 +1,8 @@
 import * as Cesium from "cesium";
 import {Cartesian3} from "cesium";
+import {
+    circularHelperEntity
+} from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/circularRouteOnClick";
 
 /**
  * 좌표를 기반으로 미터를 계산하는 함수
@@ -14,6 +17,13 @@ export default function calcDistance(points: Cartesian3[]){
         const start = Cesium.Cartographic.fromCartesian(points[i]);
         const end = Cesium.Cartographic.fromCartesian(points[i + 1]);
         meters += new Cesium.EllipsoidGeodesic(start, end).surfaceDistance;
+    }
+
+    // 원형 경로를 위한 보조선 거리 포함
+    if (circularHelperEntity != null && points.length >= 2) {
+        const lastCarto = Cesium.Cartographic.fromCartesian(points[points.length - 1]);
+        const firstCarto = Cesium.Cartographic.fromCartesian(points[0]);
+        meters += new Cesium.EllipsoidGeodesic(lastCarto, firstCarto).surfaceDistance;
     }
 
     return meters;

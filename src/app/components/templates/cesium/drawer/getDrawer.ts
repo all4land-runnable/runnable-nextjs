@@ -1,4 +1,3 @@
-// getDrawer.ts
 import Drawer from "@cesium-extends/drawer";
 import { drawerStore } from "./drawerStore";
 import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
