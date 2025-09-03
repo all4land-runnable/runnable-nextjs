@@ -9,27 +9,10 @@ import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import RouteSimulation from "@/app/components/atom/route-simulation/RouteSimulation";
 
 /**
- * 오른쪽 사이드바 확장 상태
- *
- * @param openRightSideBar 오른쪽 사이드바 현재 확장 상태
- * @param setOpenRightSideBar 오른쪽 사이드바 확장 상태 변경
- */
-export type RightSideBarState = {
-    openRightSideBar: boolean;
-    setOpenRightSideBar: (open: boolean) => void;
-}
-
-type RightSideBarProps = {
-    rightSideBarState: RightSideBarState;
-};
-
-/**
  * 오른쪽 사이드바를 구현하는 함수
- *
- * @param rightSideBarState 오른쪽 사이드바 확장 상태
  * @constructor
  */
-export default function RightSideBar({rightSideBarState}:RightSideBarProps) {
+export default function RightSideBar() {
     // NOTE: 샘플 구간 전략 속성
     const sectionStrategies: SectionStrategyParam[] = [
         { startPlace: '여의도 공원 입구', strategies: ['페이스를 유지해 주세요!'] },
@@ -46,13 +29,9 @@ export default function RightSideBar({rightSideBarState}:RightSideBarProps) {
     const sectionSpeed: ChipParam = {label:"구간 속도", backgroundColor:"#FCDE8C", fontSize:remToPx(0.75), onClick:()=>{}};
     const paceAnalyze: ChipParam = {label:"페이스 분석", backgroundColor:"#FCDE8C", fontSize:remToPx(0.75), onClick:()=>{}};
 
-    // 닫기 버튼 선택 함수
-    const rightSideBarCloseHandler = () => rightSideBarState.setOpenRightSideBar(!open);
-
     return (
         // openRightSideBar가 true일 때만 나타난다.
-        <section className={styles.rightSideBar} style={{ display: rightSideBarState.openRightSideBar ? "flex" : "none" }}>
-            <span className={styles.closeBtn} onClick={rightSideBarCloseHandler}>×</span> {/* 닫기 버튼 */}
+        <section className={styles.rightSideBar}>
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
                 <PaceStrategy sectionStrategyParams={sectionStrategies}/> {/* 페이스 전략 카드 */}
                 <RouteRanking routeRankingParam={routeRankingParam} /> {/* 경로 랭킹 */}

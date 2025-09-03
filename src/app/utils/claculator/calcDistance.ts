@@ -2,7 +2,7 @@ import * as Cesium from "cesium";
 import {Cartesian3} from "cesium";
 import {
     circularHelperEntity
-} from "@/app/components/molecules/drawing-controller/drawing-controller-onclick/circularRouteOnClick";
+} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
 
 /**
  * 좌표를 기반으로 미터를 계산하는 함수

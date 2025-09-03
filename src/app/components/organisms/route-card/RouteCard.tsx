@@ -1,7 +1,7 @@
 import styles from './RouteCard.module.css'
 import Image from "next/image";
 import {amPmFormat} from "@/app/utils/formattingTime";
-import {RightSideBarState} from "@/app/components/templates/right-side-bar/RightSideBar";
+import {RightSideBarState} from "@/app/components/templates/left-side-bar/LeftSideBar";
 
 /**
  * 경로 카드 속성
@@ -38,13 +38,9 @@ export default function RouteCard({routeCardParam, rightSideBarState}: routeCard
     /**
      * RouteCard 선택 함수
      */
-    const handleClick = () => {
-        // openRightSideBar 토글
-        rightSideBarState.setOpenRightSideBar(!rightSideBarState.openRightSideBar);
-    };
 
     return (
-        <div className={styles.routeCard} onClick={handleClick}> {/* RouteCard 가장 밖 테두리, 핸들러 지정 */}
+        <div className={styles.routeCard} onClick={()=>rightSideBarState.setOpenRightSideBar(!rightSideBarState.openRightSideBar)}> {/* RouteCard 가장 밖 테두리, 핸들러 지정 */}
             <div className={styles.imageBox}> {/* 경로 대표 사진 */}
                 <Image src={routeCardParam.imgUrl} fill style={{ objectFit: "cover" }} alt=""/>
             </div>

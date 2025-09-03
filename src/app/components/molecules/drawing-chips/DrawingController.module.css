@@ -5,7 +5,5 @@
     align-items: start;
 
     padding: 1rem;
-    border-radius: 12px;
     gap: 1rem;
-
-    background: rgba(255, 255, 255, 0.80);}
+}

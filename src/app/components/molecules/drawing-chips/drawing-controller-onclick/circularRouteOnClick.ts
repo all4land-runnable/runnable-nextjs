@@ -1,7 +1,7 @@
 import * as Cesium from "cesium";
 import type { JulianDate, Cartesian3 } from "cesium";
 import { getViewer } from "@/app/components/templates/cesium/viewer/getViewer";
-import { drawMarkerEntities } from "@/app/components/molecules/drawing-controller/drawing/upsertDrawMarkers";
+import { drawMarkerEntities } from "@/app/components/molecules/drawing-chips/drawing/upsertDrawMarkers";
 
 export let circularHelperEntity: Cesium.Entity | null = null;
 

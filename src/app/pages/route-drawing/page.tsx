@@ -4,7 +4,7 @@ import React from "react";
 import styles from '../../page.module.css'
 import TileChips from "@/app/components/molecules/tile-chips/TileChips";
 import EmphasizeChips from "@/app/components/molecules/emphasize-chips/EmphasizeChips";
-import DrawingController from "@/app/components/molecules/drawing-controller/DrawingController";
+import DrawingController from "@/app/components/molecules/drawing-chips/DrawingController";
 
 /**
  * 홈 화면을 구현하는 함수

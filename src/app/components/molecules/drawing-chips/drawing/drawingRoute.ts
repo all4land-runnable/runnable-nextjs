@@ -3,7 +3,7 @@ import { Cartesian3 } from "cesium";
 import { getViewer } from "@/app/components/templates/cesium/viewer/getViewer";
 import { getDrawer } from "@/app/components/templates/cesium/drawer/getDrawer";
 import calcDistance from "@/app/utils/claculator/calcDistance";
-import upsertDrawMarkers from "@/app/components/molecules/drawing-controller/drawing/upsertDrawMarkers";
+import upsertDrawMarkers from "@/app/components/molecules/drawing-chips/drawing/upsertDrawMarkers";
 
 /**
  * 그리기에서 만들어지는 Polyline의 id를 담아두는 전역 변수이다.

@@ -30,7 +30,7 @@ export default function Page() {
                     <TileChips/> {/* 타일 버튼 모음 */}
                 </div>
                 {/* 오른쪽 사이드 바 */}
-                <RightSideBar rightSideBarState={{openRightSideBar: openRightSideBar, setOpenRightSideBar: setOpenRightSideBar}}/>
+                {openRightSideBar??<RightSideBar/>}
             </div>
 
             <section className={styles.bottomSheet}>

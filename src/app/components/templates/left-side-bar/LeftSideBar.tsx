@@ -1,8 +1,12 @@
 import React from 'react';
 import styles from './LeftSideBar.module.css';
-import {RightSideBarState} from "@/app/components/templates/right-side-bar/RightSideBar";
 import CategorySelect, {CategorySelectParam} from "@/app/components/atom/category-select/CategorySelect";
 import RouteCard from "@/app/components/organisms/route-card/RouteCard";
+
+export type RightSideBarState = {
+    openRightSideBar: boolean;
+    setOpenRightSideBar: (open: boolean) => void;
+}
 
 type LeftSideBarProps = {
     rightSideBarState: RightSideBarState;
@@ -14,7 +18,7 @@ type LeftSideBarProps = {
  * @param rightSideBarState 오른쪽 사이드바 확장 상태
  * @constructor
  */
-export default function LeftSideBar({rightSideBarState }: LeftSideBarProps) {
+export default function LeftSideBar({rightSideBarState}: LeftSideBarProps) {
     // 카테고리 상태
     const [cat, setCat] = React.useState('전체 카테고리');
 
