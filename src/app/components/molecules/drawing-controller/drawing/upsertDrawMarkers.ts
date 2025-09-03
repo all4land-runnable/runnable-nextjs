@@ -18,13 +18,13 @@ function setTailLabel(entity: Cesium.Entity, text: string) {
             outlineColor: Cesium.Color.WHITE,
             outlineWidth: 2,
             verticalOrigin: Cesium.VerticalOrigin.TOP,
-            pixelOffset: new Cesium.Cartesian2(0, 0),
+            pixelOffset: new Cesium.Cartesian2(0, -40),
             disableDepthTestDistance: Number.POSITIVE_INFINITY,
             showBackground: true,
             backgroundColor: Cesium.Color.WHITE.withAlpha(0.8),
             backgroundPadding: new Cesium.Cartesian2(6, 4),
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            eyeOffset: new Cesium.Cartesian3(0, 0, -20),
         });
 
     // text는 Property 타입이어야 함
