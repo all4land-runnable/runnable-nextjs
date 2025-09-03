@@ -51,7 +51,8 @@ export default async function drawingRoute(
 /**
  * 기존에 그렸던 Polyline을 제거하는 함수
  */
-export async function removeDrawPolyline() {
-    const viewer = await getViewer();
-    viewer.entities.removeById(drawPolyline);
+export function removeDrawPolyline() {
+    getViewer().then(viewer => {
+        viewer.entities.removeById(drawPolyline);
+    });
 }

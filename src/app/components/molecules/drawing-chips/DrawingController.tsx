@@ -68,8 +68,8 @@ export default function DrawingController() {
         getDrawer().then((drawer)=>{
             drawer.reset() // 그리기를 완료하지 않고, 초기화 했으면, 자동으로 종료된다.
 
-            clearMarkers(drawMarkerEntities).then() // 기존에 그려진 경로 마커들을 제거한다.
-            removeDrawPolyline().then(); // Polyline도 제거한다.
+            clearMarkers(drawMarkerEntities) // 기존에 그려진 경로 마커들을 제거한다.
+            removeDrawPolyline(); // Polyline도 제거한다.
 
             router.back()
         }); // drawer 호출

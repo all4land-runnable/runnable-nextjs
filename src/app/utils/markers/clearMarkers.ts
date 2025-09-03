@@ -6,11 +6,11 @@ import * as Cesium from "cesium";
  *
  * @param entities 삭제할 엔티티 모음
  */
-export default async function clearMarkers(entities: Cesium.Entity[]) {
-    const viewer = await getViewer();
+export default function clearMarkers(entities: Cesium.Entity[]) {
+    getViewer().then(viewer => {
+        entities.forEach(entity => {viewer.entities.remove(entity);})
+        entities.length = 0 // 베열 초기화
 
-    entities.forEach(entity => {viewer.entities.remove(entity);})
-    entities.length = 0 // 베열 초기화
-
-    viewer.scene.requestRender?.(); // 실시간으로 렌더링 한다.
+        viewer.scene.requestRender?.(); // 실시간으로 렌더링 한다.
+    });
 }
