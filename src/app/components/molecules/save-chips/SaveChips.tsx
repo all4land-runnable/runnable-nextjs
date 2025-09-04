@@ -3,12 +3,13 @@ import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import styles from './SaveChips.module.css'
 import React, {useEffect, useRef} from "react";
-import {
-    removeNewRoute, setNewRouteVisibility
-} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
+
 import hideMarkers from "@/app/utils/markers/hideMarkers";
 import {drawMarkerEntities} from "@/app/staticVariables";
 import {setDrawPolylineVisibility} from "@/app/components/molecules/drawing-chips/drawing/drawingRoute";
+import {
+    removeNewRoute, setNewRouteVisibility
+} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
 
 export type AutomaticRouteState = {
     onAutomaticRoute: boolean;
