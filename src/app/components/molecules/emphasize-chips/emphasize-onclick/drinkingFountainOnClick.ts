@@ -3,8 +3,9 @@ import * as Cesium from "cesium";
 import radiusFilter from "@/app/utils/radiusFilter";
 import {UnactiveError} from "@/error/unactiveError";
 import {DrinkingFountainResponse} from "@/api/response/drinkingFountainResponse";
-import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {drinkingFountainEntities} from "@/app/staticVariables";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
+import { getCameraPosition } from "@/app/components/templates/cesium/util/getCameraPosition";
 
 const drinkingFountainEntityId = (name: string, lat:number, lon:number) => `drinking_${name}-${lat}-${lon}`;
 
@@ -14,8 +15,8 @@ const drinkingFountainEntityId = (name: string, lat:number, lon:number) => `drin
  */
 export async function drinkingFountainOnClick() {
     // NOTE 1. 전역 Viewer 대기
-    const viewer = await getViewer()
-    const point = await getCameraPosition(viewer);
+    const viewer = getViewer()
+    const point = getCameraPosition();
 
     // NOTE 2. 음수대 조회 API
     const response = await apiClient.get<DrinkingFountainResponse>('/dataset/drinkingFountain.json', {

@@ -1,11 +1,11 @@
 import * as Cesium from "cesium";
-import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
 
 export let sidewalkDS: Cesium.GeoJsonDataSource | null = null;
 
 /** 1) 앱 시작 시 한 번만 호출해서 미리 로드(숨김) */
 export async function initSidewalkLayer() {
-    const viewer = await getViewer();
+    const viewer = getViewer();
     if (sidewalkDS) return;
 
     sidewalkDS = await Cesium.GeoJsonDataSource.load("/dataset/sidewalk.geojson", {

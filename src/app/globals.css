@@ -2,6 +2,11 @@
     font-family: "Noto Sans KR", sans-serif;
 }
 
+.cesium-widget canvas {
+    width: 100vw;
+    height: 100vh;
+}
+
 html, body, article {
     margin: 0;            /* 기본 여백 제거 */
     width: 100%;

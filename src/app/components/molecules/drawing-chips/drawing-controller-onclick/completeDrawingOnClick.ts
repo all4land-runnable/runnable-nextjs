@@ -1,9 +1,9 @@
 import * as Cesium from "cesium";
 import { Entity } from "cesium";
 import apiClient from "@/api/apiClient";
-import { getViewer } from "@/app/components/templates/cesium/viewer/getViewer";
 import { PedestrianResponse } from "@/api/response/pedestrianResponse";
 import { pedestrianRoute, setPedestrianRoute } from "@/app/staticVariables";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
 
 /**
  * 임시 경로 그리기를 완료했을 때 실행되는 함수
@@ -205,7 +205,7 @@ export async function makeRouteCourse(
 export function setNewRouteVisibility(visible: boolean) {
     if (!pedestrianRoute) return; // 아직 생성 안 됨
     pedestrianRoute.show = visible;
-    getViewer().then((viewer) => viewer.scene.requestRender?.());
+    getViewer().scene.requestRender?.();
 }
 
 /**
@@ -213,14 +213,14 @@ export function setNewRouteVisibility(visible: boolean) {
  * - pedestrianRoute 삭제 후 참조 해제
  */
 export function removeNewRoute() {
-    getViewer().then((viewer) => {
-        if (pedestrianRoute) {
-            try {
-                viewer.entities.remove(pedestrianRoute);
-            } finally {
-                setPedestrianRoute(null);
-            }
+    const viewer = getViewer()
+
+    if (pedestrianRoute) {
+        try {
+            viewer.entities.remove(pedestrianRoute);
+        } finally {
+            setPedestrianRoute(null);
         }
-        viewer.scene.requestRender?.();
-    });
+    }
+    viewer.scene.requestRender?.();
 }

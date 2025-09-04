@@ -6,16 +6,17 @@ import { parseFromWK } from "wkt-parser-helper";
 import type { Geometry, LineString } from "geojson";
 import radiusFilter from "@/app/utils/radiusFilter";
 import buildDashedSegmentsFromDegrees from "@/app/utils/buildDashedSegmentsFromDegrees";
-import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {crosswalkEntities} from "@/app/staticVariables";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
+import {getCameraPosition} from "@/app/components/templates/cesium/util/getCameraPosition";
 
 /**
  * 카메라 기준 반경 내의 횡단보도(NODE/LINK)만 렌더링
  */
 export async function crosswalkOnClick() {
     // NOTE 1. 전역 Viewer 대기
-    const viewer = await getViewer();
-    const point = await getCameraPosition(viewer);
+    const viewer = getViewer();
+    const point = getCameraPosition();
 
     // NOTE 2. 음수대 조회 API
     const response = await apiClient.get<CrosswalkResponse>("/dataset/crosswalk.json", {

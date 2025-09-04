@@ -7,11 +7,11 @@ import SaveChips from "@/app/components/molecules/save-chips/SaveChips";
 import {SectionStrategyParam} from "@/app/components/organisms/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/organisms/route-ranking/RouteRanking";
 import {routeHeightFromEntity} from "@/app/utils/routeHeight";
-import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {pedestrianRoute} from "@/app/staticVariables";
 import type {SlopeGraphParam} from "@/app/components/organisms/slope-graph/SlopeGraph";
 import {drawPolyline} from "@/app/components/molecules/drawing-chips/drawing/drawingRoute";
 import * as Cesium from "cesium";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -42,27 +42,27 @@ export default function Page() {
         if (initializedRef.current) return;
         initializedRef.current = true;
 
-        getViewer().then(viewer => {
-            if (pedestrianRoute) {
-                routeHeightFromEntity(viewer, pedestrianRoute).then((heights)=>{
-                    const params: SlopeGraphParam[] = heights.map((heightSample) => ({
-                        meter: heightSample.dist,
-                        height: heightSample.height, // ← 숫자 필드만 사용
-                    }));
-                    setPedestrianSlopeParams(params);
-                }).catch(console.error);
-            }
+        const viewer = getViewer();
 
-            if (drawPolyline) {
-                routeHeightFromEntity(viewer, viewer.entities.getById(drawPolyline) as Cesium.Entity).then((heights) => {
-                    const params: SlopeGraphParam[] = heights.map((heightSample) => ({
-                        meter: heightSample.dist,
-                        height: heightSample.height, // ← 숫자 필드만 사용
-                    }));
-                    setTempSlopeParams(params);
-                }).catch(console.error);
-            }
-        }).catch(console.error);
+        if (pedestrianRoute) {
+            routeHeightFromEntity(viewer, pedestrianRoute).then((heights)=>{
+                const params: SlopeGraphParam[] = heights.map((heightSample) => ({
+                    meter: heightSample.dist,
+                    height: heightSample.height, // ← 숫자 필드만 사용
+                }));
+                setPedestrianSlopeParams(params);
+            }).catch(console.error);
+        }
+
+        if (drawPolyline) {
+            routeHeightFromEntity(viewer, viewer.entities.getById(drawPolyline) as Cesium.Entity).then((heights) => {
+                const params: SlopeGraphParam[] = heights.map((heightSample) => ({
+                    meter: heightSample.dist,
+                    height: heightSample.height, // ← 숫자 필드만 사용
+                }));
+                setTempSlopeParams(params);
+            }).catch(console.error);
+        }
     }, [])
 
     // 오른쪽 사이드바 확장 상태

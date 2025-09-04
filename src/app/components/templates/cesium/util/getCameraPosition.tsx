@@ -1,19 +1,10 @@
-import { viewerStore } from './viewerStore'
 import * as Cesium from "cesium";
 import {UnactiveError} from "@/error/unactiveError";
-import {Viewer} from "cesium";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
 
-/**
- * 전역 Viewer를 쉽게 가져오기 위한 훅 인터페이스
- * - 즉시 사용 가능한 경우 즉시 반환
- * - 아직 없으면 나타날 때까지(타임아웃 없이) 대기 후 상태 반영
- */
-export async function getViewer() {
-    return await viewerStore.wait()
-}
-
-export async function getCameraPosition(viewer: Viewer) {
+export function getCameraPosition() {
     // NOTE 1. 전역 Viewer 대기
+    const viewer = getViewer();
     const scene = viewer.scene;
 
     // NOTE 2. 화면 중앙 값 판별

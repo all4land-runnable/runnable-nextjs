@@ -1,5 +1,5 @@
-import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import * as Cesium from "cesium";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
 
 /**
  * 고도 표시 Chip 버튼을 누를 때 수행되는 동작을 구현한 함수
@@ -7,7 +7,7 @@ import * as Cesium from "cesium";
 export default async function altitudeOnClick() {
     try {
         // NOTE 1. 전역 Viewer 준비 대기
-        const viewer = await getViewer();
+        const viewer = getViewer();
         const globe = viewer.scene.globe;
 
         // NOTE 2. 토글 기능
@@ -22,7 +22,6 @@ export default async function altitudeOnClick() {
         const maxHeight = 836.5; // 서울 최고 고도 (북한산)
         const contourSpacing = 5; // 등고선 간격 (m)
         const contourWidth = 2; // 등고선 선 두께 (px)
-        const contourColor = Cesium.Color.YELLOW; // 등고선 색상
 
         // NOTE 4. 고도별 색상 그라데이션 호출
         const canvas = document.createElement("canvas");

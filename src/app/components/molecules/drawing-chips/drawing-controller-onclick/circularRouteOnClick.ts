@@ -1,7 +1,7 @@
 import * as Cesium from "cesium";
 import type { JulianDate, Cartesian3 } from "cesium";
-import { getViewer } from "@/app/components/templates/cesium/viewer/getViewer";
 import {drawMarkerEntities} from "@/app/staticVariables";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
 
 export let circularHelperEntity: Cesium.Entity | null = null;
 
@@ -12,7 +12,7 @@ export let circularHelperEntity: Cesium.Entity | null = null;
  */
 export default async function circularRouteOnClick(circular: boolean) {
     // viewer 싱글톤 인스턴스
-    const viewer = await getViewer();
+    const viewer = getViewer();
 
     // 보조 폴리라인 제거 함수
     const removeHelper = () => {

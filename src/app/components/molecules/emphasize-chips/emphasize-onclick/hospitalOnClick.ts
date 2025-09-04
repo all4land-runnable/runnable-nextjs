@@ -1,9 +1,10 @@
 import * as Cesium from 'cesium';
 import apiClient from "@/api/apiClient";
 import { UnactiveError } from "@/error/unactiveError";
-import {getCameraPosition, getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {HospitalResponse} from "@/api/response/hospitalResponse";
 import {hospitalEntities} from "@/app/staticVariables";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
+import { getCameraPosition } from "@/app/components/templates/cesium/util/getCameraPosition";
 
 const SAMPLE_RADIUS = 500;
 
@@ -14,8 +15,8 @@ const hospitalEntityId = (name: string, lat: number, lon: number) => `hospital_$
  * TODO: 한번 더 누르면 기존에 누른 값은 지워지도록 만들 것
  */
 export async function hospitalOnClick() {
-    const viewer = await getViewer();
-    const position = await getCameraPosition(viewer);
+    const viewer = getViewer();
+    const position = getCameraPosition();
 
     // NOTE 1. 병원 반경 검색 API
     const response = await apiClient.get<HospitalResponse>("/getHospBasisList", {

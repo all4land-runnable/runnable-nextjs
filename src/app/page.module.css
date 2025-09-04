@@ -1,8 +1,15 @@
 .cesium {
-    position: absolute;
-    z-index: -10;
+    position: fixed; /* absolute를 fixed로 변경 */
 
-    pointer-events: auto
+    width: 100%;
+    height: 100%;
+
+    top: 4rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    pointer-events: auto;
 }
 
 .onViewer {
