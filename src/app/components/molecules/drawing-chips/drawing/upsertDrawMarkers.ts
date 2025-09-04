@@ -1,6 +1,8 @@
 import * as Cesium from "cesium";
 import type { Cartesian3 } from "cesium";
-import {drawMarkerEntities} from "@/app/staticVariables";
+import getViewer from "@/app/components/templates/cesium/util/getViewer";
+import calcDistance from "@/app/utils/claculator/calcDistance";
+import {getTempRouteMarkers} from "@/app/staticVariables";
 
 /**
  * 마지막 엔티티에 라벨을 지정하는 함수
@@ -10,7 +12,7 @@ import {drawMarkerEntities} from "@/app/staticVariables";
  */
 function setTailLabel(entity: Cesium.Entity, text: string) {
     const label = entity.label
-        ?? new Cesium.LabelGraphics({ // 기존 라벨 속성 활용 (병원 라벨과 동일)
+        ?? new Cesium.LabelGraphics({
             font: "14px sans-serif",
             fillColor: Cesium.Color.BLACK,
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -36,21 +38,20 @@ function setTailLabel(entity: Cesium.Entity, text: string) {
 /**
  * 마커의 위치를 수정+ 셍상하는 함수
  *
- * @param viewer cesium 뷰어
  * @param points 현재 클릭된 위치들
- * @param distance 위치들간의 총 거리
  */
 export default function upsertDrawMarkers(
-    viewer: Cesium.Viewer,
     points: Cartesian3[],
-    distance: number
 ) {
+    const viewer = getViewer();
+    const tempRouteMarkers = getTempRouteMarkers();
+
     // NOTE 1. 마커 위치 업서트
     points.forEach((position, index) => {
-        if (drawMarkerEntities.length > index) // 만약 이미 엔티티가 존재하면
-            drawMarkerEntities[index].position = new Cesium.ConstantPositionProperty(position); // 위치 재갱신
+        if (tempRouteMarkers.length > index) // 만약 이미 엔티티가 존재하면
+            tempRouteMarkers[index].position = new Cesium.ConstantPositionProperty(position); // 위치 재갱신
         else {
-            const drawMarkerEntity = viewer.entities.add({ //없으면 새로 생성
+            const drawMarkerEntity = viewer.entities.add({ // 없으면 새로 생성
                 position: new Cesium.ConstantPositionProperty(position),
                 point: {
                     pixelSize: 10,
@@ -62,22 +63,23 @@ export default function upsertDrawMarkers(
                 },
             });
 
-            drawMarkerEntities.push(drawMarkerEntity);
+            tempRouteMarkers.push(drawMarkerEntity);
         }
 
     })
 
     // NOTE 2. 거리 라벨 실시간 갱신
-    const lastIdx = points.length - 1;
+    const lastIndex = points.length - 1;
+    const distance = calcDistance(points); // 거리 계산
 
     points.forEach((_, index) => {
         // 마커 조회
-        const entity = drawMarkerEntities[index];
+        const entity = tempRouteMarkers[index];
 
         if (!entity) return; // 예외처리: 없다면 종료
 
         // 마지막 인덱스인 경우
-        if (index === lastIdx && points.length > 0) {
+        if (index === lastIndex && points.length > 0) {
             // 1km 전까진 m 단위로 표시
             const text = distance < 1000
                 ? `예상거리: ${distance.toFixed(0)} m`
@@ -88,8 +90,8 @@ export default function upsertDrawMarkers(
     })
 
     // NOTE 3. 초과된 마커만 정리한다.
-    while (drawMarkerEntities.length > points.length) {
-        const ent = drawMarkerEntities.pop()!; // 마지막 요소만 제거
+    while (tempRouteMarkers.length > points.length) {
+        const ent = tempRouteMarkers.pop()!; // 마지막 요소만 제거
         viewer.entities.remove(ent);
     }
     viewer.scene.requestRender?.();

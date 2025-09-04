@@ -4,8 +4,7 @@ import getViewer from "@/app/components/templates/cesium/util/getViewer";
 
 export function getCameraPosition() {
     // NOTE 1. 전역 Viewer 대기
-    const viewer = getViewer();
-    const scene = viewer.scene;
+    const scene = getViewer().scene;
 
     // NOTE 2. 화면 중앙 값 판별
     // 화면 중앙지점 조준

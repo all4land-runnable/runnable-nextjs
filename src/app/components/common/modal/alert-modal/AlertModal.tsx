@@ -43,7 +43,7 @@ export default function AlertModal({alertModalParam}: AlertModalProps) {
         document.body.style.overflow = 'hidden';
 
         return () => { document.body.style.overflow = prev; };
-    }, [alertModalParam.open]); // ← open 값만 감시
+    }, [alertModalParam.open]); // open 값만 감시
 
     // 예외처리: 열려있을 때만 진행
     if (!alertModalParam.open) return null;

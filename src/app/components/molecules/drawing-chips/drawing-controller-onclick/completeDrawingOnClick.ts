@@ -2,8 +2,16 @@ import * as Cesium from "cesium";
 import { Entity } from "cesium";
 import apiClient from "@/api/apiClient";
 import { PedestrianResponse } from "@/api/response/pedestrianResponse";
-import { pedestrianRoute, setPedestrianRoute } from "@/app/staticVariables";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
+import {
+    getPedestrianRoute,
+    getTempRoute,
+    getTempRouteMarkers,
+    setPedestrianRoute,
+    setTempRoute
+} from "@/app/staticVariables";
+import requestRender from "@/app/components/templates/cesium/util/requestRender";
+import clearMarkers from "@/app/utils/markers/clearMarkers";
 
 /**
  * 임시 경로 그리기를 완료했을 때 실행되는 함수
@@ -199,28 +207,26 @@ export async function makeRouteCourse(
 }
 
 /**
- * newRoute(pedestrianRoute)의 가시성을 제어한다.
- * @param visible true면 보이게, false면 숨김
- */
-export function setNewRouteVisibility(visible: boolean) {
-    if (!pedestrianRoute) return; // 아직 생성 안 됨
-    pedestrianRoute.show = visible;
-    getViewer().scene.requestRender?.();
-}
-
-/**
  * 화면에 추가된 경로 엔티티들을 삭제한다.
  * - pedestrianRoute 삭제 후 참조 해제
  */
-export function removeNewRoute() {
-    const viewer = getViewer()
+export function removePedestrianRoute() {
+    const viewer = getViewer();
+    const pedestrianRoute = getPedestrianRoute();
 
-    if (pedestrianRoute) {
-        try {
-            viewer.entities.remove(pedestrianRoute);
-        } finally {
-            setPedestrianRoute(null);
-        }
-    }
-    viewer.scene.requestRender?.();
+
+    viewer.entities.remove(pedestrianRoute);
+    setPedestrianRoute(undefined);
+    requestRender()
+}
+
+/**
+ * newRoute(pedestrianRoute)의 가시성을 제어한다.
+ * @param visible true면 보이게, false면 숨김
+ */
+export function setPedestrianRouteVisibility(visible: boolean) {
+    const pedestrianRoute = getPedestrianRoute();
+
+    pedestrianRoute.show = visible;
+    requestRender()
 }

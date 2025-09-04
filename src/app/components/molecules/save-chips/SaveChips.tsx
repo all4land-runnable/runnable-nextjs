@@ -5,11 +5,11 @@ import styles from './SaveChips.module.css'
 import React, {useEffect, useRef} from "react";
 
 import hideMarkers from "@/app/utils/markers/hideMarkers";
-import {drawMarkerEntities} from "@/app/staticVariables";
-import {setDrawPolylineVisibility} from "@/app/components/molecules/drawing-chips/drawing/drawingRoute";
+import {setTempRouteVisibility} from "@/app/components/molecules/drawing-chips/drawing/drawingTempRoute";
 import {
-    removeNewRoute, setNewRouteVisibility
+    removePedestrianRoute, setPedestrianRouteVisibility
 } from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
+import {getTempRouteMarkers} from "@/app/staticVariables";
 
 export type AutomaticRouteState = {
     onAutomaticRoute: boolean;
@@ -25,15 +25,15 @@ export default function SaveChips({automaticRouteState}: SaveChipsProp) {
 
     // chip 버튼 속성 선언
     const backButton: ChipParam = {label:"뒤로가기", backgroundColor:"#FF9F9F", fontSize:remToPx(1.125), toggle:false, onClick:()=> {
-        removeNewRoute();
+        removePedestrianRoute();
         router.back();
     }};
     const automaticRoute: ChipParam = {label: "자동해제", backgroundColor:"#FF9F9F", fontSize:remToPx(1.125), onClick:()=> {
         automaticRouteState.setOnAutomaticRoute(!automaticRouteState.onAutomaticRoute);
 
-        hideMarkers(drawMarkerEntities, !automaticRouteState.onAutomaticRoute);
-        setDrawPolylineVisibility(!automaticRouteState.onAutomaticRoute)
-        setNewRouteVisibility(automaticRouteState.onAutomaticRoute);
+        hideMarkers(getTempRouteMarkers(), !automaticRouteState.onAutomaticRoute);
+        setTempRouteVisibility(!automaticRouteState.onAutomaticRoute)
+        setPedestrianRouteVisibility(automaticRouteState.onAutomaticRoute);
     }};
 
     // NOTE 1. 처음 화면 생성 시 작동
@@ -42,9 +42,9 @@ export default function SaveChips({automaticRouteState}: SaveChipsProp) {
         if (initializedRef.current) return;
         initializedRef.current = true;
 
-        hideMarkers(drawMarkerEntities, automaticRouteState.onAutomaticRoute);
-        setDrawPolylineVisibility(automaticRouteState.onAutomaticRoute)
-        setNewRouteVisibility(!automaticRouteState.onAutomaticRoute);
+        hideMarkers(getTempRouteMarkers(), automaticRouteState.onAutomaticRoute);
+        setTempRouteVisibility(automaticRouteState.onAutomaticRoute)
+        setPedestrianRouteVisibility(!automaticRouteState.onAutomaticRoute);
     }, [automaticRouteState.onAutomaticRoute])
 
     return (

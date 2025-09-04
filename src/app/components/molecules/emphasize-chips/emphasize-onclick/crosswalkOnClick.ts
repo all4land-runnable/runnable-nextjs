@@ -6,9 +6,9 @@ import { parseFromWK } from "wkt-parser-helper";
 import type { Geometry, LineString } from "geojson";
 import radiusFilter from "@/app/utils/radiusFilter";
 import buildDashedSegmentsFromDegrees from "@/app/utils/buildDashedSegmentsFromDegrees";
-import {crosswalkEntities} from "@/app/staticVariables";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import {getCameraPosition} from "@/app/components/templates/cesium/util/getCameraPosition";
+import {getCrosswalk} from "@/app/staticVariables";
 
 /**
  * 카메라 기준 반경 내의 횡단보도(NODE/LINK)만 렌더링
@@ -107,7 +107,7 @@ export async function crosswalkOnClick() {
             });
 
             // 횡단보도 엔티티 저장
-            crosswalkEntities.push(crosswalkEntity);
+            getCrosswalk().push(crosswalkEntity);
         });
 
         // 두 NODE 사이 중앙점에 아이콘 표시
@@ -136,7 +136,7 @@ export async function crosswalkOnClick() {
             });
 
             // 횡단보도 엔티티 저장
-            crosswalkEntities.push(crosswalkIconEntity);
+            getCrosswalk().push(crosswalkIconEntity);
         }
     }
 }

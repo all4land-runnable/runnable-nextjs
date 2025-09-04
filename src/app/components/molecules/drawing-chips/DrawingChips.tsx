@@ -1,18 +1,18 @@
 'use client';
 
 import styles from "./DrawingController.module.css";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import workoutAvailabilityOnClick from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/workoutAvailabilityOnClick";
 import saveDrinkingFountainsInfoOnClick from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/saveDrinkingFountainsInfoOnClick";
 import {useModal} from "@/app/components/common/modal/ModalProvider";
 import {completeDrawingOnClick} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
-import circularRouteOnClick from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
 import { useRouter } from "next/navigation";
-import drawingRoute, { removeDrawPolyline } from "./drawing/drawingRoute";
+import drawingTempRoute, { removeTempRoute } from "./drawing/drawingTempRoute";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
-import {getDrawer} from "@/app/components/templates/cesium/drawer/getDrawer";
-import {drawMarkerEntities} from "@/app/staticVariables";
+import {circularRouteOnClick} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
+import {getTempRouteMarkers} from "@/app/staticVariables";
+import getDrawer from "@/app/components/templates/cesium/drawer/getDrawer";
 
 /**
  * 경로 그리기 컨트롤러 함수를 구현하는 함수
@@ -31,15 +31,16 @@ export default function DrawingChips() {
     const workoutAvailability:ChipParam = {label: "운동 가능 시간", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: workoutAvailabilityOnClick}
     const saveDrinkingFountainsInfo:ChipParam = {label: "음수대 정보 표시", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: saveDrinkingFountainsInfoOnClick}
     const circularRoute:ChipParam = {label: "원형 경로", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: ()=>{
-        circularRouteOnClick(circular).then()
+        circularRouteOnClick(circular)
         setCircular(!circular);
     }}
     const completeDrawing:ChipParam = {label: "경로 완성", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: () => {
         openConfirm({title: "경로 저장", content: "경로를 저장하시겠습니까?",
             onConfirm: ()=>{
+                const tempRouteMarkers = getTempRouteMarkers()
                 close();
-                completeDrawingOnClick(drawMarkerEntities, circular).then();
-                // removeTempLineString();
+
+                completeDrawingOnClick(tempRouteMarkers, circular).then();
                 router.push('/pages/route-save')
             },
             onCancel: close
@@ -47,13 +48,9 @@ export default function DrawingChips() {
     }}
 
     // NOTE 1. 처음 화면 생성 시 작동
-    const initializedRef = useRef(false);
     useEffect(()=>{
-        if (initializedRef.current) return;
-        initializedRef.current = true;
-
         // 새 경로 그리기를 시작한다.
-        drawingRoute(()=>{}).then();
+        drawingTempRoute(()=>{}).then();
     }, [])
 
     // NOTE 2. UI 구현
@@ -66,12 +63,9 @@ export default function DrawingChips() {
             <Chip chipParam={completeDrawing}/> {/* 경로 완성 */}
         </div>
     )
+}
 
-    function removeTempLineString(){
-        getDrawer().then((drawer)=>{
-            drawer.reset() // 그리기를 완료하지 않고, 초기화 했으면, 자동으로 종료된다.
-
-            removeDrawPolyline(); // Polyline도 제거한다.
-        }); // drawer 호출
-    }
+function removeTempLineString(){
+    getDrawer().reset() // 그리기를 완료하지 않고, 초기화 했으면, 자동으로 종료된다.
+    removeTempRoute(); // Polyline도 제거한다.
 }

@@ -2,9 +2,9 @@ import * as Cesium from 'cesium';
 import apiClient from "@/api/apiClient";
 import { UnactiveError } from "@/error/unactiveError";
 import {HospitalResponse} from "@/api/response/hospitalResponse";
-import {hospitalEntities} from "@/app/staticVariables";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import { getCameraPosition } from "@/app/components/templates/cesium/util/getCameraPosition";
+import {getHospital} from "@/app/staticVariables";
 
 const SAMPLE_RADIUS = 500;
 
@@ -86,7 +86,7 @@ export async function hospitalOnClick() {
             }
         });
 
-        hospitalEntities.push(hospitalEntity);
+        getHospital().push(hospitalEntity);
 
         // 중복 방지 Set에 등록
         drawn.add(id);

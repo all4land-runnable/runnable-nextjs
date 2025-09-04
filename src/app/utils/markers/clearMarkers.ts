@@ -1,5 +1,6 @@
 import * as Cesium from "cesium";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
+import requestRender from "@/app/components/templates/cesium/util/requestRender";
 
 /**
  * 특정 id의 마커를 제거하는 함수이다.
@@ -12,5 +13,5 @@ export default function clearMarkers(entities: Cesium.Entity[]) {
     entities.forEach(entity => {viewer.entities.remove(entity);})
     entities.length = 0 // 베열 초기화
 
-    viewer.scene.requestRender?.(); // 실시간으로 렌더링 한다.
+    requestRender();
 }

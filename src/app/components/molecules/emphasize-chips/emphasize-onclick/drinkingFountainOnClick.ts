@@ -3,9 +3,9 @@ import * as Cesium from "cesium";
 import radiusFilter from "@/app/utils/radiusFilter";
 import {UnactiveError} from "@/error/unactiveError";
 import {DrinkingFountainResponse} from "@/api/response/drinkingFountainResponse";
-import {drinkingFountainEntities} from "@/app/staticVariables";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import { getCameraPosition } from "@/app/components/templates/cesium/util/getCameraPosition";
+import {getDrinkingFoundation} from "@/app/staticVariables";
 
 const drinkingFountainEntityId = (name: string, lat:number, lon:number) => `drinking_${name}-${lat}-${lon}`;
 
@@ -85,7 +85,7 @@ export async function drinkingFountainOnClick() {
             },
         });
 
-        drinkingFountainEntities.push(drinkingFountainEntity);
+        getDrinkingFoundation().push(drinkingFountainEntity);
 
         // 중복 방지 세트에 등록
         drawn.add(id);

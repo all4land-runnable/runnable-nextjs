@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/app/header/Header";
 import ModalProvider from "@/app/components/common/modal/ModalProvider";
-import styles from "@/app/page.module.css";
 import React from "react";
 import MapPrime3DViewer from "@/app/components/templates/cesium/MapPrime3DViewer";
 

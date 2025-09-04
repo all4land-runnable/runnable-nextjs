@@ -1,21 +1,12 @@
-import {initSidewalkLayer, sidewalkDS} from "@/app/components/templates/cesium/initSidewalkLayer";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
-
-export async function sidewalkOnClick() {
-    await toggleSidewalkVisible();
-}
+import {getSidewalkDS} from "@/app/staticVariables";
 
 /** 2) 버튼 클릭 시 호출: show만 토글 */
-export async function toggleSidewalkVisible(force?: boolean) {
+export function toggleSidewalkVisible() {
     const viewer = getViewer();
+    const sidewalkDS = getSidewalkDS();
 
-    // 안전장치: 아직 안 불러졌으면 자동 초기화
-    if (!sidewalkDS) await initSidewalkLayer();
+    sidewalkDS.show = !sidewalkDS.show;
 
-    if (!sidewalkDS) return; // (로드 실패 방어)
-
-    sidewalkDS.show = typeof force === "boolean" ? force : !sidewalkDS.show;
-
-    // (선택) 즉시 리렌더
     viewer.scene.requestRender?.();
 }
