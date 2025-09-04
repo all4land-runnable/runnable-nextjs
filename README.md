@@ -52,6 +52,7 @@ TODO: Writting Link!!
 | qs                     | TODO                                                         | 6.14.0  |
 | react                  | UI library for building component-based user interfaces      | 19.1.0  |
 | react-dom              | React package for DOM rendering                              | 19.1.0  |
+| recharts               | TODO                                                         | 3.1.2   |
 | wkt-parser-helper      | TODO                                                         | 5.0.0   |
 
 

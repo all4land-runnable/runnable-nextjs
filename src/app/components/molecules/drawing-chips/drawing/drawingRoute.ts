@@ -6,12 +6,12 @@ import calcDistance from "@/app/utils/claculator/calcDistance";
 import upsertDrawMarkers from "@/app/components/molecules/drawing-chips/drawing/upsertDrawMarkers";
 import clearMarkers from "@/app/utils/markers/clearMarkers";
 import {drawMarkerEntities} from "@/app/staticVariables";
-import { setDrawPolylineEntity, drawPolylineEntity } from "@/app/staticVariables"; // ✅ 추가
+import { setTempRoute, tempRoute } from "@/app/staticVariables";
 
 /**
  * 그리기에서 만들어지는 Polyline의 id를 담아두는 전역 변수이다.
  */
-let drawPolyline: string = "";
+export let drawPolyline: string = "";
 
 /**
  * 경로를 제작할 때 실행되는 함수이다.
@@ -46,7 +46,7 @@ export default async function drawingRoute(
         },
         onEnd: (entity, positions) => {
             drawPolyline = entity.id; // 새로운 Polyline의 id 값을 저장
-            setDrawPolylineEntity(entity); // 엔티티 참조도 함께 저장
+            setTempRoute(entity); // 엔티티 참조도 함께 저장
             onEnd(entity, positions); // 엔티티 생성 후 수행할 작업
         },
     });
@@ -68,8 +68,8 @@ export function getDrawPolyline() {
 
 export function setDrawPolylineVisibility(visible: boolean) {
     // 엔티티 참조가 있으면 그것을 우선 사용
-    if (drawPolylineEntity) {
-        drawPolylineEntity.show = visible;
+    if (tempRoute) {
+        tempRoute.show = visible;
         getViewer().then(viewer => viewer.scene.requestRender?.());
         return;
     }

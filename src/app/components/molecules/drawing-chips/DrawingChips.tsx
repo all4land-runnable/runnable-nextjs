@@ -9,7 +9,6 @@ import {useModal} from "@/app/components/common/modal/ModalProvider";
 import {completeDrawingOnClick} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
 import circularRouteOnClick from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
 import { useRouter } from "next/navigation";
-import clearMarkers from "@/app/utils/markers/clearMarkers";
 import drawingRoute, { removeDrawPolyline } from "./drawing/drawingRoute";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import {getDrawer} from "@/app/components/templates/cesium/drawer/getDrawer";

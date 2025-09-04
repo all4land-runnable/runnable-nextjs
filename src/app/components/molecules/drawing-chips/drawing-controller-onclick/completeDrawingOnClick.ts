@@ -3,7 +3,7 @@ import apiClient from "@/api/apiClient";
 import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
 import {PedestrianResponse} from "@/api/response/pedestrianResponse";
 import * as Cesium from "cesium";
-import {newRouteEntity, setNewRouteEntity} from "@/app/staticVariables"; // ✅ 추가
+import {pedestrianRoute, setPedestrianRoute} from "@/app/staticVariables"; // ✅ 추가
 
 /**
  * 임시 경로 그리기를 완료할 때 실행되는 함수이다.
@@ -104,7 +104,7 @@ export async function completeDrawingOnClick(drawMarkerEntities: Entity[], isCir
             clampToGround: true, // 경로를 지면에 고정
         }
     });
-    setNewRouteEntity(newRoute);
+    setPedestrianRoute(newRoute);
 }
 
 function getEntityLngLat(entity: Entity, when: Cesium.JulianDate): [number, number] {
@@ -118,11 +118,9 @@ function getEntityLngLat(entity: Entity, when: Cesium.JulianDate): [number, numb
  * newRoute를 viewer에서 삭제하는 함수
  */
 export function removeNewRoute() {
-    if (newRouteEntity) {
-        console.log("1"+newRouteEntity);
+    if (pedestrianRoute) {
         getViewer().then((viewer) => {
-            console.log("2"+newRouteEntity);
-            viewer.entities.remove(newRouteEntity as Cesium.Entity); // 완전히 제거
+            viewer.entities.remove(pedestrianRoute as Cesium.Entity); // 완전히 제거
         });
     }
 }
@@ -132,8 +130,7 @@ export function removeNewRoute() {
  * @param visible true면 보이게, false면 숨기기
  */
 export function setNewRouteVisibility(visible: boolean) {
-    if (newRouteEntity) {
-        console.log("3"+newRouteEntity);
-        newRouteEntity.show = visible;
+    if (pedestrianRoute) {
+        pedestrianRoute.show = visible;
     } // true = 보이기, false = 숨기기
 }
