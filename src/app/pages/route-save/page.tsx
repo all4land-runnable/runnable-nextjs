@@ -8,7 +8,7 @@ import {SectionStrategyParam} from "@/app/components/organisms/pace-strategy/Pac
 import {RouteRankingParam} from "@/app/components/organisms/route-ranking/RouteRanking";
 import {routeHeightFromEntity} from "@/app/utils/routeHeight";
 import {getViewer} from "@/app/components/templates/cesium/viewer/getViewer";
-import {pedestrianRoute, tempRoute} from "@/app/staticVariables";
+import {pedestrianRoute} from "@/app/staticVariables";
 import type {SlopeGraphParam} from "@/app/components/organisms/slope-graph/SlopeGraph";
 import {drawPolyline} from "@/app/components/molecules/drawing-chips/drawing/drawingRoute";
 import * as Cesium from "cesium";
@@ -69,7 +69,7 @@ export default function Page() {
     return (
         <>
             <div className={styles.onViewer}>
-                {/* 오른쪽 사이드 바 TODO: 조건에 맞게 변경할 것 */}
+                {/* 오른쪽 사이드 바 */}
                 <RightSideBar slopeGraphParams={onAutomaticRoute?tempSlopeParams:pedestrianSlopeParams} sectionStrategies={sectionStrategies} routeRankingParams={routeRankingParams} />
             </div>
 

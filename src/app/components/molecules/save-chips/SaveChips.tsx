@@ -25,7 +25,7 @@ export default function SaveChips({automaticRouteState}: SaveChipsProp) {
 
     // chip 버튼 속성 선언
     const backButton: ChipParam = {label:"뒤로가기", backgroundColor:"#FF9F9F", fontSize:remToPx(1.125), toggle:false, onClick:()=> {
-        removeNewRoute(); // TODO 안됨
+        removeNewRoute();
         router.back();
     }};
     const automaticRoute: ChipParam = {label: "자동해제", backgroundColor:"#FF9F9F", fontSize:remToPx(1.125), onClick:()=> {
