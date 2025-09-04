@@ -10,8 +10,8 @@ import {completeDrawingOnClick} from "@/app/components/molecules/drawing-chips/d
 import { useRouter } from "next/navigation";
 import drawingTempRoute, { removeTempRoute } from "./drawing/drawingTempRoute";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
-import {circularRouteOnClick} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
-import {getTempRouteMarkers} from "@/app/staticVariables";
+import {addCircular, removeCircular} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
+import {getCircularHelper, getTempRoute} from "@/app/staticVariables";
 import getDrawer from "@/app/components/templates/cesium/drawer/getDrawer";
 
 /**
@@ -25,23 +25,24 @@ export default function DrawingChips() {
 
     // 뒤로가기 버튼 선택 함수
     const closeDrawingController:ChipParam = {label: "뒤로 가기", backgroundColor: "#FF9F9F", fontSize: remToPx(1.125), toggle:false, onClick: ()=>{
-        removeTempLineString();
+        removeDrawingRoute();
         router.back();
     }}
     const workoutAvailability:ChipParam = {label: "운동 가능 시간", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: workoutAvailabilityOnClick}
     const saveDrinkingFountainsInfo:ChipParam = {label: "음수대 정보 표시", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: saveDrinkingFountainsInfoOnClick}
     const circularRoute:ChipParam = {label: "원형 경로", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: ()=>{
-        circularRouteOnClick(circular)
+        circular? addCircular(): removeCircular()
         setCircular(!circular);
     }}
     const completeDrawing:ChipParam = {label: "경로 완성", backgroundColor: "#FF9F9F", fontSize:remToPx(1.125), onClick: () => {
         openConfirm({title: "경로 저장", content: "경로를 저장하시겠습니까?",
             onConfirm: ()=>{
-                const tempRouteMarkers = getTempRouteMarkers()
+                const tempRoute = getTempRoute()
                 close();
 
-                completeDrawingOnClick(tempRouteMarkers, circular).then();
-                router.push('/pages/route-save')
+                completeDrawingOnClick(tempRoute, circular).then(() => {
+                    router.push('/pages/route-save')
+                });
             },
             onCancel: close
         })
@@ -65,7 +66,11 @@ export default function DrawingChips() {
     )
 }
 
-function removeTempLineString(){
+function removeDrawingRoute(){
     getDrawer().reset() // 그리기를 완료하지 않고, 초기화 했으면, 자동으로 종료된다.
+    try {
+        if(getCircularHelper())
+            removeCircular()
+    }catch{}
     removeTempRoute(); // Polyline도 제거한다.
 }

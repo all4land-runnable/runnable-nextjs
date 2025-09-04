@@ -1,11 +1,15 @@
 import * as Cesium from "cesium";
 import {Cartesian3} from "cesium";
-import upsertDrawMarkers from "@/app/components/molecules/drawing-chips/drawing/upsertDrawMarkers";
+import upsertTempRoute from "@/app/components/molecules/drawing-chips/drawing/upsertTempRoute";
 import clearMarkers from "@/app/utils/markers/clearMarkers";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import getDrawer from "@/app/components/templates/cesium/drawer/getDrawer";
 import requestRender from "@/app/components/templates/cesium/util/requestRender";
 import {getTempRoute, getTempRouteMarkers, setTempRoute} from "@/app/staticVariables";
+import {
+    addCircular,
+    removeCircular
+} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
 
 /**
  * 경로를 제작할 때 실행되는 함수이다.
@@ -15,6 +19,7 @@ import {getTempRoute, getTempRouteMarkers, setTempRoute} from "@/app/staticVaria
 export default async function drawingTempRoute(
     onEnd: (entity: Cesium.Entity, positions: Cartesian3[]) => void
 ) {
+    const viewer = getViewer();
     const drawer = getDrawer();
 
     // 그리기 시작
@@ -27,12 +32,24 @@ export default async function drawingTempRoute(
             clampToGround: true, // 선이 바닥에 붙음
         },
         onPointsChange: (points) => { // 경로 제작 반복적으로 실행되는 콜백 함수
-            upsertDrawMarkers(points);
+            upsertTempRoute(points);
             requestRender() // 실시간 렌더링
         },
         onEnd: (entity, positions) => {
-            setTempRoute(entity); // 엔티티 참조도 함께 저장
-            onEnd(entity, positions); // 엔티티 생성 후 수행할 작업
+            const entityShallow = Object.create(
+                Object.getPrototypeOf(entity),
+                Object.getOwnPropertyDescriptors(entity)
+            ) as Cesium.Entity;
+
+            const positionsShallow = positions.slice();
+
+            // 사용처에 shallow 복사본 전달/저장
+            setTempRoute(entityShallow);
+
+            viewer.entities.add(entityShallow);
+
+            drawer.reset()
+            onEnd(entityShallow, positionsShallow);
         },
     });
 }

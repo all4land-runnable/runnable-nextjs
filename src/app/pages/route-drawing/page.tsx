@@ -11,7 +11,6 @@ import DrawingChips from "@/app/components/molecules/drawing-chips/DrawingChips"
  * @constructor
  */
 export default function Page() {
-
     return (
         <>
             <div className={styles.onViewer}>

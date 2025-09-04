@@ -3,15 +3,8 @@ import type { JulianDate, Cartesian3 } from "cesium";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import {getCircularHelper, getTempRouteMarkers, setCircularHelper} from "@/app/staticVariables";
 
-/**
- * 원형 경로를 위한 보조선을 생성하는 함수이다.
- *
- * @param circular 현재(토글 이전)의 원형 경로 여부
- */
-export const circularRouteOnClick = (circular: boolean) => circular? addHelper(): removeHelper()
-
 // 보조 폴리라인 제거 함수
-const removeHelper = () => {
+export const removeCircular = () => {
     const viewer = getViewer();
     const circularHelper = getCircularHelper()
 
@@ -22,11 +15,8 @@ const removeHelper = () => {
 };
 
 // 보조 폴리라인 생성 함수
-const addHelper = () => {
+export const addCircular = () => {
     const viewer = getViewer();
-    const circularHelper = getCircularHelper();
-
-    if (circularHelper) return; // 예외처리: 중복 생성 방지
 
     // 시작점과 끝점을 실시간으로 연결하는 CallbackProperty
     const positionsProp = new Cesium.CallbackProperty(
@@ -63,3 +53,11 @@ const addHelper = () => {
 
     viewer.scene.requestRender?.();
 };
+
+export const setCircularVisibility = (visible: boolean) => {
+    // 원형 경로가 설정 됐을때만,
+    try {
+        const circularHelper = getCircularHelper()
+        circularHelper.show = visible
+    } catch {}
+}

@@ -2,14 +2,16 @@ import {useRouter} from "next/navigation";
 import {Chip, ChipParam} from "@/app/components/atom/chip/Chip";
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import styles from './SaveChips.module.css'
-import React, {useEffect, useRef} from "react";
+import React, {useEffect} from "react";
 
 import hideMarkers from "@/app/utils/markers/hideMarkers";
 import {setTempRouteVisibility} from "@/app/components/molecules/drawing-chips/drawing/drawingTempRoute";
+import {removePedestrianRoute} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
+import {getPedestrianRoute, getTempRouteMarkers} from "@/app/staticVariables";
+import requestRender from "../../templates/cesium/util/requestRender";
 import {
-    removePedestrianRoute, setPedestrianRouteVisibility
-} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
-import {getTempRouteMarkers} from "@/app/staticVariables";
+    setCircularVisibility
+} from "@/app/components/molecules/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
 
 export type AutomaticRouteState = {
     onAutomaticRoute: boolean;
@@ -33,17 +35,15 @@ export default function SaveChips({automaticRouteState}: SaveChipsProp) {
 
         hideMarkers(getTempRouteMarkers(), !automaticRouteState.onAutomaticRoute);
         setTempRouteVisibility(!automaticRouteState.onAutomaticRoute)
+        setCircularVisibility(!automaticRouteState.onAutomaticRoute)
         setPedestrianRouteVisibility(automaticRouteState.onAutomaticRoute);
     }};
 
     // NOTE 1. 처음 화면 생성 시 작동
-    const initializedRef = useRef(false);
     useEffect(()=>{
-        if (initializedRef.current) return;
-        initializedRef.current = true;
-
         hideMarkers(getTempRouteMarkers(), automaticRouteState.onAutomaticRoute);
         setTempRouteVisibility(automaticRouteState.onAutomaticRoute)
+        setCircularVisibility(automaticRouteState.onAutomaticRoute)
         setPedestrianRouteVisibility(!automaticRouteState.onAutomaticRoute);
     }, [automaticRouteState.onAutomaticRoute])
 
@@ -53,4 +53,15 @@ export default function SaveChips({automaticRouteState}: SaveChipsProp) {
             <Chip chipParam={automaticRoute}/>
         </div>
     )
+}
+
+/**
+ * newRoute(pedestrianRoute)의 가시성을 제어한다.
+ * @param visible true면 보이게, false면 숨김
+ */
+export function setPedestrianRouteVisibility(visible: boolean) {
+    const pedestrianRoute = getPedestrianRoute();
+
+    pedestrianRoute.show = visible;
+    requestRender()
 }

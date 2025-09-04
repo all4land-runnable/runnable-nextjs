@@ -1,14 +1,13 @@
 'use client';
 
 import styles from './page.module.css'
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import RightSideBar from "@/app/components/templates/right-side-bar/RightSideBar";
 import SaveChips from "@/app/components/molecules/save-chips/SaveChips";
 import {SectionStrategyParam} from "@/app/components/organisms/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/organisms/route-ranking/RouteRanking";
 import {routeHeightFromEntity} from "@/app/utils/routeHeight";
 import type {SlopeGraphParam} from "@/app/components/organisms/slope-graph/SlopeGraph";
-import * as Cesium from "cesium";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import {getPedestrianRoute, getTempRoute} from "@/app/staticVariables";
 
@@ -36,11 +35,7 @@ export default function Page() {
     const [pedestrianSlopeParams, setPedestrianSlopeParams] = useState<SlopeGraphParam[]>([]);
 
     // NOTE 1. 처음 화면 생성 시 작동
-    const initializedRef = useRef(false);
     useEffect(()=>{
-        if (initializedRef.current) return;
-        initializedRef.current = true;
-
         const viewer = getViewer();
 
         const pedestrianRoute = getPedestrianRoute()

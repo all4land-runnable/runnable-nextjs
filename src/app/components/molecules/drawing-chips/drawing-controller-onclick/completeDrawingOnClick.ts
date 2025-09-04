@@ -1,42 +1,33 @@
 import * as Cesium from "cesium";
-import { Entity } from "cesium";
+import {Cartesian3, Entity, JulianDate} from "cesium";
 import apiClient from "@/api/apiClient";
 import { PedestrianResponse } from "@/api/response/pedestrianResponse";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
-import {
-    getPedestrianRoute,
-    getTempRoute,
-    getTempRouteMarkers,
-    setPedestrianRoute,
-    setTempRoute
-} from "@/app/staticVariables";
+import {getPedestrianRoute, setPedestrianRoute,} from "@/app/staticVariables";
 import requestRender from "@/app/components/templates/cesium/util/requestRender";
-import clearMarkers from "@/app/utils/markers/clearMarkers";
 
 /**
  * 임시 경로 그리기를 완료했을 때 실행되는 함수
  * - Tmap 보행자 경로를 구간별로 이어붙여 Cesium Polyline을 그림
  * - 전역 pedestrianRoute 엔티티를 갱신
  *
- * @param drawMarkerEntities 사용자가 지도에서 지정한 점(엔티티) 목록
+ * @param tempRoute
  * @param isCircular 원형 경로 여부 (true면 마지막 점을 시작점에 연결)
  * @returns routeCourse [lng, lat][] (Cesium.fromDegreesArray에 바로 쓸 수 있음)
  */
-export async function completeDrawingOnClick(
-    drawMarkerEntities: Entity[],
-    isCircular: boolean
-): Promise<[number, number][]> {
-    if (!drawMarkerEntities || drawMarkerEntities.length < 2) return [];
+export async function completeDrawingOnClick(tempRoute: Entity, isCircular: boolean):Promise<[number, number][]> {
+    const viewer = getViewer();
 
     // 1) 모든 구간 보행자 경로를 이어붙여 폴리라인 좌표 생성
-    const routeCourse = await makeRouteCourse(drawMarkerEntities, isCircular);
-    if (routeCourse.length < 2) return routeCourse;
+    const routeCourse = await makeRouteCourse(tempRoute, isCircular);
+    if (routeCourse.length < 2) {
+        return routeCourse;
+    }
 
     // 2) Polyline 엔티티 생성 및 추가
-    const viewer = await getViewer();
     const positions = Cesium.Cartesian3.fromDegreesArray(routeCourse.flat());
 
-    const newRoute = viewer.entities.add({
+    const pedestrianRoute = viewer.entities.add({
         polyline: {
             positions,
             width: 5,
@@ -46,22 +37,12 @@ export async function completeDrawingOnClick(
     });
 
     // 3) 전역 보관
-    setPedestrianRoute(newRoute);
+    setPedestrianRoute(pedestrianRoute);
 
     // 4) 즉시 렌더 요청
     viewer.scene.requestRender?.();
 
     return routeCourse;
-}
-
-/**
- * 엔티티에서 [lng, lat] 추출
- */
-function getEntityLngLat(entity: Entity, when: Cesium.JulianDate): [number, number] {
-    const cart = entity.position?.getValue(when);
-    if (!cart) throw new Error("Entity has no position");
-    const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(cart);
-    return [Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude)];
 }
 
 /**
@@ -150,56 +131,88 @@ async function fetchPedestrianSegment(params: {
     );
     const pedestrianResponse:PedestrianResponse = response.data;
 
-    // ✅ LineString만이 아니라 Point 포함 모든 좌표를 합친다
+    // LineString만이 아니라 Point 포함 모든 좌표를 합친다
     return flattenAllCoordinates(pedestrianResponse);
 }
 
+
+/** Property 타입에 getValue가 있는지 확인하는 type guard */
+function hasGetValue(
+    prop: unknown
+): prop is { getValue: (time: JulianDate) => unknown } {
+    return typeof (prop as { getValue?: unknown })?.getValue === "function";
+}
+
+/** 폴리라인 Entity에서 현재 시각의 [lng,lat][]를 뽑아낸다 */
+function getPolylineLngLatList(route: Entity, when: JulianDate): [number, number][] {
+    const C = window.Cesium;
+    const posProp = route.polyline?.positions;
+    if (!posProp) return [];
+
+    const positions: Cartesian3[] = hasGetValue(posProp)
+        ? (posProp.getValue(when) as Cartesian3[])
+        : (posProp as unknown as Cartesian3[]);
+
+    if (!positions || positions.length === 0) return [];
+
+    return positions.map((c3: Cartesian3) => {
+        const carto = C.Cartographic.fromCartesian(c3);
+        return [
+            C.Math.toDegrees(carto.longitude),
+            C.Math.toDegrees(carto.latitude),
+        ];
+    });
+}
+
 /**
- * 주어진 마커 엔티티들로부터 Tmap 보행자 경로를 이어붙여
+ * 폴리라인(경로 엔티티) 기준으로 Tmap 보행자 경로를 이어붙여
  * Cesium Polyline에 바로 넣을 수 있는 [lng, lat][] 반환
+ * (기존 로직 유지: 5개 단위로 start + (최대 5 경유) + end 호출)
  */
 export async function makeRouteCourse(
-    drawMarkerEntities: Entity[],
+    tempRoute: Entity,
     isCircular: boolean
 ): Promise<[number, number][]> {
-    const viewer = await getViewer();
+    const viewer = getViewer();
     const when = viewer.clock.currentTime;
 
-    // 원형 경로면 마지막에 시작점을 한 번 더 넣어서 폐합
-    const markers =
-        isCircular && drawMarkerEntities.length > 0
-            ? [...drawMarkerEntities, drawMarkerEntities[0]]
-            : [...drawMarkerEntities];
+    // 1) 폴리라인의 정점들을 [lng,lat][]로 추출
+    const vertices = getPolylineLngLatList(tempRoute, when);
+
+    // 2) 원형 경로면 시작점 재부착
+    const markers: [number, number][] =
+        !isCircular && vertices.length > 0 ? [...vertices, vertices[0]] : [...vertices];
 
     const routeCourse: [number, number][] = [];
     if (markers.length < 2) return routeCourse;
 
-    // i를 5칸씩 증가시키되, 매 구간마다 "시작 + (최대 5 경유) + 도착" 구성
+    // 3) 5개 단위로 세그먼트 요청을 모아 실행
+    const tasks: Promise<[number, number][]>[] = [];
     for (let i = 0; i < markers.length - 1; i += 5) {
-        const [startX, startY] = getEntityLngLat(markers[i], when);
+        const [startX, startY] = markers[i];
 
         const remaining = markers.length - (i + 1);
-        const stepCount = Math.min(5, remaining); // 이번 구간에서 사용할 경유지 수(최대 5)
+        const stepCount = Math.min(5, remaining); // 이번 배치에서 사용할 경유지 수(최대 5)
 
-        // 경유지(passList) 구성: i+1 ~ i+stepCount-1
         const passListCoords: string[] = [];
         for (let j = 1; j < stepCount; j++) {
-            const [viaX, viaY] = getEntityLngLat(markers[i + j], when);
+            const [viaX, viaY] = markers[i + j];
             passListCoords.push(`${viaX},${viaY}`);
         }
         const passList = passListCoords.length ? passListCoords.join("_") : undefined;
 
-        // 도착점: i + stepCount
-        const [endX, endY] = getEntityLngLat(markers[i + stepCount], when);
+        const [endX, endY] = markers[i + stepCount];
+        tasks.push(fetchPedestrianSegment({ startX, startY, endX, endY, passList }));
+    }
 
-        const segment = await fetchPedestrianSegment({ startX, startY, endX, endY, passList });
-        if (segment.length === 0) continue;
-
-        // 이어붙일 때 연속 중복 좌표 제거
+    // 4) 세그먼트 합치기(연속 중복 제거)
+    const segments = await Promise.all(tasks);
+    for (const seg of segments) {
+        if (!seg || seg.length === 0) continue;
         if (routeCourse.length === 0) {
-            routeCourse.push(...segment);
+            routeCourse.push(...seg);
         } else {
-            for (const c of segment) pushIfNotDuplicate(routeCourse, c);
+            for (const c of seg) pushIfNotDuplicate(routeCourse, c);
         }
     }
 
@@ -217,16 +230,5 @@ export function removePedestrianRoute() {
 
     viewer.entities.remove(pedestrianRoute);
     setPedestrianRoute(undefined);
-    requestRender()
-}
-
-/**
- * newRoute(pedestrianRoute)의 가시성을 제어한다.
- * @param visible true면 보이게, false면 숨김
- */
-export function setPedestrianRouteVisibility(visible: boolean) {
-    const pedestrianRoute = getPedestrianRoute();
-
-    pedestrianRoute.show = visible;
     requestRender()
 }

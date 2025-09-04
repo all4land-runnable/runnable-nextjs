@@ -40,7 +40,7 @@ function setTailLabel(entity: Cesium.Entity, text: string) {
  *
  * @param points 현재 클릭된 위치들
  */
-export default function upsertDrawMarkers(
+export default function upsertTempRoute(
     points: Cartesian3[],
 ) {
     const viewer = getViewer();
