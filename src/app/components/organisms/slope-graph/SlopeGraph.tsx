@@ -2,12 +2,10 @@
 
 import {Area, ComposedChart, Line, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, LabelList, Brush} from 'recharts';
 import styles from './SlopeGraph.module.css'
-import { remToPx } from '@/app/utils/claculator/pxToRem';
 import addSlope from "@/app/components/organisms/slope-graph/util/addSlope";
 import initXTick from "@/app/components/organisms/slope-graph/util/initXTick";
 import segmentBySlope from "@/app/components/organisms/slope-graph/util/segmentBySlope";
 import formatKmTick from "@/app/components/organisms/slope-graph/util/formatKmTick";
-import {TooltipContentProps} from "@/app/components/organisms/slope-graph/util/tooltip/tooptipPayload";
 import {formatKm} from "@/app/utils/claculator/formatKm";
 
 // NOTE 1. 타입 지정
@@ -117,7 +115,7 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
                         <XAxis
                             dataKey="meter" // 데이터
                             type="number" // 타입
-                            domain={[meterFirst, meterLast]} // 범위
+                            // domain={[meterFirst, meterLast]} // 범위
                             ticks={xTicks} // 라인
                             allowDecimals // 소수 허용
                             tickFormatter={(xTick: number) => formatKmTick(xTick, meterLast)} // tick에 표시될 정보
