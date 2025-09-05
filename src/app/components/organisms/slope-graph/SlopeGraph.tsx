@@ -1,6 +1,10 @@
 'use client'
 
-import {Area, ComposedChart, Line, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, LabelList, Brush} from 'recharts';
+import {
+    Area, ComposedChart, Line, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip,
+    ReferenceDot,
+    Label
+} from 'recharts';
 import styles from './SlopeGraph.module.css'
 import addSlope from "@/app/components/organisms/slope-graph/util/addSlope";
 import initXTick from "@/app/components/organisms/slope-graph/util/initXTick";
@@ -57,6 +61,14 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
      // 범위 계산 // TODO: 최고 최저 고도 측정을 위해 사용한다.
     const heightMin = Math.min(...heights);
     const heightMax = Math.max(...heights);
+
+    // heightMin/Max가 있는 위치
+    const minIdx = heights.indexOf(heightMin);
+    const maxIdx = heights.indexOf(heightMax);
+
+    // 각각의 meter
+    const meterAtMin = data[minIdx]?.meter; // 최저점의 meter
+    const meterAtMax = data[maxIdx]?.meter; // 최고점의 meter
 
     // TODO: 그래프의 범위를 조절하기 위해 만드는 것으로 추정된다.
     const Y_STEP = 5; // y축 단위(5m 단위로 표시된다.)
@@ -163,6 +175,15 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
                             isAnimationActive={false}
                             connectNulls={false}
                         />
+                        {/* 최저점 마커 + 라벨 */}
+                        <ReferenceDot x={meterAtMin} y={heightMin} r={4} fill="#1e63ff" stroke="#000">
+                            <Label value={formatKm(heightMin)} position="bottom" style={{ fontSize: 14 }} />
+                        </ReferenceDot>
+
+                        {/* 최고점 마커 + 라벨 */}
+                        <ReferenceDot x={meterAtMax} y={heightMax} r={4} fill="#ff4d4f" stroke="#000">
+                            <Label value={formatKm(heightMax)} position="top" style={{ fontSize: 14 }} />
+                        </ReferenceDot>
                     </ComposedChart>
                 </ResponsiveContainer>
             </div>
