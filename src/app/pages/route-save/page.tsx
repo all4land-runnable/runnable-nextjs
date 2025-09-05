@@ -55,6 +55,8 @@ export default function Page() {
                 height: heightSample.height, // ← 숫자 필드만 사용
             }));
             setTempSlopeParams(params);
+
+            console.log(pedestrianSlopeParams)
         }).catch(console.error);
     }, [])
 

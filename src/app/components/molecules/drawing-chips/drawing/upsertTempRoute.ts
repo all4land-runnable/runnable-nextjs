@@ -3,6 +3,7 @@ import type { Cartesian3 } from "cesium";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import calcDistance from "@/app/utils/claculator/calcDistance";
 import {getTempRouteMarkers} from "@/app/staticVariables";
+import {formatKm} from "@/app/utils/claculator/formatKm";
 
 /**
  * 마지막 엔티티에 라벨을 지정하는 함수
@@ -81,9 +82,7 @@ export default function upsertTempRoute(
         // 마지막 인덱스인 경우
         if (index === lastIndex && points.length > 0) {
             // 1km 전까진 m 단위로 표시
-            const text = distance < 1000
-                ? `예상거리: ${distance.toFixed(0)} m`
-                : `예상거리: ${(distance / 1000).toFixed(2)} km`;
+            const text = `예상거리: ${formatKm(distance)}`;
             setTailLabel(entity, text);
         } else
             entity.label = undefined; // 이전 마커들의 라벨은 제거
