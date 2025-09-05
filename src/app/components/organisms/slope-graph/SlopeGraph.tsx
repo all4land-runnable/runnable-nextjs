@@ -163,8 +163,6 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
                             isAnimationActive={false}
                             connectNulls={false}
                         />
-
-                        <Brush dataKey="meter" stroke="#8884d8" />
                     </ComposedChart>
                 </ResponsiveContainer>
             </div>
