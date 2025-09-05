@@ -1,6 +1,6 @@
 'use client'
 
-import {Area, ComposedChart, Line, ResponsiveContainer, CartesianGrid, XAxis, YAxis, ReferenceLine, Label, Tooltip, LabelList} from 'recharts';
+import {Area, ComposedChart, Line, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, LabelList, Brush} from 'recharts';
 import styles from './SlopeGraph.module.css'
 import { remToPx } from '@/app/utils/claculator/pxToRem';
 
@@ -328,19 +328,7 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
                         >
                             <LabelList dataKey="pace" position="top" style={{ fontSize: 14 }} />
                         </Line>
-
-                        {/* 섹션 중앙 라벨 */}
-                        {ENABLE_REFERENCE_LABELS && sectionCenters.map((x, i) => (
-                            <ReferenceLine
-                                key={`section-${i}`}
-                                x={x}
-                                stroke="#000"
-                                strokeOpacity={0}         // 선은 숨기고
-                                ifOverflow="extendDomain"  // 끝이 경계면 도메인 확장
-                            >
-                                <Label value="temp" position="top" style={{ fontSize: 14 }} />
-                            </ReferenceLine>
-                        ))}
+                        <Brush dataKey="meter" stroke="#8884d8" />
                     </ComposedChart>
                 </ResponsiveContainer>
             </div>
