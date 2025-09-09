@@ -16,74 +16,45 @@ type RouteOptionSliderProps = {
     /** 활성화 여부 (기본값: true) */
     active?: boolean;
     /** 값 변경 콜백 */
-    onChange: (value: number) => void;
+    onSlideAction: (value: number) => void;
     /** 활성/비활성 토글 콜백 (우측 링 버튼 클릭) */
-    onToggleActive?: (next: boolean) => void;
-    /** 추가 wrapper className (선택) */
-    className?: string;
-    /** 슬라이더의 aria-label (선택) */
-    ariaLabel?: string;
+    onToggleAction: (next: boolean) => void;
 };
 
-export default function RouteOptionSlider({
-                                              label,
-                                              value,
-                                              min,
-                                              max,
-                                              step = 1,
-                                              active = true,
-                                              onChange,
-                                              onToggleActive,
-                                              className = "",
-                                              ariaLabel,
-                                          }: RouteOptionSliderProps) {
-    const pct =
-        max === min ? 0 : Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100));
-
+export default function RouteOptionSlider({label, value, min, max, step = 1, active = false, onSlideAction, onToggleAction}: RouteOptionSliderProps) {
+    // 슬라이더의 값이 변경되면 일어나는 동작
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const next = Number(e.target.value);
-        if (!Number.isNaN(next)) onChange(next);
+        if (!Number.isNaN(next)) onSlideAction(next);
     };
 
-    const cardClass = [
-        styles.rosCard,
-        active ? styles.active : styles.inactive,
-        className,
-    ]
-        .filter(Boolean)
-        .join(" ");
-
     return (
-        <div className={cardClass}>
-            <div className={styles.rosHead}>
-                <span className={styles.rosLabel}>{label}</span>
+        <div className={[styles.routeOptionSlider, active ? styles.active : styles.inactive,].join(" ")}>
+            <div className={styles.header}>
+                <span className={styles.label}>{label}</span> {/* 슬라이더 설명 */}
 
                 {/* 우측 원형 토글 (꽉 찬/비어있는 링) */}
-                <button
-                    type="button"
+                <svg
+                    role="button" width={21} height={21} viewBox="0 0 21 21" className={styles.toggle}
+                    onClick={() => onToggleAction(!active)}
+                    xmlns="http://www.w3.org/2000/svg"
                     aria-pressed={active}
-                    aria-label={active ? "옵션 비활성화" : "옵션 활성화"}
-                    className={`${styles.rosToggle} ${active ? styles.on : styles.off}`}
-                    onClick={() => onToggleActive?.(!active)}
                 >
-                    <span className={styles.ring} />
-                    <span className={styles.dot} />
-                </button>
+                    <circle cx="10.5" cy="10.5" r={9} stroke="#FAD05A" strokeWidth={3} fill="none"/> {/* 바깥 링 */}
+                    {active && (<circle cx="10.5" cy="10.5" r={5.0} fill="#FAD05A"/>)} {/* 활성 점(원하는 크기로) */}
+                </svg>
             </div>
 
-            <div className={styles.rosRangeWrap}>
-                <input
-                    type="range"
-                    min={min}
-                    max={max}
-                    step={step}
-                    value={value}
-                    aria-label={ariaLabel ?? label}
-                    onChange={handleChange}
-                    disabled={!active}
-                    className={styles.rosRange}
-                />
-            </div>
+            <input
+                type="range"
+                min={min} // 최소값
+                max={max} // 최대 값
+                step={step} // 한 칸단 이동 량
+                value={value} // 현재 값
+                onChange={handleChange} // 값 변동 시 함수
+                disabled={!active} // 비활성화 여부
+                className={styles.slider} // 디자인
+            />
         </div>
     );
 }
