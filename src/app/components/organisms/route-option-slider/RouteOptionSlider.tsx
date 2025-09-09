@@ -9,6 +9,8 @@ type RouteOptionSliderProps = {
     label: string;
     /** 현재 값 */
     value: number;
+    /** 현재 값 표기 포맷 */
+    formatValue: string;
     /** 최소/최대/스텝 */
     min: number;
     max: number;
@@ -21,7 +23,7 @@ type RouteOptionSliderProps = {
     onToggleAction: (next: boolean) => void;
 };
 
-export default function RouteOptionSlider({label, value, min, max, step = 1, active = false, onSlideAction, onToggleAction}: RouteOptionSliderProps) {
+export default function RouteOptionSlider({label, value, formatValue, min, max, step = 1, active = false, onSlideAction, onToggleAction}: RouteOptionSliderProps) {
     // 슬라이더의 값이 변경되면 일어나는 동작
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const next = Number(e.target.value);
@@ -31,8 +33,10 @@ export default function RouteOptionSlider({label, value, min, max, step = 1, act
     return (
         <div className={[styles.routeOptionSlider, active ? styles.active : styles.inactive,].join(" ")}>
             <div className={styles.header}>
-                <span className={styles.label}>{label}</span> {/* 슬라이더 설명 */}
-
+                <div>
+                    <span className={styles.label}>{label}</span> {/* 슬라이더 설명 */}
+                    <span className={styles.label}>{formatValue}</span> {/* 현재 값 */}
+                </div>
                 {/* 우측 원형 토글 (꽉 찬/비어있는 링) */}
                 <svg
                     role="button" width={21} height={21} viewBox="0 0 21 21" className={styles.toggle}

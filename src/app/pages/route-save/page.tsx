@@ -58,7 +58,7 @@ export default function Page() {
 
             console.log(pedestrianSlopeParams)
         }).catch(console.error);
-    }, [])
+    }, [pedestrianSlopeParams])
 
     // 오른쪽 사이드바 확장 상태
     return (
