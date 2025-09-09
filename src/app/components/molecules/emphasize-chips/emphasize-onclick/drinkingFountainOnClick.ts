@@ -2,10 +2,11 @@ import apiClient from "@/api/apiClient";
 import * as Cesium from "cesium";
 import radiusFilter from "@/app/utils/radiusFilter";
 import {UnactiveError} from "@/error/unactiveError";
-import {DrinkingFountainResponse} from "@/api/response/drinkingFountainResponse";
+import {DrinkingFountain} from "@/api/response/drinkingFountainResponse";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import { getCameraPosition } from "@/app/components/templates/cesium/util/getCameraPosition";
 import {getDrinkingFoundation} from "@/app/staticVariables";
+import CommonResponse from "@/api/response/common_response";
 
 const drinkingFountainEntityId = (name: string, lat:number, lon:number) => `drinking_${name}-${lat}-${lon}`;
 
@@ -19,13 +20,22 @@ export async function drinkingFountainOnClick() {
     const point = getCameraPosition();
 
     // NOTE 2. 음수대 조회 API
-    const response = await apiClient.get<DrinkingFountainResponse>('/dataset/drinkingFountain.json', {
-        baseURL: 'http://localhost:3000',
+    const response = await apiClient.get<CommonResponse<DrinkingFountain[]>>(`/api/v1/dataset/drinkingFountains`, {
+        baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
+        params: {
+            lat: point.lat,
+            lon: point.lon,
+            radius_m:500,
+        }
     })
 
     // api response 데이터 반환
-    const drinkingFountainResponse: DrinkingFountainResponse = response.data
-    let drinkingFountains = drinkingFountainResponse.DATA
+    const drinkingFountainResponse: CommonResponse<DrinkingFountain[]> = response.data
+
+    if(!drinkingFountainResponse || !drinkingFountainResponse.data)
+        throw new Error("drinkingFountainResponse returned from drinkingFountain")
+
+    let drinkingFountains: DrinkingFountain[] = drinkingFountainResponse.data
 
     // 로컬 파일 이용하므로, 반경 검색 직접 구현
     drinkingFountains = radiusFilter(drinkingFountains, point.lat, point.lon);

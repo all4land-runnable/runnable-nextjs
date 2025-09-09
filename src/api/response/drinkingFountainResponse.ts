@@ -11,8 +11,3 @@ export interface DrinkingFountain {
     pnu?: string | null; // 지번주소 코드
     rpnu?: string | null; // 도로명주소 코드
 }
-
-export interface DrinkingFountainResponse {
-    DESCRIPTION: Record<string, string>;
-    DATA: DrinkingFountain[];
-}

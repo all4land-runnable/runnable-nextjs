@@ -17,8 +17,3 @@ export interface Crosswalk {
     end_lnkg_id: number | null; // 종료노드 ID (LINK)
     lnkg_type_cd: string; // 링크 유형 코드 (예: 1000, 1011)
 }
-
-export interface CrosswalkResponse {
-    DESCRIPTION: Record<string, string>;
-    DATA: Crosswalk[];
-}

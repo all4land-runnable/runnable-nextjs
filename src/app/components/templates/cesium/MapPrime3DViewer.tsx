@@ -4,6 +4,10 @@ import { Viewer } from 'cesium';
 import { createCesium } from "@/app/components/templates/cesium/createCesiumViewer";
 import styles from "@/app/page.module.css";
 import { extendMapPrime3D } from "@/app/components/templates/cesium/extendMapPrime3D";
+import * as Cesium from "cesium";
+import {initSidewalkLayer} from "@/app/components/templates/cesium/initSidewalkLayer";
+
+Cesium.Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_TOKEN!;
 
 export default function MapPrime3DViewer() {
     const ref = useRef<HTMLDivElement | null>(null);
@@ -38,6 +42,8 @@ export default function MapPrime3DViewer() {
                 roll: 0,
             },
         }).catch(console.error);
+
+        initSidewalkLayer().then();
     }, []);
 
     return <div ref={ref} className={styles.cesium} />;

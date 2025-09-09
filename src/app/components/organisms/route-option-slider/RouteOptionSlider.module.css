@@ -1,0 +1,129 @@
+/* 지역(컴포넌트) 스코프 변수: :root 대신 .card에 선언 */
+.card {
+    /* theme tokens (local) */
+    --ros-accent: #f3c550;
+    --ros-accent-ink: #d8a61f;
+    --ros-border: #111;
+    --ros-bg: #fff;
+    --ros-muted: #c7c7c7;
+    --ros-disabled: #d9d9d9;
+
+    border: 2px solid var(--ros-border);
+    background: var(--ros-bg);
+    border-radius: 16px;
+    padding: 16px 18px 22px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* 라벨 */
+.label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #111;
+    user-select: none;
+}
+.labelInactive {
+    color: #bdbdbd;
+}
+
+/* 우측 링 토글 */
+.ringButton {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 2px solid var(--ros-accent);
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+.ringButton:focus-visible {
+    outline: 2px dashed var(--ros-accent-ink);
+    outline-offset: 2px;
+}
+
+.ringDot {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    border: 2px solid var(--ros-accent);
+    background: transparent;
+}
+.ringActive .ringDot {
+    background: var(--ros-accent);
+    box-shadow: inset 0 0 0 2px #fff;
+}
+
+/* 슬라이더 래퍼 */
+.sliderWrap {
+    margin-top: 6px;
+}
+
+/* 공통 range 기본 */
+.range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 999px;
+    outline: none;
+    background: #dfdfdf; /* 비활성/기본 트랙 */
+}
+.rangeActive {
+    background: #1a1a1a; /* 활성 트랙 */
+}
+
+/* WebKit thumb */
+.range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--ros-accent);
+    border: 2px solid #1a1a1a;
+    box-shadow: inset 0 0 0 2px #fff;
+    cursor: pointer;
+    margin-top: -7px; /* 트랙 두께 보정 */
+}
+.range:disabled::-webkit-slider-thumb {
+    background: #f6edcf;
+    border-color: #aaa;
+}
+
+/* Firefox track & thumb */
+.range::-moz-range-track {
+    height: 4px;
+    border-radius: 999px;
+    background: #dfdfdf;
+}
+.rangeActive::-moz-range-track {
+    background: #1a1a1a;
+}
+.range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--ros-accent);
+    border: 2px solid #1a1a1a;
+    box-shadow: inset 0 0 0 2px #fff;
+    cursor: pointer;
+}
+.range:disabled::-moz-range-thumb {
+    background: #f6edcf;
+    border-color: #aaa;
+}
+
+/* 비활성 상태 */
+.inactive {
+    opacity: 0.55;
+}

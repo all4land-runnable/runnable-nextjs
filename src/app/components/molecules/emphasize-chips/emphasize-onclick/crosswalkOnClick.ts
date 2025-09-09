@@ -1,6 +1,6 @@
 import apiClient from "@/api/apiClient";
 import { UnactiveError } from "@/error/unactiveError";
-import { CrosswalkResponse, Crosswalk } from "@/api/response/crosswalkResponse";
+import { Crosswalk } from "@/api/response/crosswalkResponse";
 import * as Cesium from "cesium";
 import { parseFromWK } from "wkt-parser-helper";
 import type { Geometry, LineString } from "geojson";
@@ -9,6 +9,7 @@ import buildDashedSegmentsFromDegrees from "@/app/utils/buildDashedSegmentsFromD
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import {getCameraPosition} from "@/app/components/templates/cesium/util/getCameraPosition";
 import {getCrosswalk} from "@/app/staticVariables";
+import CommonResponse from "@/api/response/common_response";
 
 /**
  * 카메라 기준 반경 내의 횡단보도(NODE/LINK)만 렌더링
@@ -19,13 +20,18 @@ export async function crosswalkOnClick() {
     const point = getCameraPosition();
 
     // NOTE 2. 음수대 조회 API
-    const response = await apiClient.get<CrosswalkResponse>("/dataset/crosswalk.json", {
-        baseURL: "http://localhost:3000",
+    const response = await apiClient.get<CommonResponse<Crosswalk[]>>("/api/v1/dataset/crosswalks", {
+        baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
+        params: {
+            lat: point.lat,
+            lon: point.lon,
+            radius_m:500,
+        }
     });
 
     // api response 데이터 반환
-    const crosswalkResponse: CrosswalkResponse = response?.data;
-    const crosswalks: Crosswalk[] = crosswalkResponse?.DATA ?? [];
+    const crosswalkResponse: CommonResponse<Crosswalk[]> = response?.data;
+    const crosswalks: Crosswalk[] = crosswalkResponse.data ?? [];
 
     // NOTE 3. 예외처리 (음수대가 조회되지 않았을 경우)
     if (crosswalks.length <= 0) {

@@ -35,20 +35,3 @@ export type Hospital = {
     ykiho: string; // 암호화된 병원 ID
 };
 
-// 전체 응답 구조
-export type HospitalResponse = {
-    response: {
-        header: {
-            resultCode: string;
-            resultMsg: string;
-        };
-        body: {
-            items: {
-                item: Hospital[];
-            };
-            numOfRows: number;
-            pageNo: number;
-            totalCount: number;
-        };
-    };
-};

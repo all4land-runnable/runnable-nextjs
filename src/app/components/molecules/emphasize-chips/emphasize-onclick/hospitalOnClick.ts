@@ -1,10 +1,11 @@
 import * as Cesium from 'cesium';
 import apiClient from "@/api/apiClient";
 import { UnactiveError } from "@/error/unactiveError";
-import {HospitalResponse} from "@/api/response/hospitalResponse";
+import {Hospital} from "@/api/response/hospitalResponse";
 import getViewer from "@/app/components/templates/cesium/util/getViewer";
 import { getCameraPosition } from "@/app/components/templates/cesium/util/getCameraPosition";
 import {getHospital} from "@/app/staticVariables";
+import CommonResponse from "@/api/response/common_response";
 
 const SAMPLE_RADIUS = 500;
 
@@ -19,19 +20,18 @@ export async function hospitalOnClick() {
     const position = getCameraPosition();
 
     // NOTE 1. 병원 반경 검색 API
-    const response = await apiClient.get<HospitalResponse>("/getHospBasisList", {
-        baseURL: "https://apis.data.go.kr/B551182/hospInfoServicev2",
+    const response = await apiClient.get<CommonResponse<Hospital[]>>("/api/v1/dataset/hospitals", {
+        baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
         params: {
-            ServiceKey: process.env.NEXT_PUBLIC_OPEN_DATA_POTAL_ACCESS_KEY!,
-            xPos: position.lon,
-            yPos: position.lat,
-            radius: SAMPLE_RADIUS,
-        },
+            lat: position.lat,
+            lon: position.lon,
+            radius_m:500,
+        }
     });
-
     // api response 데이터 반환
-    const hospitalResponse: HospitalResponse = response.data;
-    const hospitals = hospitalResponse.response?.body?.items?.item ?? [];
+    const hospitalResponse: CommonResponse<Hospital[]> = response.data;
+    console.log("hospitalResponse", hospitalResponse);
+    const hospitals = hospitalResponse.data ?? [];
 
     // NOTE 2. 예외처리 (병원이 조회되지 않았을 경우)
     if (hospitals.length <= 0) {

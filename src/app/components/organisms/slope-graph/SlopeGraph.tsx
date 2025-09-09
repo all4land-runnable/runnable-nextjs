@@ -50,6 +50,8 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
     // NOTE 2. Param을 기반으로 Datum을 생성한다. (단 Pace 정보는 undefined)
     const data: SlopeDatum[] = addSlope(slopeGraphParams); // 데이터에 slope(%) 추가
 
+    // TODO: 여기서부터 페이스 계산 가능
+
     // 자주 사용하는 데이터 추출
     const meters = data.map(d => d.meter)
     const heights = data.map(d => d.height);
