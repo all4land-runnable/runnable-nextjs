@@ -16,14 +16,14 @@ import {RootState} from "@/app/store/redux/store";
  */
 export default function RightSideBar() {
     const open = useSelector((state: RootState) => state.rightSideBar.open);
-    const slopeGraphParams = useSelector((state: RootState) => state.rightSideBar.slopeGraphParams);
+
     const sectionStrategies = useSelector((state: RootState)=> state.rightSideBar.sectionStrategies);
     const routeRankingParams = useSelector((state:RootState)=> state.rightSideBar.routeRankingParams);
 
     return (
         open && <section className={styles.rightSideBar}>
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
-                <SlopeGraph slopeGraphParams={slopeGraphParams}/>
+                <SlopeGraph/>
                 <PaceStrategy sectionStrategyParams={sectionStrategies}/> {/* 페이스 전략 카드 */}
                 <RouteRanking routeRankingParam={routeRankingParams}/> {/* 경로 랭킹 */}
             </div>

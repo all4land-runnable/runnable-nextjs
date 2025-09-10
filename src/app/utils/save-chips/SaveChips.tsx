@@ -7,32 +7,29 @@ import styles from './SaveChips.module.css'
 import React, { useEffect } from "react";
 
 import hideMarkers from "@/app/utils/markers/hideMarkers";
-import { getPedestrianRoute, getTempRouteMarkers } from "@/app/staticVariables";
+import { getPedestrianEntity, getTempRouteMarkers } from "@/app/staticVariables";
 import {setTempRouteVisibility} from "@/app/utils/drawing-chips/drawing/drawingTempRoute";
 import {setCircularVisibility} from "@/app/utils/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
 import {removePedestrianRoute} from "@/app/utils/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "@/app/store/redux/store";
+import {setAutomaticRoute} from "@/app/store/redux/feature/rightSidebarSlice";
 
-export type AutomaticRouteState = {
-    onAutomaticRoute: boolean;
-    setOnAutomaticRoute: (onAutomaticRoute: boolean) => void;
-};
+export default function SaveChips() {
+    const dispatch = useDispatch()
+    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
 
-type SaveChipsProp = {
-    automaticRouteState: AutomaticRouteState;
-};
-
-export default function SaveChips({ automaticRouteState }: SaveChipsProp) {
     const router = useRouter();
 
     // NOTE 1. 처음 화면 생성 및 onAutomaticRoute 변경 시 동기화
     useEffect(() => {
-        const on = automaticRouteState.onAutomaticRoute;
+        const on = automaticRoute;
         hideMarkers(getTempRouteMarkers(), on);
         setTempRouteVisibility(on);
         setCircularVisibility(on);
         setPedestrianRouteVisibility(!on);
-    }, [automaticRouteState.onAutomaticRoute]);
+    }, [automaticRoute]);
 
     const backButton = ()=>{
         removePedestrianRoute();
@@ -41,8 +38,8 @@ export default function SaveChips({ automaticRouteState }: SaveChipsProp) {
 
     // 클릭 시 즉시 반영(다음 상태 기준)
     const toggleAutomatic = () => {
-        const next = !automaticRouteState.onAutomaticRoute;
-        automaticRouteState.setOnAutomaticRoute(next);
+        const next = !automaticRoute;
+        dispatch(setAutomaticRoute(next));
 
         // 다음 상태에 맞춰 즉시 UI 반영
         hideMarkers(getTempRouteMarkers(), next);
@@ -63,7 +60,7 @@ export default function SaveChips({ automaticRouteState }: SaveChipsProp) {
  * @param visible true면 보이게, false면 숨김
  */
 export function setPedestrianRouteVisibility(visible: boolean) {
-    const pedestrianRoute = getPedestrianRoute();
+    const pedestrianRoute = getPedestrianEntity();
     pedestrianRoute.show = visible;
     requestRender();
 }

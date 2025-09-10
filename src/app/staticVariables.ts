@@ -23,14 +23,14 @@ declare global {
     }
 }
 
-export const setTempRoute = (entity: Cesium.Entity|undefined) => window.tempRoute = entity;
-export const getTempRoute = ()=>{
+export const setTempEntity = (entity: Cesium.Entity|undefined) => window.tempRoute = entity;
+export const getTempEntity = ()=>{
     if(!window.tempRoute) throw new Error('TempRoute not found.');
     return window.tempRoute
 }
 
-export const setPedestrianRoute = (entity: Cesium.Entity|undefined) => window.pedestrianRoute = entity;
-export const getPedestrianRoute = ()=>{
+export const setPedestrianEntity = (entity: Cesium.Entity|undefined) => window.pedestrianRoute = entity;
+export const getPedestrianEntity = ()=>{
     if(!window.pedestrianRoute) throw new Error('Pedestrian not found.');
     return window.pedestrianRoute
 }

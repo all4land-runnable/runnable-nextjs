@@ -3,7 +3,7 @@ import {Cartesian3, Entity, JulianDate} from "cesium";
 import apiClient from "@/api/apiClient";
 import { PedestrianResponse } from "@/api/response/pedestrianResponse";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
-import {getPedestrianRoute, setPedestrianRoute,} from "@/app/staticVariables";
+import {getPedestrianEntity, setPedestrianEntity,} from "@/app/staticVariables";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 
 /**
@@ -37,7 +37,7 @@ export async function completeDrawingOnClick(tempRoute: Entity, isCircular: bool
     });
 
     // 3) 전역 보관
-    setPedestrianRoute(pedestrianRoute);
+    setPedestrianEntity(pedestrianRoute);
 
     // 4) 즉시 렌더 요청
     viewer.scene.requestRender?.();
@@ -75,7 +75,7 @@ function flattenAllCoordinates(resp: PedestrianResponse): [number, number][] {
     for (const f of features) {
         if (!f.geometry) continue;
 
-        if (f.geometry.type === "SectionPoint") {
+        if (f.geometry.type === "Point") {
             const pt = f.geometry.coordinates as [number, number];
             if (Number.isFinite(pt?.[0]) && Number.isFinite(pt?.[1])) {
                 pushIfNotDuplicate(coords, pt);
@@ -225,10 +225,10 @@ export async function makeRouteCourse(
  */
 export function removePedestrianRoute() {
     const viewer = getViewer();
-    const pedestrianRoute = getPedestrianRoute();
+    const pedestrianRoute = getPedestrianEntity();
 
 
     viewer.entities.remove(pedestrianRoute);
-    setPedestrianRoute(undefined);
+    setPedestrianEntity(undefined);
     requestRender()
 }

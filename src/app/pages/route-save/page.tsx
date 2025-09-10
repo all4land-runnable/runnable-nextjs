@@ -1,14 +1,13 @@
 'use client';
 
 import styles from './page.module.css'
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
-import type {SlopeGraphParam} from "@/app/components/molecules/slope-graph/SlopeGraph";
-import {getPedestrianRoute, getTempRoute} from "@/app/staticVariables";
+import {getPedestrianEntity, getTempEntity} from "@/app/staticVariables";
 import SaveChips from "@/app/utils/save-chips/SaveChips";
 import {useDispatch} from "react-redux";
-import {openWithData} from "@/app/store/redux/feature/rightSidebarSlice";
+import {openWithData, setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/rightSidebarSlice";
 import {buildRouteFromEntity} from "@/app/utils/buildRouteFromEntity";
 
 /**
@@ -17,7 +16,6 @@ import {buildRouteFromEntity} from "@/app/utils/buildRouteFromEntity";
  */
 export default function Page() {
     const dispatch = useDispatch()
-    const [onAutomaticRoute, setOnAutomaticRoute] = React.useState<boolean>(false);
 
     // NOTE: 샘플 구간 전략 속성
     const sectionStrategies: SectionStrategyParam[] = [
@@ -31,55 +29,31 @@ export default function Page() {
         { name: '김명준', rank: 2, pace: 22800 }
     ]
 
-    // 그래프 데이터 상태
-    const [tempSlopeParams, setTempSlopeParams] = useState<SlopeGraphParam[]>([]); // TODO: 제거할 것
-    const [pedestrianSlopeParams, setPedestrianSlopeParams] = useState<SlopeGraphParam[]>([]); // TODO: 제거할 것
-
     // NOTE 1. 처음 화면 생성 시 작동
     useEffect(()=>{
-        const pedestrianRoute = getPedestrianRoute()
-        buildRouteFromEntity(pedestrianRoute).then((route)=>{
-            const params: SlopeGraphParam[] = []
-            route.sections.forEach((section)=>{
-                section.points.forEach((point)=>{
-                    params.push({
-                        meter: point.distance,
-                        height: point.height,
-                    })
-                })
-            })
-            setPedestrianSlopeParams(params); // TODO: 수정할 것
-        }).catch(console.error);
+        const pedestrianRoute = getPedestrianEntity()
+        buildRouteFromEntity(pedestrianRoute).then((route)=> {
+            dispatch(setPedestrianRoute(route));
+        });
 
-
-        const tempRoute = getTempRoute()
+        const tempRoute = getTempEntity()
         buildRouteFromEntity(tempRoute).then((route) => {
-            const params: SlopeGraphParam[] = []
-            route.sections.forEach((section)=>{
-                section.points.forEach((point)=>{
-                    params.push({
-                        meter: point.distance,
-                        height: point.height,
-                    })
-                })
-            })
-            setTempSlopeParams(params); // TODO: 수정할 것
+            dispatch(setTempRoute(route))
         }).catch(console.error);
-    }, [pedestrianSlopeParams])
+    }, [dispatch])
 
     useEffect(()=>{
         dispatch(openWithData({
-            slopeGraphParams:onAutomaticRoute?tempSlopeParams:pedestrianSlopeParams,
             sectionStrategies:sectionStrategies,
             routeRankingParams:routeRankingParams
         }))
-    },[dispatch, onAutomaticRoute, pedestrianSlopeParams, routeRankingParams, sectionStrategies, tempSlopeParams])
+    },[dispatch, routeRankingParams, sectionStrategies])
 
     // 오른쪽 사이드바 확장 상태
     return (
         <>
             <section className={styles.bottomSheet}>
-                <SaveChips automaticRouteState={{onAutomaticRoute, setOnAutomaticRoute}}/>
+                <SaveChips/>
             </section>
         </>
     )

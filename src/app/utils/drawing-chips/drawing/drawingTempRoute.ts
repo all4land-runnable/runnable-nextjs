@@ -4,7 +4,7 @@ import clearMarkers from "@/app/utils/markers/clearMarkers";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import getDrawer from "@/app/components/organisms/cesium/drawer/getDrawer";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
-import {getTempRoute, getTempRouteMarkers, setTempRoute} from "@/app/staticVariables";
+import {getTempEntity, getTempRouteMarkers, setTempEntity} from "@/app/staticVariables";
 import upsertTempRoute from "@/app/utils/drawing-chips/drawing/upsertTempRoute";
 
 /**
@@ -40,7 +40,7 @@ export default async function drawingTempRoute(
             const positionsShallow = positions.slice();
 
             // 사용처에 shallow 복사본 전달/저장
-            setTempRoute(entityShallow);
+            setTempEntity(entityShallow);
 
             viewer.entities.add(entityShallow);
 
@@ -55,10 +55,10 @@ export default async function drawingTempRoute(
  */
 export function removeTempRoute() {
     const viewer = getViewer();
-    const tempRoute = getTempRoute();
+    const tempRoute = getTempEntity();
 
     viewer.entities.remove(tempRoute);
-    setTempRoute(undefined);
+    setTempEntity(undefined);
     requestRender()
 
     const drawMarkerEntities = getTempRouteMarkers()
@@ -66,7 +66,7 @@ export function removeTempRoute() {
 }
 
 export function setTempRouteVisibility(visible: boolean) {
-    const tempRoute = getTempRoute();
+    const tempRoute = getTempEntity();
 
     // 엔티티 참조가 있으면 그것을 우선 사용
     tempRoute.show = visible;

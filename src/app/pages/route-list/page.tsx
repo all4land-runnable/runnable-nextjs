@@ -4,7 +4,6 @@ import styles from '../../page.module.scss'
 import React from "react";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
-import {SlopeGraphParam} from "@/app/components/molecules/slope-graph/SlopeGraph";
 import {Chip} from "@/app/components/atom/chip/Chip";
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {getCrosswalk, getDrinkingFoundation, getHospital} from "@/app/staticVariables";
@@ -37,16 +36,7 @@ export default function Page() {
         { name: '김명준', rank: 2, pace: 22800 }
     ]
 
-    const slopeGraphParams: SlopeGraphParam[] = [
-        {
-            meter: 50,
-            height: 10,
-        },
-        {
-            meter: 100,
-            height: 20,
-        },
-    ]
+    const slopeGraphParams = []
 
     return (
         <>

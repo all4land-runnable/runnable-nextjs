@@ -10,7 +10,7 @@ import {Chip} from "@/app/components/atom/chip/Chip";
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {useRouter} from "next/navigation";
 import {useModal} from "@/app/store/modal/ModalProvider";
-import {getCircularHelper, getCrosswalk, getDrinkingFoundation, getHospital, getTempRoute} from "@/app/staticVariables";
+import {getCircularHelper, getCrosswalk, getDrinkingFoundation, getHospital, getTempEntity} from "@/app/staticVariables";
 import getDrawer from "@/app/components/organisms/cesium/drawer/getDrawer";
 import clearMarkers from "@/app/utils/markers/clearMarkers";
 import {addCircular, removeCircular} from "@/app/utils/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
@@ -62,7 +62,7 @@ export default function Page() {
     const completeDrawing= () => {
         openConfirm({title: "경로 저장", content: "경로를 저장하시겠습니까?",
             onConfirm: ()=>{
-                const tempRoute = getTempRoute()
+                const tempRoute = getTempEntity()
                 close();
 
                 completeDrawingOnClick(tempRoute, circular).then(() => {

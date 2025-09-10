@@ -2,90 +2,72 @@
 
 import {
     Area, ComposedChart, Line, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip,
-    ReferenceDot,
-    Label
+    ReferenceDot, Label
 } from 'recharts';
-import styles from './SlopeGraph.module.css'
+import styles from './SlopeGraph.module.css';
+
 import addSlope from "@/app/components/molecules/slope-graph/util/addSlope";
 import initXTick from "@/app/components/molecules/slope-graph/util/initXTick";
 import segmentBySlope from "@/app/components/molecules/slope-graph/util/segmentBySlope";
 import formatKmTick from "@/app/components/molecules/slope-graph/util/formatKmTick";
-import {formatKm} from "@/app/utils/claculator/formatKm";
+import { formatKm } from "@/app/utils/claculator/formatKm";
 
-// NOTE 1. 타입 지정
-/**
- * 그래프에 들어갈 데이터를 모아둔 클래스이다.
- *
- * @param meter 진행 거리(x축 좌표)
- * @param height 고도(y축 좌표)
- * @param slope 기울기(색상)
- * @param pace 페이스 속도(라벨)
- */
-export type SlopeDatum = {
-    meter: number;
-    height: number;
-    slope: number;
-    pace?: string;
-}
+import type { Section } from "@/type/section";
+import type { Point } from "@/type/point";
+import {useSelector} from "react-redux";
+import {RootState} from "@/app/store/redux/store";
 
-/**
- * 누적거리와 고도 정보를 갖고 있는 클래스이다.
- */
-export type SlopeGraphParam = {
-    meter: number;
-    height: number;
-};
+// addSlope가 기대하는 최소 형태
+type BaseDatum = { meter: number; height: number };
+// addSlope 결과(경사도 포함)
+type SlopeDatum = BaseDatum & { slope: number };
 
-type SlopeGraphProps = {
-    slopeGraphParams: SlopeGraphParam[];
-};
+export default function SlopeGraph() {
+    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
 
-/**
- * 실제 그래프 정보가 들어가는 함수
- *
- * @param slopeGraphParams 경사도 그래프 속성 정보
- * @constructor
- */
-export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
-    // NOTE 2. Param을 기반으로 Datum을 생성한다. (단 Pace 정보는 undefined)
-    const data: SlopeDatum[] = addSlope(slopeGraphParams); // 데이터에 slope(%) 추가
+    const tempRoute = useSelector((state: RootState) => state.rightSideBar.tempRoute);
+    const pedestrianRoute = useSelector((state: RootState) => state.rightSideBar.pedestrianRoute);
 
-    // TODO: 여기서부터 페이스 계산 가능
+    const route = automaticRoute ? pedestrianRoute : tempRoute;
+    // 1) route → flat points → {meter,height} → 거리 오름차순 정렬
+    const base: BaseDatum[] = route.sections
+        .flatMap((s: Section) =>
+            s.points.map((p: Point) => ({ meter: p.distance, height: p.height }))
+        )
+        .sort((a, b) => a.meter - b.meter);
 
-    // 자주 사용하는 데이터 추출
-    const meters = data.map(d => d.meter)
+    // 2) 경사도 계산
+    const data: SlopeDatum[] = addSlope(base);
+
+    // 3) 보조 통계/축 계산
+    const meters = data.map(d => d.meter);
     const heights = data.map(d => d.height);
 
-    // 범위 계산 // TODO: 그래프의 범위를 조절하기 위해 만드는 것으로 추정된다.
     const meterFirst = Math.min(...meters);
     const meterLast  = Math.max(...meters);
 
-     // 범위 계산 // TODO: 최고 최저 고도 측정을 위해 사용한다.
     const heightMin = Math.min(...heights);
     const heightMax = Math.max(...heights);
 
-    // heightMin/Max가 있는 위치
     const minIdx = heights.indexOf(heightMin);
     const maxIdx = heights.indexOf(heightMax);
 
-    // 각각의 meter
-    const meterAtMin = data[minIdx]?.meter; // 최저점의 meter
-    const meterAtMax = data[maxIdx]?.meter; // 최고점의 meter
+    const meterAtMin = data[minIdx]?.meter;
+    const meterAtMax = data[maxIdx]?.meter;
 
-    // TODO: 그래프의 범위를 조절하기 위해 만드는 것으로 추정된다.
-    const Y_STEP = 5; // y축 단위(5m 단위로 표시된다.)
-    const yDomainMin = Math.floor(heightMin / Y_STEP) * Y_STEP; // 바닥 범위
-    const yDomainMax = Math.ceil(heightMax / Y_STEP) * Y_STEP; // 높이 범위
+    const Y_STEP = 5; // y축 눈금 간격(m)
+    const yDomainMin = Math.floor(heightMin / Y_STEP) * Y_STEP;
+    const yDomainMax = Math.ceil(heightMax / Y_STEP) * Y_STEP;
 
-    const yTicks: number[] = []; // y축 틱 (5미터 단위)
+    const yTicks: number[] = [];
     for (let v = yDomainMin; v <= yDomainMax; v += Y_STEP) yTicks.push(v);
-    const xTicks = initXTick(meterLast, 500); // X축 틱 (500m + 총거리)
 
-    // NOTE 3. 경사각 계산
-    // 오르막 내리막 라인
+    const xTicks = initXTick(meterLast, 500); // 500m 간격
+
+    // 4) 오르막/내리막 분할
     const { up, down } = segmentBySlope(data);
 
-    // 커스텀 Tooltip (버전 독립 타입)
+    // 5) Tooltip
     type CustomTooltipProps = {
         active?: boolean;
         payload?: Array<{ payload: SlopeDatum }>;
@@ -93,13 +75,10 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
 
     const SlopeTooltip = ({ active, payload }: CustomTooltipProps) => {
         if (!active || !payload || payload.length === 0) return null;
-
-        // payload 중 slope 필드를 가진 Datum 찾기 (Area 시리즈에 해당)
         const item = payload.find(e => typeof e.payload.slope === 'number');
         if (!item) return null;
 
-        const p = item.payload; // p: Datum (meter, height, slope 모두 보장)
-
+        const p = item.payload;
         return (
             <div style={{
                 background: 'rgba(255,255,255,0.95)',
@@ -108,9 +87,9 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
                 padding: '8px 10px',
                 lineHeight: 1.4
             }}>
-                <div><strong>이동 거리</strong> : {formatKm(p.meter)}</div> {/* 이동 거리 */}
-                <div><strong>고도</strong> : {formatKm(p.height)}</div> {/* 고도 */}
-                <div><strong>경사도</strong> : {`${p.slope >= 0 ? '+' : ''}${p.slope.toFixed(1)}%`}</div> {/* 경사도 */}
+                <div><strong>이동 거리</strong> : {formatKm(p.meter)}</div>
+                <div><strong>고도</strong> : {`${p.height.toFixed(0)}m`}</div>  {/* ✅ 고도는 m 단위 */}
+                <div><strong>경사도</strong> : {`${p.slope >= 0 ? '+' : ''}${p.slope.toFixed(1)}%`}</div>
             </div>
         );
     };
@@ -119,20 +98,15 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
         <section>
             <div className={styles.slopeGraph}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart
-                        // width={remToPx(58.125)}
-                        // height={remToPx(18.75)}
-                        data={data}
-                    >
+                    <ComposedChart data={data}>
                         <CartesianGrid strokeDasharray="5 5" />
 
                         <XAxis
-                            dataKey="meter" // 데이터
-                            type="number" // 타입
-                            // domain={[meterFirst, meterLast]} // 범위
-                            ticks={xTicks} // 라인
-                            allowDecimals // 소수 허용
-                            tickFormatter={(xTick: number) => formatKmTick(xTick, meterLast)} // tick에 표시될 정보
+                            dataKey="meter"
+                            type="number"
+                            ticks={xTicks}
+                            allowDecimals
+                            tickFormatter={(xTick: number) => formatKmTick(xTick, meterLast)}
                         />
 
                         <YAxis
@@ -143,10 +117,9 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
                             tickFormatter={(v: number) => `${v}m`}
                         />
 
-                        {/* 툴팁: 거리, 고도, 경사도 */}
                         <Tooltip content={SlopeTooltip} cursor={{ strokeDasharray: '3 3' }} />
 
-                        {/* 면 */}
+                        {/* 높이 면 */}
                         <Area
                             type="monotone"
                             dataKey="height"
@@ -156,7 +129,7 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
                             isAnimationActive={false}
                         />
 
-                        {/* 상승(빨강) / 하강(파랑) 라인 */}
+                        {/* 상승(빨강) / 하강(파랑) */}
                         <Line
                             type="monotone"
                             data={up}
@@ -177,14 +150,15 @@ export default function SlopeGraph({ slopeGraphParams }: SlopeGraphProps) {
                             isAnimationActive={false}
                             connectNulls={false}
                         />
-                        {/* 최저점 마커 + 라벨 */}
+
+                        {/* 최저점 */}
                         <ReferenceDot x={meterAtMin} y={heightMin} r={4} fill="#1e63ff" stroke="#000">
-                            <Label value={formatKm(heightMin)} position="bottom" style={{ fontSize: 14 }} />
+                            <Label value={`${heightMin.toFixed(0)}m`} position="bottom" style={{ fontSize: 14 }} />
                         </ReferenceDot>
 
-                        {/* 최고점 마커 + 라벨 */}
+                        {/* 최고점 */}
                         <ReferenceDot x={meterAtMax} y={heightMax} r={4} fill="#ff4d4f" stroke="#000">
-                            <Label value={formatKm(heightMax)} position="top" style={{ fontSize: 14 }} />
+                            <Label value={`${heightMax.toFixed(0)}m`} position="top" style={{ fontSize: 14 }} />
                         </ReferenceDot>
                     </ComposedChart>
                 </ResponsiveContainer>
