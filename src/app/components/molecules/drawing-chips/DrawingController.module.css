@@ -1,9 +1,0 @@
-.drawingController {
-    display: inline-flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: start;
-
-    padding: 1rem;
-    gap: 1rem;
-}

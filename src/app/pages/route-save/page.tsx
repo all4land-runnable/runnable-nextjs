@@ -2,14 +2,14 @@
 
 import styles from './page.module.css'
 import React, {useEffect, useState} from "react";
-import RightSideBar from "@/app/components/templates/right-side-bar/RightSideBar";
-import SaveChips from "@/app/components/molecules/save-chips/SaveChips";
-import {SectionStrategyParam} from "@/app/components/organisms/pace-strategy/PaceStrategy";
-import {RouteRankingParam} from "@/app/components/organisms/route-ranking/RouteRanking";
+import RightSideBar from "@/app/components/organisms/right-side-bar/RightSideBar";
+import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
+import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
 import {routeHeightFromEntity} from "@/app/utils/routeHeight";
-import type {SlopeGraphParam} from "@/app/components/organisms/slope-graph/SlopeGraph";
-import getViewer from "@/app/components/templates/cesium/util/getViewer";
+import type {SlopeGraphParam} from "@/app/components/molecules/slope-graph/SlopeGraph";
+import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {getPedestrianRoute, getTempRoute} from "@/app/staticVariables";
+import SaveChips from "@/app/utils/save-chips/SaveChips";
 
 /**
  * 홈 화면을 구현하는 함수

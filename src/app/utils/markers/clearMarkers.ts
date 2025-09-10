@@ -1,6 +1,6 @@
 import * as Cesium from "cesium";
-import getViewer from "@/app/components/templates/cesium/util/getViewer";
-import requestRender from "@/app/components/templates/cesium/util/requestRender";
+import getViewer from "@/app/components/organisms/cesium/util/getViewer";
+import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 
 /**
  * 특정 id의 마커를 제거하는 함수이다.

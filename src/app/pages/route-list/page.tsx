@@ -2,20 +2,31 @@
 
 import styles from '../../page.module.css'
 import React from "react";
-import LeftSideBar from "@/app/components/templates/left-side-bar/LeftSideBar";
-import EmphasizeChips from "@/app/components/molecules/emphasize-chips/EmphasizeChips";
-import TileChips from "@/app/components/molecules/tile-chips/TileChips";
-import RightSideBar from "@/app/components/templates/right-side-bar/RightSideBar";
-import ListChips from "@/app/components/molecules/list-chips/ListChips";
-import {SectionStrategyParam} from "@/app/components/organisms/pace-strategy/PaceStrategy";
-import {RouteRankingParam} from "@/app/components/organisms/route-ranking/RouteRanking";
-import {SlopeGraphParam} from "@/app/components/organisms/slope-graph/SlopeGraph";
+import LeftSideBar from "@/app/components/organisms/left-side-bar/LeftSideBar";
+import RightSideBar from "@/app/components/organisms/right-side-bar/RightSideBar";
+import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
+import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
+import {SlopeGraphParam} from "@/app/components/molecules/slope-graph/SlopeGraph";
+import {Chip} from "@/app/components/atom/chip/Chip";
+import {remToPx} from "@/app/utils/claculator/pxToRem";
+import {getCrosswalk, getDrinkingFoundation, getHospital} from "@/app/staticVariables";
+import clearMarkers from "@/app/utils/markers/clearMarkers";
+import {useRouter} from "next/navigation";
+import popularCourseOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/popularCourseOnClick";
+import {toggleSidewalkVisible} from "@/app/utils/emphasize-chips/emphasize-onclick/sidewalkOnClick";
+import altitudeOnClick from "@/app/utils/tile-chips/title-onclick/altitudeOnClick";
+import storageBoxOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/storageBoxOnClick";
+import {drinkingFountainOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
+import { crosswalkOnClick } from "@/app/utils/emphasize-chips/emphasize-onclick/crosswalkOnClick";
+import {hospitalOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/hospitalOnClick";
 
 /**
  * 홈 화면을 구현하는 함수
  * @constructor
  */
 export default function Page() {
+    const router = useRouter();
+
     const [openRightSideBar, setOpenRightSideBar] = React.useState(false); // 오른쪽 사이드바 확장 상태
 
     // NOTE: 샘플 구간 전략 속성
@@ -47,15 +58,30 @@ export default function Page() {
                 {/* 왼쪽 사이드 바 */}
                 <LeftSideBar rightSideBarState={{openRightSideBar: openRightSideBar, setOpenRightSideBar: setOpenRightSideBar}}/>
                 <div className={styles.topSheet}>
-                    <EmphasizeChips/> {/* 구역 강조 버튼 모음 */}
-                    <TileChips/> {/* 타일 버튼 모음 */}
+                    {/* 강조 구역 버튼 모음 */}
+                    <div className={styles.emphasizeChips}>
+                        <Chip label={"인기 코스"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={popularCourseOnClick}/> {/* 인기 코스 */}
+                        <Chip label={"도보 경로"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={toggleSidewalkVisible}/> {/* 횡단보도 */}
+                        <Chip label={"횡단보도"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={crosswalkOnClick} inActiveOnClickAction={async ()=>clearMarkers(getCrosswalk())} /> {/* 도보 경로 */}
+                        <Chip label={"물품보관함"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={storageBoxOnClick}/> {/* 물품보관함 */}
+                        <Chip label={"병원"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={hospitalOnClick} inActiveOnClickAction={async ()=>clearMarkers(getHospital())}/> {/* 병원 */}
+                        <Chip label={"음수대"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={drinkingFountainOnClick} inActiveOnClickAction={async ()=>clearMarkers(getDrinkingFoundation())}/> {/* 음수대 */}
+                    </div>
+                    {/* 타일 버튼 모음 */}
+                    <div className={styles.tileChips}>
+                        <Chip label="고도 표시" backgroundColor="#FCDE8C" fontSize={remToPx(1.125)} onClickAction={altitudeOnClick}/>
+                        <Chip label="재질 표시" backgroundColor="#FCDE8C" fontSize={remToPx(1.125)} onClickAction={async () => {}}/> {/* TODO: 재질 표시 로직 */}
+                        <Chip label="온도 측정" backgroundColor="#FCDE8C" fontSize={remToPx(1.125)} onClickAction={async () => {}}/> {/* TODO: 온도 측정 로직 */}
+                    </div>
                 </div>
                 {/* 오른쪽 사이드 바 */}
                 {openRightSideBar??<RightSideBar slopeGraphParams={slopeGraphParams} sectionStrategies={sectionStrategies} routeRankingParams={routeRankingParams}/>}
             </div>
 
             <section className={styles.bottomSheet}>
-                <ListChips/>
+                <div className={styles.listChips}>
+                    <Chip label={"홈"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={()=> { router.push('/') }}/> {/* 뒤로가기 */}
+                </div>
             </section>
         </>
     )
