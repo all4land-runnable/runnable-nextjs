@@ -16,12 +16,16 @@ import storageBoxOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/sto
 import {drinkingFountainOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
 import { crosswalkOnClick } from "@/app/utils/emphasize-chips/emphasize-onclick/crosswalkOnClick";
 import {hospitalOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/hospitalOnClick";
+import {setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
+import {useDispatch} from "react-redux";
 
 /**
  * 홈 화면을 구현하는 함수
  * @constructor
  */
 export default function Page() {
+    const dispatch = useDispatch()
+
     const router = useRouter();
 
     // NOTE: 샘플 구간 전략 속성
@@ -60,7 +64,11 @@ export default function Page() {
 
             <section className={styles.bottomSheet}>
                 <div className={styles.listChips}>
-                    <Chip label={"홈"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={()=> { router.push('/') }}/> {/* 뒤로가기 */}
+                    <Chip label={"홈"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={()=> {
+                        dispatch(setRightSidebarOpen(false));
+
+                        router.push('/')
+                    }}/> {/* 뒤로가기 */}
                 </div>
             </section>
         </>

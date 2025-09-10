@@ -5,7 +5,7 @@ import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteR
 import {Route} from "@/type/route";
 
 type RightSideBarState = {
-    open: boolean;
+    rightSidebarOpen: boolean;
 
     automaticRoute: boolean;
 
@@ -17,7 +17,7 @@ type RightSideBarState = {
 }
 
 const initialState: RightSideBarState = {
-    open: false,
+    rightSidebarOpen: false,
 
     automaticRoute: false,
 
@@ -33,10 +33,10 @@ const rightSideBarSlice = createSlice({
     initialState,
     reducers: {
         toggleOpen(state) {
-            state.open = !state.open;
+            state.rightSidebarOpen = !state.rightSidebarOpen;
         },
-        setOpen(state, action: PayloadAction<boolean>) {
-            state.open = action.payload;
+        setRightSidebarOpen(state, action: PayloadAction<boolean>) {
+            state.rightSidebarOpen = action.payload;
         },
 
         setAutomaticRoute(state, action: PayloadAction<boolean>) {
@@ -70,7 +70,7 @@ const rightSideBarSlice = createSlice({
             if (tempRoute) state.tempRoute = tempRoute;
             if (sectionStrategies) state.sectionStrategies = sectionStrategies;
             if (routeRankingParams) state.routeRankingParams = routeRankingParams;
-            state.open = true;
+            state.rightSidebarOpen = true;
         },
         resetRightSidebar() {
             return initialState;
@@ -80,7 +80,7 @@ const rightSideBarSlice = createSlice({
 
 export const {
     toggleOpen,
-    setOpen,
+    setRightSidebarOpen,
     setAutomaticRoute,
     setPedestrianRoute,
     setTempRoute,

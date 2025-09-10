@@ -15,7 +15,7 @@ import {RootState} from "@/app/store/redux/store";
  * @constructor
  */
 export default function RightSideBar() {
-    const open = useSelector((state: RootState) => state.rightSideBar.open);
+    const open = useSelector((state: RootState) => state.rightSideBar.rightSidebarOpen);
 
     const sectionStrategies = useSelector((state: RootState)=> state.rightSideBar.sectionStrategies);
     const routeRankingParams = useSelector((state:RootState)=> state.rightSideBar.routeRankingParams);

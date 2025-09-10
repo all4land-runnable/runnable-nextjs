@@ -27,12 +27,16 @@ import workoutAvailabilityOnClick
     from "@/app/utils/drawing-chips/drawing-controller-onclick/workoutAvailabilityOnClick";
 import saveDrinkingFountainsInfoOnClick
     from "@/app/utils/drawing-chips/drawing-controller-onclick/saveDrinkingFountainsInfoOnClick";
+import {setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
+import {useDispatch} from "react-redux";
 
 /**
  * 홈 화면을 구현하는 함수
  * @constructor
  */
 export default function Page() {
+    const dispatch = useDispatch()
+
     // 거리 제한(meter)
     const [limitActive, setLimitActive] = useState<boolean>(false);
     const [limitRange, setLimitRange] = useState<number>(5);
@@ -51,7 +55,11 @@ export default function Page() {
 
     // 뒤로가기 버튼 선택 함수
     const closeDrawingController = ()=>{
-        removeDrawingRoute();
+        dispatch(setRightSidebarOpen(false));
+
+        try{
+            removeDrawingRoute();
+        } catch{}
         router.back();
     }
     const circularRoute = () => {
@@ -107,7 +115,7 @@ export default function Page() {
                     <Chip label={"운동 가능 시간"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} onClickAction={workoutAvailabilityOnClick}/>
                     <Chip label={"음수대 정보 표시"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} onClickAction={saveDrinkingFountainsInfoOnClick}/>
                     <Chip label={"원형 경로"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} onClickAction={circularRoute}/>
-                    <Chip label={"경로 완성"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} onClickAction={completeDrawing}/>
+                    <Chip label={"경로 완성"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={completeDrawing}/>
                 </div>
             </section>
 

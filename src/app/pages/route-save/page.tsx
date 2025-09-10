@@ -4,11 +4,25 @@ import styles from './page.module.css'
 import React, {useEffect} from "react";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
-import {getPedestrianEntity, getTempEntity} from "@/app/staticVariables";
-import SaveChips from "@/app/utils/save-chips/SaveChips";
-import {useDispatch} from "react-redux";
-import {openWithData, setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/rightSidebarSlice";
+import {getPedestrianEntity, getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
+import {useDispatch, useSelector} from "react-redux";
+import {
+    openWithData,
+    setAutomaticRoute,
+    setRightSidebarOpen,
+    setPedestrianRoute,
+    setTempRoute
+} from "@/app/store/redux/feature/rightSidebarSlice";
 import {buildRouteFromEntity} from "@/app/utils/buildRouteFromEntity";
+import {Chip} from "@/app/components/atom/chip/Chip";
+import {remToPx} from "@/app/utils/claculator/pxToRem";
+import {RootState} from "@/app/store/redux/store";
+import {useRouter} from "next/navigation";
+import hideMarkers from "@/app/utils/markers/hideMarkers";
+import {setTempRouteVisibility} from "@/app/utils/drawing-chips/drawing/drawingTempRoute";
+import {setCircularVisibility} from "@/app/utils/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
+import {removePedestrianRoute} from "@/app/utils/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
+import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -16,6 +30,37 @@ import {buildRouteFromEntity} from "@/app/utils/buildRouteFromEntity";
  */
 export default function Page() {
     const dispatch = useDispatch()
+
+    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
+
+    const router = useRouter();
+
+    // NOTE 1. 처음 화면 생성 및 onAutomaticRoute 변경 시 동기화
+    useEffect(() => {
+        const on = automaticRoute;
+        hideMarkers(getTempRouteMarkers(), on);
+        setTempRouteVisibility(on);
+        setCircularVisibility(on);
+        setPedestrianRouteVisibility(!on);
+    }, [automaticRoute]);
+
+    const backButton = ()=>{
+        removePedestrianRoute();
+        dispatch(setRightSidebarOpen(false));
+        router.back();
+    }
+
+    // 클릭 시 즉시 반영(다음 상태 기준)
+    const toggleAutomatic = () => {
+        const next = !automaticRoute;
+        dispatch(setAutomaticRoute(next));
+
+        // 다음 상태에 맞춰 즉시 UI 반영
+        hideMarkers(getTempRouteMarkers(), next);
+        setTempRouteVisibility(next);
+        setCircularVisibility(next);
+        setPedestrianRouteVisibility(!next);
+    };
 
     // NOTE: 샘플 구간 전략 속성
     const sectionStrategies: SectionStrategyParam[] = [
@@ -53,8 +98,21 @@ export default function Page() {
     return (
         <>
             <section className={styles.bottomSheet}>
-                <SaveChips/>
+                <div className={styles.listChips}>
+                    <Chip label={"뒤로가기"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={backButton}/>
+                    <Chip label={"자동해제"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={toggleAutomatic}/>
+                </div>
             </section>
         </>
     )
+}
+
+/**
+ * newRoute(pedestrianRoute)의 가시성을 제어한다.
+ * @param visible true면 보이게, false면 숨김
+ */
+export function setPedestrianRouteVisibility(visible: boolean) {
+    const pedestrianRoute = getPedestrianEntity();
+    pedestrianRoute.show = visible;
+    requestRender();
 }
