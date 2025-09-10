@@ -62,7 +62,7 @@ function pushIfNotDuplicate(acc: [number, number][], c: [number, number]) {
 }
 
 /**
- * PedestrianResponse -> 모든 피처 좌표(Points + LineStrings) 평탄화
+ * PedestrianResponse -> 모든 피처 좌표(SectionPoint + LineStrings) 평탄화
  * - properties.index 기준 정렬(안전장치). 이미 sort=index를 넣었지만 재정렬로 보강
  * - 연속 중복 좌표 제거
  */
@@ -75,7 +75,7 @@ function flattenAllCoordinates(resp: PedestrianResponse): [number, number][] {
     for (const f of features) {
         if (!f.geometry) continue;
 
-        if (f.geometry.type === "Point") {
+        if (f.geometry.type === "SectionPoint") {
             const pt = f.geometry.coordinates as [number, number];
             if (Number.isFinite(pt?.[0]) && Number.isFinite(pt?.[1])) {
                 pushIfNotDuplicate(coords, pt);
@@ -131,12 +131,12 @@ async function fetchPedestrianSegment(params: {
     );
     const pedestrianResponse:PedestrianResponse = response.data;
 
-    // LineString만이 아니라 Point 포함 모든 좌표를 합친다
+    // LineString만이 아니라 SectionPoint 포함 모든 좌표를 합친다
     return flattenAllCoordinates(pedestrianResponse);
 }
 
 
-/** Property 타입에 getValue가 있는지 확인하는 type guard */
+/** Property 타입에 getValue가 있는지 확인하는 temp2 guard */
 function hasGetValue(
     prop: unknown
 ): prop is { getValue: (time: JulianDate) => unknown } {

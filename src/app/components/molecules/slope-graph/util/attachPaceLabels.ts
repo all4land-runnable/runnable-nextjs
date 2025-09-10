@@ -1,7 +1,7 @@
 import {SlopeDatum} from "@/app/components/molecules/slope-graph/SlopeGraph";
 import nearestIndexByMeter from "@/app/components/molecules/slope-graph/util/nearestIndexByMeter";
 
-export default function attachPaceLabels(data: SlopeDatum[], centers: number[], makeLabel: (m:number)=>string = ()=>'temp'): SlopeDatum[] {
+export default function attachPaceLabels(data: SlopeDatum[], centers: number[], makeLabel: (m:number)=>string = ()=>'type'): SlopeDatum[] {
     const out: SlopeDatum[] = data.map(d => ({ ...d, pace: undefined }));
     const used = new Set<number>();
     for (const c of centers) {

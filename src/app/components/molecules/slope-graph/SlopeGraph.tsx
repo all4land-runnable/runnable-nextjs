@@ -11,7 +11,6 @@ import initXTick from "@/app/components/molecules/slope-graph/util/initXTick";
 import segmentBySlope from "@/app/components/molecules/slope-graph/util/segmentBySlope";
 import formatKmTick from "@/app/components/molecules/slope-graph/util/formatKmTick";
 import {formatKm} from "@/app/utils/claculator/formatKm";
-import {useEffect} from "react";
 
 // NOTE 1. 타입 지정
 /**

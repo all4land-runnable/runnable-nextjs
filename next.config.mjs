@@ -5,7 +5,7 @@ import CopyWebpackPlugin from 'copy-webpack-plugin'
 
 const pathBuilder = (subpath) => path.join(process.cwd(), subpath)
 
-/** @type {import('next').NextConfig} */
+/** @temp2 {import('next').NextConfig} */
 const nextConfig = {
     webpack: (config, { webpack }) => {
         config.plugins ??= []

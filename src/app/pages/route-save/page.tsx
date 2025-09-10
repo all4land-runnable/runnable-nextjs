@@ -4,13 +4,12 @@ import styles from './page.module.css'
 import React, {useEffect, useState} from "react";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
-import {routeHeightFromEntity} from "@/app/utils/routeHeight";
 import type {SlopeGraphParam} from "@/app/components/molecules/slope-graph/SlopeGraph";
-import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {getPedestrianRoute, getTempRoute} from "@/app/staticVariables";
 import SaveChips from "@/app/utils/save-chips/SaveChips";
 import {useDispatch} from "react-redux";
 import {openWithData} from "@/app/store/redux/feature/rightSidebarSlice";
+import {buildRouteFromEntity} from "@/app/utils/buildRouteFromEntity";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -33,32 +32,38 @@ export default function Page() {
     ]
 
     // 그래프 데이터 상태
-    const [tempSlopeParams, setTempSlopeParams] = useState<SlopeGraphParam[]>([]);
-    const [pedestrianSlopeParams, setPedestrianSlopeParams] = useState<SlopeGraphParam[]>([]);
+    const [tempSlopeParams, setTempSlopeParams] = useState<SlopeGraphParam[]>([]); // TODO: 제거할 것
+    const [pedestrianSlopeParams, setPedestrianSlopeParams] = useState<SlopeGraphParam[]>([]); // TODO: 제거할 것
 
     // NOTE 1. 처음 화면 생성 시 작동
     useEffect(()=>{
-        const viewer = getViewer();
-
         const pedestrianRoute = getPedestrianRoute()
-        routeHeightFromEntity(viewer, pedestrianRoute).then((heights)=>{
-            const params: SlopeGraphParam[] = heights.map((heightSample) => ({
-                meter: heightSample.dist,
-                height: heightSample.height, // ← 숫자 필드만 사용
-            }));
-            setPedestrianSlopeParams(params);
+        buildRouteFromEntity(pedestrianRoute).then((route)=>{
+            const params: SlopeGraphParam[] = []
+            route.sections.forEach((section)=>{
+                section.points.forEach((point)=>{
+                    params.push({
+                        meter: point.distance,
+                        height: point.height,
+                    })
+                })
+            })
+            setPedestrianSlopeParams(params); // TODO: 수정할 것
         }).catch(console.error);
 
 
         const tempRoute = getTempRoute()
-        routeHeightFromEntity(viewer, tempRoute).then((heights) => {
-            const params: SlopeGraphParam[] = heights.map((heightSample) => ({
-                meter: heightSample.dist,
-                height: heightSample.height, // ← 숫자 필드만 사용
-            }));
-            setTempSlopeParams(params);
-
-            console.log(pedestrianSlopeParams)
+        buildRouteFromEntity(tempRoute).then((route) => {
+            const params: SlopeGraphParam[] = []
+            route.sections.forEach((section)=>{
+                section.points.forEach((point)=>{
+                    params.push({
+                        meter: point.distance,
+                        height: point.height,
+                    })
+                })
+            })
+            setTempSlopeParams(params); // TODO: 수정할 것
         }).catch(console.error);
     }, [pedestrianSlopeParams])
 

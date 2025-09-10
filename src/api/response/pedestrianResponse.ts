@@ -56,7 +56,7 @@ export interface Properties {
     description: string;
     /** 방향 (예: 북, 남서 등) */
     direction?: string;
-    /** 근처 POI(Point of Interest) 이름 */
+    /** 근처 POI(SectionPoint of Interest) 이름 */
     nearPoiName: string;
     /** 근처 POI의 X 좌표 (사용되지 않음) */
     nearPoiX: string;
