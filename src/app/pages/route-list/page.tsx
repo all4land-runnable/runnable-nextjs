@@ -2,8 +2,6 @@
 
 import styles from '../../page.module.css'
 import React from "react";
-import LeftSideBar from "@/app/components/organisms/left-side-bar/LeftSideBar";
-import RightSideBar from "@/app/components/organisms/right-side-bar/RightSideBar";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
 import {SlopeGraphParam} from "@/app/components/molecules/slope-graph/SlopeGraph";
@@ -26,8 +24,6 @@ import {hospitalOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/hos
  */
 export default function Page() {
     const router = useRouter();
-
-    const [openRightSideBar, setOpenRightSideBar] = React.useState(false); // 오른쪽 사이드바 확장 상태
 
     // NOTE: 샘플 구간 전략 속성
     const sectionStrategies: SectionStrategyParam[] = [
@@ -54,9 +50,6 @@ export default function Page() {
 
     return (
         <>
-            <div className={styles.onViewer}>
-                {/* 왼쪽 사이드 바 */}
-                <LeftSideBar rightSideBarState={{openRightSideBar: openRightSideBar, setOpenRightSideBar: setOpenRightSideBar}}/>
                 <div className={styles.topSheet}>
                     {/* 강조 구역 버튼 모음 */}
                     <div className={styles.emphasizeChips}>
@@ -74,9 +67,6 @@ export default function Page() {
                         <Chip label="온도 측정" backgroundColor="#FCDE8C" fontSize={remToPx(1.125)} onClickAction={async () => {}}/> {/* TODO: 온도 측정 로직 */}
                     </div>
                 </div>
-                {/* 오른쪽 사이드 바 */}
-                {openRightSideBar??<RightSideBar slopeGraphParams={slopeGraphParams} sectionStrategies={sectionStrategies} routeRankingParams={routeRankingParams}/>}
-            </div>
 
             <section className={styles.bottomSheet}>
                 <div className={styles.listChips}>

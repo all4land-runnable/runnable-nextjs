@@ -1,7 +1,8 @@
 import styles from './RouteCard.module.css'
 import Image from "next/image";
 import {amPmFormat} from "@/app/utils/formattingTime";
-import {RightSideBarState} from "@/app/components/organisms/left-side-bar/LeftSideBar";
+import { useDispatch } from 'react-redux'
+import { toggleOpen } from "@/app/store/redux/feature/rightSidebarSlice";
 
 /**
  * 경로 카드 속성
@@ -24,23 +25,23 @@ export type RouteCardParam = {
 
 type routeCardProps = {
     routeCardParam: RouteCardParam;
-    rightSideBarState: RightSideBarState;
 }
 
 /**
  * 경로 속성 카드를 구현하는 함수
  *
  * @param routeCard 경로 카드 속성
- * @param rightSideBarState 오른쪽 사이드바 확장 상태
  * @constructor
  */
-export default function RouteCard({routeCardParam, rightSideBarState}: routeCardProps) {
+export default function RouteCard({routeCardParam}: routeCardProps) {
+    const dispatch = useDispatch()
+
     /**
      * RouteCard 선택 함수
      */
 
     return (
-        <div className={styles.routeCard} onClick={()=>rightSideBarState.setOpenRightSideBar(!rightSideBarState.openRightSideBar)}> {/* RouteCard 가장 밖 테두리, 핸들러 지정 */}
+        <div className={styles.routeCard} onClick={()=> dispatch(toggleOpen())}> {/* RouteCard 가장 밖 테두리, 핸들러 지정 */}
             <div className={styles.imageBox}> {/* 경로 대표 사진 */}
                 <Image src={routeCardParam.imgUrl} fill style={{ objectFit: "cover" }} alt=""/>
             </div>

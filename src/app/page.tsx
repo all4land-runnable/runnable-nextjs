@@ -25,7 +25,6 @@ export default function Page() {
     return (
         <>
             <div className={styles.onViewer}>
-                {/* 왼쪽 사이드 바 */}
                 <div className={styles.topSheet}>
                     {/* 강조 구역 버튼 모음 */}
                     <div className={styles.emphasizeChips}>

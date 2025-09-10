@@ -2,7 +2,6 @@
 
 import styles from './page.module.css'
 import React, {useEffect, useState} from "react";
-import RightSideBar from "@/app/components/organisms/right-side-bar/RightSideBar";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
 import {routeHeightFromEntity} from "@/app/utils/routeHeight";
@@ -10,12 +9,15 @@ import type {SlopeGraphParam} from "@/app/components/molecules/slope-graph/Slope
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {getPedestrianRoute, getTempRoute} from "@/app/staticVariables";
 import SaveChips from "@/app/utils/save-chips/SaveChips";
+import {useDispatch} from "react-redux";
+import {openWithData} from "@/app/store/redux/feature/rightSidebarSlice";
 
 /**
  * 홈 화면을 구현하는 함수
  * @constructor
  */
 export default function Page() {
+    const dispatch = useDispatch()
     const [onAutomaticRoute, setOnAutomaticRoute] = React.useState<boolean>(false);
 
     // NOTE: 샘플 구간 전략 속성
@@ -60,14 +62,17 @@ export default function Page() {
         }).catch(console.error);
     }, [pedestrianSlopeParams])
 
+    useEffect(()=>{
+        dispatch(openWithData({
+            slopeGraphParams:onAutomaticRoute?tempSlopeParams:pedestrianSlopeParams,
+            sectionStrategies:sectionStrategies,
+            routeRankingParams:routeRankingParams
+        }))
+    },[dispatch, onAutomaticRoute, pedestrianSlopeParams, routeRankingParams, sectionStrategies, tempSlopeParams])
+
     // 오른쪽 사이드바 확장 상태
     return (
         <>
-            <div className={styles.onViewer}>
-                {/* 오른쪽 사이드 바 */}
-                <RightSideBar slopeGraphParams={onAutomaticRoute?tempSlopeParams:pedestrianSlopeParams} sectionStrategies={sectionStrategies} routeRankingParams={routeRankingParams} />
-            </div>
-
             <section className={styles.bottomSheet}>
                 <SaveChips automaticRouteState={{onAutomaticRoute, setOnAutomaticRoute}}/>
             </section>
