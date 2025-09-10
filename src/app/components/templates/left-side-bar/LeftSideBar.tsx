@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './LeftSideBar.module.css';
-import CategorySelect, {CategorySelectParam} from "@/app/components/atom/category-select/CategorySelect";
+import CategorySelect from "@/app/components/atom/category-select/CategorySelect";
 import RouteCard from "@/app/components/organisms/route-card/RouteCard";
 
 export type RightSideBarState = {
@@ -23,11 +23,6 @@ export default function LeftSideBar({rightSideBarState}: LeftSideBarProps) {
     const [cat, setCat] = React.useState('전체 카테고리');
 
     // NOTE: 샘플 카테고리 속성
-    const categorySelectParam: CategorySelectParam = {
-        categories: ['전체 카테고리', '인기 코스', '횡단보도', '도보 경로'],
-        value: cat,
-        onChangeAction: (value: string) => setCat(value),
-    }
 
     // NOTE: 샘플 경로 카드 속성 (10개 생성)
     const routeCardParams = Array.from({ length: 10 }, () => ({
@@ -42,7 +37,7 @@ export default function LeftSideBar({rightSideBarState}: LeftSideBarProps) {
     return (
         // openLeftSideBar가 true일 때만 나타난다.
         <section className={styles.leftSideBar}>
-            <CategorySelect categorySelectParam={categorySelectParam} /> {/* 경로 카테고리 */}
+            <CategorySelect categories={['전체 카테고리', '인기 코스', '횡단보도', '도보 경로']} value={cat} onChangeAction={(value: string) => setCat(value)}/> {/* 경로 카테고리 */}
             <div className={styles.routeCardList}>
                 {/* 각 경로 카드 선회 */}
                 {routeCardParams.map((routeCardParam, index) => (

@@ -1,0 +1,39 @@
+/* Chip.module.scss */
+$gray-200: #e5e7eb;
+$gray-500: #6b7280;
+$radius: 20px;
+$transition: .12s ease;
+
+.chip {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  border: none;
+  border-radius: $radius;
+  padding: 0.75rem;
+
+  transition: transform $transition, box-shadow $transition, background-color $transition;
+  cursor: pointer;
+
+  pointer-events: auto;
+
+  &:hover {
+    transform: translateY(0.05rem);
+  }
+}
+
+.chipFont {
+  color: black;
+  font-weight: normal;
+}
+
+/* 활성 상태 → 배경은 prop에서 지정됨 */
+.chipActive {
+  color: black;
+}
+
+.chipInactive {
+  background-color: $gray-200;
+  color: $gray-500;
+}

@@ -1,4 +1,4 @@
-import styles from './RouteSimulation.module.css'
+import styles from './RouteSimulation.module.scss'
 
 /**
  * 시뮬레이션 버튼을 구현하는 함수

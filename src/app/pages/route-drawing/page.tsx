@@ -17,11 +17,11 @@ import {formatPace} from "@/app/utils/claculator/formatPace";
 export default function Page() {
     // 거리 제한(meter)
     const [limitActive, setLimitActive] = useState<boolean>(false);
-    const [limitRange, setLimitRange] = useState<number>(1.5);
+    const [limitRange, setLimitRange] = useState<number>(5);
 
     // 짐 무게 (kg)
     const [luggageActive, setLuggageActive] = useState(false);
-    const [luggageWeight, setLuggageWeight] = useState(5);
+    const [luggageWeight, setLuggageWeight] = useState(1.5);
 
     // 희망 속도 (분/㎞를 초로 가정: 180(3'00") ~ 480(8'00"))
     const [paceActive, setPaceActive] = useState(false);

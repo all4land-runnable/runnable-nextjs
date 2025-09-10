@@ -11,6 +11,7 @@ import initXTick from "@/app/components/organisms/slope-graph/util/initXTick";
 import segmentBySlope from "@/app/components/organisms/slope-graph/util/segmentBySlope";
 import formatKmTick from "@/app/components/organisms/slope-graph/util/formatKmTick";
 import {formatKm} from "@/app/utils/claculator/formatKm";
+import {useEffect} from "react";
 
 // NOTE 1. 타입 지정
 /**
