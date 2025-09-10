@@ -1,6 +1,6 @@
 'use client';
 
-import styles from '../../page.module.css'
+import styles from '../../page.module.scss'
 import React from "react";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";

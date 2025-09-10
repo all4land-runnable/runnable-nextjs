@@ -1,6 +1,6 @@
 'use client'
 
-import styles from './RightSideBar.module.css'
+import styles from "@/app/page.module.scss"
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import PaceStrategy from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import RouteRanking from "@/app/components/molecules/route-ranking/RouteRanking";
@@ -21,7 +21,7 @@ export default function RightSideBar() {
     const routeRankingParams = useSelector((state:RootState)=> state.rightSideBar.routeRankingParams);
 
     return (
-        open ? <section className={styles.rightSideBar}>
+        open && <section className={styles.rightSideBar}>
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
                 <SlopeGraph slopeGraphParams={slopeGraphParams}/>
                 <PaceStrategy sectionStrategyParams={sectionStrategies}/> {/* 페이스 전략 카드 */}
@@ -36,6 +36,6 @@ export default function RightSideBar() {
                 </div>
                 <RouteSimulation/>
             </div>
-        </section>:null
+        </section>
     )
 }

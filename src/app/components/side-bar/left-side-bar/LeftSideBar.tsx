@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import styles from './LeftSideBar.module.css';
+import styles from "@/app/page.module.scss"
 import CategorySelect from "@/app/components/atom/category-select/CategorySelect";
 import RouteCard from "@/app/components/molecules/route-card/RouteCard";
 import {useSelector} from "react-redux";
@@ -31,7 +31,7 @@ export default function LeftSideBar() {
 
     return (
         // openLeftSideBar가 true일 때만 나타난다.
-        open ?? <section className={styles.leftSideBar}>
+        open && <section className={styles.leftSideBar}>
             <CategorySelect categories={['전체 카테고리', '인기 코스', '횡단보도', '도보 경로']} value={cat} onChangeAction={(value: string) => setCat(value)}/> {/* 경로 카테고리 */}
             <div className={styles.routeCardList}>
                 {/* 각 경로 카드 선회 */}
