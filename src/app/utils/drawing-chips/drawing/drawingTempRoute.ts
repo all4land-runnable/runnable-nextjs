@@ -32,20 +32,13 @@ export default async function drawingTempRoute(
             requestRender() // 실시간 렌더링
         },
         onEnd: (entity, positions) => {
-            const entityShallow = Object.create(
-                Object.getPrototypeOf(entity),
-                Object.getOwnPropertyDescriptors(entity)
-            ) as Cesium.Entity;
+            const positionsSnapshot = positions.slice(); // 스냅샷만 복사
 
-            const positionsShallow = positions.slice();
+            // 외부에서 참조할 현재 엔티티는 원본 그대로 보관
+            setTempEntity(entity);
 
-            // 사용처에 shallow 복사본 전달/저장
-            setTempEntity(entityShallow);
-
-            viewer.entities.add(entityShallow);
-
-            drawer.reset()
-            onEnd(entityShallow, positionsShallow);
+            drawer.reset();
+            onEnd(entity, positionsSnapshot);
         },
     });
 }
