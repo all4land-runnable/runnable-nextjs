@@ -25,7 +25,7 @@ import {removePedestrianRoute} from "@/app/utils/drawing-chips/drawing-controlle
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 import apiClient from "@/api/apiClient";
 import CommonResponse from "@/api/response/common_response";
-import {Route} from "@/type/route";
+import {PaceMakerResponse} from "@/type/paceMakerResponse";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -33,6 +33,8 @@ import {Route} from "@/type/route";
  */
 export default function Page() {
     const dispatch = useDispatch()
+    const pedestrianRoute = useSelector((state: RootState)=> state.rightSideBar.pedestrianRoute);
+
 
     const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
 
@@ -79,35 +81,40 @@ export default function Page() {
 
     // NOTE 1. 처음 화면 생성 시 작동
     useEffect(()=>{
-        const pedestrianRoute = getPedestrianEntity()
-        buildRouteFromEntity(pedestrianRoute).then((route)=> {
+        const pedestrianEntity = getPedestrianEntity()
+        buildRouteFromEntity(pedestrianEntity).then((route)=> {
             dispatch(setPedestrianRoute(route));
         });
 
-        const tempRoute = getTempEntity()
-        buildRouteFromEntity(tempRoute).then((route) => {
+        const tempEntity = getTempEntity()
+        buildRouteFromEntity(tempEntity).then((route) => {
             dispatch(setTempRoute(route))
         }).catch(console.error);
     }, [dispatch])
 
     useEffect(()=>{
         // TODO: 섹션 별 페이스 요청 API
-        apiClient.get<CommonResponse<Route>>('/api/v1/pace_maker', {
+        apiClient.post<CommonResponse<PaceMakerResponse>>('/api/v1/pace_maker',{
+            luggageWeight: 0,
+            paceSeconds: 420,
+            route: {
+                sections: pedestrianRoute.sections.map(s => ({
+                    distance: s.distance,
+                    slope: s.slope,
+                })),
+            },
+        }, {
             baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
-            params: {
-                luggageWeight: 0,
-                paceSeconds: 0,
-                route: setPedestrianRoute,
-            }
         }).then((response)=>{
-            const routeResponse: CommonResponse<Route> = response.data;
+            const paceMakerResponse: CommonResponse<PaceMakerResponse> = response.data;
 
-            if(!routeResponse || !routeResponse.data)
+            if(!paceMakerResponse || !paceMakerResponse.data)
                 throw new Error("routeResponse returned from route")
 
-            const route = routeResponse.data
-            route.sections.forEach((section)=>{
-                console.log(section.slope)
+            const paceMaker = paceMakerResponse.data
+            paceMaker.forEach((section)=>{
+                console.log(section.pace)
+                // TODO: 여기서 수정하기 (데이터를 네번 전공하는데 이유가 뭔지 아직 잘 모름 useEffect가 원인으로 추정)
             })
         })
 
@@ -115,7 +122,7 @@ export default function Page() {
             sectionStrategies:sectionStrategies,
             routeRankingParams:routeRankingParams
         }))
-    },[dispatch, routeRankingParams, sectionStrategies])
+    },[dispatch, routeRankingParams, sectionStrategies, pedestrianRoute.sections])
 
     // 오른쪽 사이드바 확장 상태
     return (

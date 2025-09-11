@@ -39,7 +39,7 @@ export default function Page() {
 
     // 희망 속도 (분/㎞를 초로 가정: 180(3'00") ~ 480(8'00"))
     const [paceActive, setPaceActive] = useState(false);
-    const [paceSeconds, setPaceSeconds] = useState(360); // 6'00" = 360초
+    const [paceSeconds, setPaceSeconds] = useState(390); // 6'30" = 390초
 
     const router = useRouter();
     const { openConfirm, close } = useModal();

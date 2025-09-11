@@ -12,10 +12,9 @@ import segmentBySlope from "@/app/components/molecules/slope-graph/util/segmentB
 import formatKmTick from "@/app/components/molecules/slope-graph/util/formatKmTick";
 import { formatKm } from "@/app/utils/claculator/formatKm";
 
-import type { Section } from "@/type/section";
-import type { Point } from "@/type/point";
 import {useSelector} from "react-redux";
 import {RootState} from "@/app/store/redux/store";
+import {Point, Section} from "@/type/route";
 
 // addSlope가 기대하는 최소 형태
 type BaseDatum = { meter: number; height: number };

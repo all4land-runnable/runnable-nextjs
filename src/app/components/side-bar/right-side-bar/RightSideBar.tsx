@@ -25,7 +25,7 @@ export default function RightSideBar() {
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
                 <SlopeGraph/>
                 <PaceStrategy sectionStrategyParams={sectionStrategies}/> {/* 페이스 전략 카드 */}
-                <RouteRanking routeRankingParam={routeRankingParams}/> {/* 경로 랭킹 */}
+                {/*<RouteRanking routeRankingParam={routeRankingParams}/> /!* 경로 랭킹 *!/*/}
             </div>
             <div className={styles.sidebarBottom}> {/* 오른쪽 사이드바 하단 */}
                 <div className={styles.detailInfo}>
