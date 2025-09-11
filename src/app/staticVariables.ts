@@ -9,11 +9,12 @@ declare global {
         viewer?: Viewer;
         drawer?: Drawer;
 
+        TEMP_ENTITY?: string;
+
+
         // for Drawing
-        tempRoute?: Cesium.Entity
         tempRouteMarkers?:Cesium.Entity[]
         pedestrianRoute?: Cesium.Entity
-        circularHelper?: Cesium.Entity
 
         // for TOC
         crosswalks?: Cesium.Entity[]
@@ -23,10 +24,13 @@ declare global {
     }
 }
 
-export const setTempEntity = (entity: Cesium.Entity|undefined) => window.tempRoute = entity;
-export const getTempEntity = ()=>{
-    if(!window.tempRoute) throw new Error('TempRoute not found.');
-    return window.tempRoute
+export function setTempEntity(id: string) {
+    window.TEMP_ENTITY = id;
+}
+
+export function getTempEntity(): string {
+    if(!window.TEMP_ENTITY) throw new Error("TempEntity not found.");
+    return window.TEMP_ENTITY;
 }
 
 export const setPedestrianEntity = (entity: Cesium.Entity|undefined) => window.pedestrianRoute = entity;
@@ -39,12 +43,6 @@ export const setTempRouteMarkers = (entities: Cesium.Entity[]) => getTempRouteMa
 export const getTempRouteMarkers = ()=>{
     if(!window.tempRouteMarkers || window.tempRouteMarkers.length === 0) window.tempRouteMarkers = [];
     return window.tempRouteMarkers
-}
-
-export const setCircularHelper = (entity: Cesium.Entity|undefined) => window.circularHelper = entity;
-export const getCircularHelper = ()=>{
-    if(!window.circularHelper) throw new Error('CircularHelper not found.');
-    return window.circularHelper;
 }
 
 export const setCrosswalk = (entities: Cesium.Entity[]) => getCrosswalk().push(...entities);

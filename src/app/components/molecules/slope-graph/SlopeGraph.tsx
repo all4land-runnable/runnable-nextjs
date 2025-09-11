@@ -24,8 +24,8 @@ type SlopeDatum = BaseDatum & { slope: number };
 export default function SlopeGraph() {
     const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
 
-    const tempRoute = useSelector((state: RootState) => state.rightSideBar.tempRoute);
-    const pedestrianRoute = useSelector((state: RootState) => state.rightSideBar.pedestrianRoute);
+    const tempRoute = useSelector((state: RootState) => state.routeDrawing.tempRoute);
+    const pedestrianRoute = useSelector((state: RootState) => state.routeDrawing.pedestrianRoute);
 
     const route = automaticRoute ? pedestrianRoute : tempRoute;
     // 1) route → flat points → {meter,height} → 거리 오름차순 정렬

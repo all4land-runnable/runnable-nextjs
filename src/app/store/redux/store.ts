@@ -4,11 +4,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import leftSidebarReducer from "@/app/store/redux/feature/leftSidebarSlice";
 import rightSidebarReducer from "@/app/store/redux/feature/rightSidebarSlice";
+import routeDrawingReducer from "@/app/store/redux/feature/routeDrawingSlice";
 
 export const store = configureStore({
     reducer: {
         leftSidebar: leftSidebarReducer,
         rightSideBar: rightSidebarReducer,
+        routeDrawing: routeDrawingReducer,
     },
 });
 

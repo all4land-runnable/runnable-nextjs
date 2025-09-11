@@ -9,9 +9,6 @@ type RightSideBarState = {
 
     automaticRoute: boolean;
 
-    pedestrianRoute: Route;
-    tempRoute: Route;
-
     sectionStrategies: SectionStrategyParam[];
     routeRankingParams: RouteRankingParam[];
 }
@@ -20,9 +17,6 @@ const initialState: RightSideBarState = {
     rightSidebarOpen: false,
 
     automaticRoute: false,
-
-    pedestrianRoute: {title: "", description: "", distance: 0, highHeight: 0, lowHeight: 0, sections: []},
-    tempRoute: {title: "", description: "", distance: 0, highHeight: 0, lowHeight: 0, sections: []},
 
     sectionStrategies: [],
     routeRankingParams: [],
@@ -43,12 +37,7 @@ const rightSideBarSlice = createSlice({
             state.automaticRoute = action.payload
         },
 
-        setPedestrianRoute(state, action: PayloadAction<Route>) {
-            state.pedestrianRoute = action.payload;
-        },
-        setTempRoute(state, action: PayloadAction<Route>) {
-            state.tempRoute = action.payload;
-        },
+
 
         setSectionStrategies(state, action: PayloadAction<SectionStrategyParam[]>) {
             state.sectionStrategies = action.payload;
@@ -65,9 +54,7 @@ const rightSideBarSlice = createSlice({
                 routeRankingParams?: RouteRankingParam[];
             }>
         ) {
-            const { pedestrianRoute, tempRoute, sectionStrategies, routeRankingParams } = action.payload;
-            if (pedestrianRoute) state.pedestrianRoute = pedestrianRoute;
-            if (tempRoute) state.tempRoute = tempRoute;
+            const { sectionStrategies, routeRankingParams } = action.payload;
             if (sectionStrategies) state.sectionStrategies = sectionStrategies;
             if (routeRankingParams) state.routeRankingParams = routeRankingParams;
             state.rightSidebarOpen = true;
@@ -82,8 +69,6 @@ export const {
     toggleOpen,
     setRightSidebarOpen,
     setAutomaticRoute,
-    setPedestrianRoute,
-    setTempRoute,
     setSectionStrategies,
     setRouteRankingParams,
     openWithData,

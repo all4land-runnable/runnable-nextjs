@@ -3,7 +3,6 @@
 import styles from "./RightSideBar.module.css"
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import PaceStrategy from "@/app/components/molecules/pace-strategy/PaceStrategy";
-import RouteRanking from "@/app/components/molecules/route-ranking/RouteRanking";
 import {Chip} from "@/app/components/atom/chip/Chip";
 import RouteSimulation from "@/app/components/atom/route-simulation/RouteSimulation";
 import SlopeGraph from "@/app/components/molecules/slope-graph/SlopeGraph";
@@ -18,7 +17,6 @@ export default function RightSideBar() {
     const open = useSelector((state: RootState) => state.rightSideBar.rightSidebarOpen);
 
     const sectionStrategies = useSelector((state: RootState)=> state.rightSideBar.sectionStrategies);
-    const routeRankingParams = useSelector((state:RootState)=> state.rightSideBar.routeRankingParams);
 
     return (
         open && <section className={styles.rightSideBar}>
