@@ -25,8 +25,8 @@ import upsertTempRoute from "@/app/pages/route-drawing/utils/upsertTempRoute";
 import {resetRouteDrawing, setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/routeDrawingSlice";
 import {parseTempRoute} from "@/app/pages/route-drawing/utils/parseTempRoute";
 import {parsePedestrianRoute} from "@/app/pages/route-drawing/utils/parsePedestrianRoute";
-import {getPedestrianResponse} from "@/app/pages/route-drawing/utils/postPedestrianRoute";
 import {addPedestrianEntity} from "@/app/pages/route-drawing/utils/addPedestrianEntity";
+import {getPedestrianRoute} from "@/app/pages/route-drawing/utils/postPedestrianRoute";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -93,7 +93,8 @@ export default function Page() {
                 const coordinates: [number, number][] = tempRoute.sections.flatMap((section) =>
                     section.points.map((point) => [point.longitude, point.latitude] as [number, number])
                 );
-                getPedestrianResponse(coordinates)
+                console.log("coordinates",coordinates);
+                getPedestrianRoute(coordinates)
                     .then(pedestrianResponse=>{
                         // NOTE 5. 자동 경로 엔티티를 불러온다.
                         const pedestrianEntity = addPedestrianEntity(pedestrianResponse);

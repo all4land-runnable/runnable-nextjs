@@ -79,3 +79,17 @@ export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Ent
             : undefined,
     });
 }
+
+export function addPolyline(coordinates: [number, number][]) {
+    return new Cesium.Entity({
+        id: "pedestrian_entity",
+        polyline: coords.length >= 2
+            ? {
+                coordinates,
+                width: 5,
+                material: Cesium.Color.fromCssColorString("#4D7C0F"),
+                clampToGround: true,
+            }
+            : undefined,
+    });
+}
