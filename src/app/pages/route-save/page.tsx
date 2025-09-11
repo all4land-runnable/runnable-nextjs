@@ -23,6 +23,9 @@ import {setTempRouteVisibility} from "@/app/utils/drawing-chips/drawing/drawingT
 import {setCircularVisibility} from "@/app/utils/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
 import {removePedestrianRoute} from "@/app/utils/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
+import apiClient from "@/api/apiClient";
+import CommonResponse from "@/api/response/common_response";
+import {Route} from "@/type/route";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -88,6 +91,26 @@ export default function Page() {
     }, [dispatch])
 
     useEffect(()=>{
+        // TODO: 섹션 별 페이스 요청 API
+        apiClient.get<CommonResponse<Route>>('/api/v1/pace_maker', {
+            baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
+            params: {
+                luggageWeight: 0,
+                paceSeconds: 0,
+                route: setPedestrianRoute,
+            }
+        }).then((response)=>{
+            const routeResponse: CommonResponse<Route> = response.data;
+
+            if(!routeResponse || !routeResponse.data)
+                throw new Error("routeResponse returned from route")
+
+            const route = routeResponse.data
+            route.sections.forEach((section)=>{
+                console.log(section.slope)
+            })
+        })
+
         dispatch(openWithData({
             sectionStrategies:sectionStrategies,
             routeRankingParams:routeRankingParams

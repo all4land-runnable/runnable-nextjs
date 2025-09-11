@@ -20,7 +20,7 @@ export async function drinkingFountainOnClick() {
     const point = getCameraPosition();
 
     // NOTE 2. 음수대 조회 API
-    const response = await apiClient.get<CommonResponse<DrinkingFountain[]>>(`/api/v1/dataset/drinkingFountains`, {
+    const response = await apiClient.get<CommonResponse<DrinkingFountain[]>>('/api/v1/dataset/drinkingFountains', {
         baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
         params: {
             lat: point.lat,
