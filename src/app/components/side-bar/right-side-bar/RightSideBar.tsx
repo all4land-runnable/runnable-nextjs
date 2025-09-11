@@ -1,6 +1,6 @@
 'use client'
 
-import styles from "@/app/page.module.scss"
+import styles from "./RightSideBar.module.css"
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import PaceStrategy from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import RouteRanking from "@/app/components/molecules/route-ranking/RouteRanking";

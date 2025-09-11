@@ -10,19 +10,11 @@ import {Chip} from "@/app/components/atom/chip/Chip";
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {useRouter} from "next/navigation";
 import {useModal} from "@/app/store/modal/ModalProvider";
-import {getCircularHelper, getCrosswalk, getDrinkingFoundation, getHospital, getTempEntity} from "@/app/staticVariables";
+import {getCircularHelper, getTempEntity} from "@/app/staticVariables";
 import getDrawer from "@/app/components/organisms/cesium/drawer/getDrawer";
-import clearMarkers from "@/app/utils/markers/clearMarkers";
 import {addCircular, removeCircular} from "@/app/utils/drawing-chips/drawing-controller-onclick/circularRouteOnClick";
 import {completeDrawingOnClick} from "@/app/utils/drawing-chips/drawing-controller-onclick/completeDrawingOnClick";
 import drawingTempRoute, {removeTempRoute} from "@/app/utils/drawing-chips/drawing/drawingTempRoute";
-import popularCourseOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/popularCourseOnClick";
-import {toggleSidewalkVisible} from "@/app/utils/emphasize-chips/emphasize-onclick/sidewalkOnClick";
-import {crosswalkOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/crosswalkOnClick";
-import storageBoxOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/storageBoxOnClick";
-import {hospitalOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/hospitalOnClick";
-import {drinkingFountainOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
-import altitudeOnClick from "@/app/utils/tile-chips/title-onclick/altitudeOnClick";
 import workoutAvailabilityOnClick
     from "@/app/utils/drawing-chips/drawing-controller-onclick/workoutAvailabilityOnClick";
 import saveDrinkingFountainsInfoOnClick
@@ -89,26 +81,6 @@ export default function Page() {
 
     return (
         <>
-            <div className={styles.onViewer}>
-                <div className={styles.topSheet}>
-                    {/* 강조 구역 버튼 모음 */}
-                    <div className={styles.emphasizeChips}>
-                        <Chip label={"인기 코스"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={popularCourseOnClick}/> {/* 인기 코스 */}
-                        <Chip label={"도보 경로"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={toggleSidewalkVisible}/> {/* 횡단보도 */}
-                        <Chip label={"횡단보도"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={crosswalkOnClick} inActiveOnClickAction={async ()=>clearMarkers(getCrosswalk())} /> {/* 도보 경로 */}
-                        <Chip label={"물품보관함"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={storageBoxOnClick}/> {/* 물품보관함 */}
-                        <Chip label={"병원"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={hospitalOnClick} inActiveOnClickAction={async ()=>clearMarkers(getHospital())}/> {/* 병원 */}
-                        <Chip label={"음수대"} backgroundColor={"#A1F0CB"} fontSize={remToPx(1.125)} onClickAction={drinkingFountainOnClick} inActiveOnClickAction={async ()=>clearMarkers(getDrinkingFoundation())}/> {/* 음수대 */}
-                    </div>
-                    {/* 타일 버튼 모음 */}
-                    <div className={styles.tileChips}>
-                        <Chip label="고도 표시" backgroundColor="#FCDE8C" fontSize={remToPx(1.125)} onClickAction={altitudeOnClick}/>
-                        <Chip label="재질 표시" backgroundColor="#FCDE8C" fontSize={remToPx(1.125)} onClickAction={async () => {}}/> {/* TODO: 재질 표시 로직 */}
-                        <Chip label="온도 측정" backgroundColor="#FCDE8C" fontSize={remToPx(1.125)} onClickAction={async () => {}}/> {/* TODO: 온도 측정 로직 */}
-                    </div>
-                </div>
-            </div>
-
             <section className={styles.bottomSheet}>
                 <div className={styles.drawingController}>
                     <Chip label={"뒤로 가기"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={closeDrawingController}/>

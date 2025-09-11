@@ -9,6 +9,7 @@ import ModalProvider from "@/app/store/modal/ModalProvider";
 import styles from "@/app/page.module.scss";
 import RightSideBar from "@/app/components/side-bar/right-side-bar/RightSideBar";
 import LeftSideBar from "@/app/components/side-bar/left-side-bar/LeftSideBar";
+import Toc from "@/app/components/organisms/toc/Toc";
 
 export const metadata: Metadata = {};
 
@@ -21,17 +22,18 @@ export default function RootLayout({ children }: Readonly<{
         <Header/>
         <ReduxProvider>
             <ModalProvider>
-                <article>
-                    <MapPrime3DViewer/>
-                    <div className={styles.onViewer}>
-                        {/* 왼쪽 고정 열 */}
-                        <LeftSideBar/>
-                        {/* 가운데 콘텐츠: 남은 전체 영역 차지 + column start-start */}
+                <MapPrime3DViewer/>
+                <div className={styles.onViewer}>
+                    {/* 왼쪽 고정 열 */}
+                    <LeftSideBar/>
+                    {/* 가운데 콘텐츠: 남은 전체 영역 차지 */}
+                    <div className={styles.main}>
+                        <Toc/>
                         {children}
-                        {/* 오른쪽 고정 열 */}
-                        <RightSideBar/>
                     </div>
-                </article>
+                    {/* 오른쪽 고정 열 */}
+                    <RightSideBar/>
+                </div>
             </ModalProvider>
         </ReduxProvider>
         </body>

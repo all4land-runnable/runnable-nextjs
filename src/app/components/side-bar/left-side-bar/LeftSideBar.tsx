@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import styles from "@/app/page.module.scss"
+import styles from "./LeftSideBar.module.css"
 import CategorySelect from "@/app/components/atom/category-select/CategorySelect";
 import RouteCard from "@/app/components/molecules/route-card/RouteCard";
 import {useSelector} from "react-redux";

@@ -1,8 +1,8 @@
 'use client';
+import styles from "./MapPrime3DViewer.module.css";
 import { useEffect, useRef } from 'react';
 import { Viewer } from 'cesium';
 import { createCesium } from "@/app/components/organisms/cesium/createCesiumViewer";
-import styles from "@/app/page.module.scss";
 import { extendMapPrime3D } from "@/app/components/organisms/cesium/extendMapPrime3D";
 import * as Cesium from "cesium";
 import {initSidewalkLayer} from "@/app/components/organisms/cesium/initSidewalkLayer";
