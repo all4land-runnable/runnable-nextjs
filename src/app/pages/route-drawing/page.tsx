@@ -86,23 +86,23 @@ export default function Page() {
                 const tempEntityMarkers = getTempRouteMarkers()
 
                 // NOTE 2. 임시 경로를 Route로 파싱한다.
-                const tempRoute = parseTempRoute(tempEntityMarkers);
+                const tempRoute = await parseTempRoute(tempEntityMarkers);
                 dispatch(setTempRoute(tempRoute)); // TempRoute를 저장한다.
 
                 // NOTE 4. 자동 경로 API를 요청한다.
                 const coordinates: [number, number][] = tempRoute.sections.flatMap((section) =>
                     section.points.map((point) => [point.longitude, point.latitude] as [number, number])
                 );
-                const pedestrianResponse = await getPedestrianResponse(coordinates);
-                console.log(pedestrianResponse);
+                getPedestrianResponse(coordinates)
+                    .then(pedestrianResponse=>{
+                        // NOTE 5. 자동 경로 엔티티를 불러온다.
+                        const pedestrianEntity = addPedestrianEntity(pedestrianResponse);
+                        viewer.entities.add(pedestrianEntity);
 
-                // NOTE 5. 자동 경로 엔티티를 불러온다.
-                const pedestrianEntity = addPedestrianEntity(pedestrianResponse);
-                viewer.entities.add(pedestrianEntity);
-
-                // NOTE 6. 자동 경로를 Route로 파싱한다.
-                const pedestrianRoute = parsePedestrianRoute(pedestrianEntity, pedestrianResponse);
-                dispatch(setPedestrianRoute(pedestrianRoute));
+                        // NOTE 6. 자동 경로를 Route로 파싱한다.
+                        parsePedestrianRoute(pedestrianEntity, pedestrianResponse)
+                            .then(pedestrianRoute=> dispatch(setPedestrianRoute(pedestrianRoute)));
+                    });
 
                 // NOTE 8. 창을 닫는다.
                 close();
@@ -129,57 +129,57 @@ export default function Page() {
      */
         // 원형 경로를 설정하는 함수
     const addCircular = () => {
-        setCircular(true);
+            setCircular(true);
 
-        const tempEntities = getTempRouteMarkers();
+            const tempEntities = getTempRouteMarkers();
 
-        // NOTE 1. 예외처리: 사용자가 지점을 제대로 찍지 않은 경우
-        if (!tempEntities || tempEntities.length < 2) {
-            alert("최소한 두개의 지점을 선택해주세요.");
-            return;
-        }
+            // NOTE 1. 예외처리: 사용자가 지점을 제대로 찍지 않은 경우
+            if (!tempEntities || tempEntities.length < 2) {
+                alert("최소한 두개의 지점을 선택해주세요.");
+                return;
+            }
 
-        // NOTE 2. 현재 시각 기준으로 엔티티의 좌표 추출
-        const isFiniteCartesian3 = (c?: Cartesian3): c is Cartesian3 =>
-            !!c && Number.isFinite(c.x) && Number.isFinite(c.y) && Number.isFinite(c.z);
+            // NOTE 2. 현재 시각 기준으로 엔티티의 좌표 추출
+            const isFiniteCartesian3 = (c?: Cartesian3): c is Cartesian3 =>
+                !!c && Number.isFinite(c.x) && Number.isFinite(c.y) && Number.isFinite(c.z);
 
-        const positions = new Cesium.CallbackProperty(
-            (t?: JulianDate): Cartesian3[] => {
-                const time = t ?? Cesium.JulianDate.now();
+            const positions = new Cesium.CallbackProperty(
+                (t?: JulianDate): Cartesian3[] => {
+                    const time = t ?? Cesium.JulianDate.now();
 
-                const points = getTempRouteMarkers()
-                    .map(e => e.position?.getValue?.(time) as Cartesian3 | undefined)
-                    .filter(isFiniteCartesian3);
+                    const points = getTempRouteMarkers()
+                        .map(e => e.position?.getValue?.(time) as Cartesian3 | undefined)
+                        .filter(isFiniteCartesian3);
 
-                if (points.length < 2) return [];
-                const first = points[0];
-                const last = points.at(-1)!;     // 마지막 점
+                    if (points.length < 2) return [];
+                    const first = points[0];
+                    const last = points.at(-1)!;     // 마지막 점
 
-                // 양끝 점 연결
-                return [last, first];
-            },
-            false
-        );
+                    // 양끝 점 연결
+                    return [last, first];
+                },
+                false
+            );
 
-        try {
-            // NOTE 3. 예외처리: 기존 보조선이 남아있다면 제거(중복 추가 방지)
-            const circular_line = viewer.entities.getById("circular_line");
-            if (circular_line) viewer.entities.remove(circular_line);
+            try {
+                // NOTE 3. 예외처리: 기존 보조선이 남아있다면 제거(중복 추가 방지)
+                const circular_line = viewer.entities.getById("circular_line");
+                if (circular_line) viewer.entities.remove(circular_line);
 
-            // NOTE 4. 보조 폴리라인 엔티티 추가
-            viewer.entities.add({
-                id: "circular_line",
-                polyline: new Cesium.PolylineGraphics({
-                    positions: positions,
-                    width: 8,
-                    material: Cesium.Color.RED.withAlpha(0.3),
-                    clampToGround: true,
-                }),
-            });
+                // NOTE 4. 보조 폴리라인 엔티티 추가
+                viewer.entities.add({
+                    id: "circular_line",
+                    polyline: new Cesium.PolylineGraphics({
+                        positions: positions,
+                        width: 8,
+                        material: Cesium.Color.RED.withAlpha(0.3),
+                        clampToGround: true,
+                    }),
+                });
 
-            requestRender()
-        } catch {} // 에러 발생 시, 더이상 진행하지 않음
-    };
+                requestRender()
+            } catch {} // 에러 발생 시, 더이상 진행하지 않음
+        };
 
     const removeCircular = ()=>{
         setCircular(false);

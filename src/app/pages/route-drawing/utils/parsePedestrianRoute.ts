@@ -3,6 +3,7 @@ import * as Cesium from "cesium";
 import { Entity, JulianDate, Cartesian3 } from "cesium";
 import type { Route, Section, Point } from "@/type/route";
 import type { PedestrianResponse, Feature } from "@/api/response/pedestrianResponse";
+import {calcHeight} from "@/app/pages/route-drawing/utils/calcHeight";
 
 const EPS = 1e-12;
 const isFiniteNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
@@ -38,10 +39,10 @@ function pickSectionName(line: Feature, prevPoint?: Feature): string {
     return line.properties?.description?.trim() || "";
 }
 
-export function parsePedestrianRoute(
+export async function parsePedestrianRoute(
     pedestrianEntity: Entity,
     pedestrianResponse: PedestrianResponse
-): Route {
+): Promise<Route> {
     const title = "";
     const description = "";
 
@@ -171,7 +172,7 @@ export function parsePedestrianRoute(
 
     const totalDistance = Math.round(globalCum);
 
-    return {
+    const route = {
         title,
         description,
         distance: totalDistance,
@@ -180,4 +181,8 @@ export function parsePedestrianRoute(
         lowHeight:  low  === Number.POSITIVE_INFINITY ? 0 : low,
         sections,
     };
+
+    await calcHeight(route);
+
+    return route;
 }

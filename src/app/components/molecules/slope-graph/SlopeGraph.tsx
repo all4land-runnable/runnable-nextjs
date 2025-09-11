@@ -1,3 +1,4 @@
+// src/app/components/molecules/slope-graph/SlopeGraph.tsx
 'use client'
 
 import {
@@ -6,67 +7,104 @@ import {
 } from 'recharts';
 import styles from './SlopeGraph.module.css';
 
-import addSlope from "@/app/components/molecules/slope-graph/util/addSlope";
-import initXTick from "@/app/components/molecules/slope-graph/util/initXTick";
-import segmentBySlope from "@/app/components/molecules/slope-graph/util/segmentBySlope";
-import formatKmTick from "@/app/components/molecules/slope-graph/util/formatKmTick";
-import { formatKm } from "@/app/utils/claculator/formatKm";
+import addSlope from '@/app/components/molecules/slope-graph/util/addSlope';
+import initXTick from '@/app/components/molecules/slope-graph/util/initXTick';
+import segmentBySlope from '@/app/components/molecules/slope-graph/util/segmentBySlope';
+import formatKmTick from '@/app/components/molecules/slope-graph/util/formatKmTick';
+import { formatKm } from '@/app/utils/claculator/formatKm';
 
-import {useSelector} from "react-redux";
-import {RootState} from "@/app/store/redux/store";
-import {Point, Section} from "@/type/route";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/app/store/redux/store';
+import type { Point, Route, Section } from '@/type/route';
 
-// addSlope가 기대하는 최소 형태
-type BaseDatum = { meter: number; height: number };
-// addSlope 결과(경사도 포함)
-type SlopeDatum = BaseDatum & { slope: number };
+// ===== 타입 =====
+export type SlopeGraphParam = { meter: number; height: number };
+export type SlopeDatum = SlopeGraphParam & { slope: number; pace?: string };
+
+// ===== Route -> SlopeGraphParam 변환 =====
+function buildSlopeParamsFromRoute(route?: Route): SlopeGraphParam[] {
+    if (!route?.sections?.length) return [];
+
+    // 섹션들의 포인트를 펼치면서 [meter, height] 채집
+    const raw: SlopeGraphParam[] = route.sections.flatMap((s: Section) =>
+        s.points.map((p: Point) => ({
+            meter: Number.isFinite(p.distance) ? p.distance : 0,
+            height: Number.isFinite(p.height) ? p.height : 0,
+        }))
+    );
+
+    // 거리 기준 정렬 + 동일 meter 중복 제거(가장 마지막 값 사용)
+    const sorted = raw.sort((a, b) => a.meter - b.meter);
+    const dedup: SlopeGraphParam[] = [];
+    for (const r of sorted) {
+        const last = dedup[dedup.length - 1];
+        if (!last || last.meter !== r.meter) {
+            dedup.push(r);
+        } else {
+            // 같은 meter가 연속으로 오면 최신 height로 갱신
+            last.height = r.height;
+        }
+    }
+
+    return dedup;
+}
 
 export default function SlopeGraph() {
-    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
+    // 요청사항: 컴포넌트 안에서 useDispatch 사용 (필요 시 활용)
+    const dispatch = useDispatch();
 
-    const tempRoute = useSelector((state: RootState) => state.routeDrawing.tempRoute);
+    // 자동경로/임시경로 선택
+    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
+    const tempRoute       = useSelector((state: RootState) => state.routeDrawing.tempRoute);
     const pedestrianRoute = useSelector((state: RootState) => state.routeDrawing.pedestrianRoute);
 
-    const route = automaticRoute ? pedestrianRoute : tempRoute;
-    // 1) route → flat points → {meter,height} → 거리 오름차순 정렬
-    const base: BaseDatum[] = route.sections
-        .flatMap((s: Section) =>
-            s.points.map((p: Point) => ({ meter: p.distance, height: p.height }))
-        )
-        .sort((a, b) => a.meter - b.meter);
+    // true면 보행자(자동) 경로, false면 임시 경로
+    const route: Route | undefined = automaticRoute ? pedestrianRoute : tempRoute;
 
-    // 2) 경사도 계산
-    const data: SlopeDatum[] = addSlope(base);
+    // Route -> 그래프 파라미터
+    const params: SlopeGraphParam[] = buildSlopeParamsFromRoute(route);
 
-    // 3) 보조 통계/축 계산
-    const meters = data.map(d => d.meter);
+    if (params.length === 0) {
+        return (
+            <section>
+                <div className={styles.slopeGraph}
+                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
+                    경로 데이터가 없습니다.
+                </div>
+            </section>
+        );
+    }
+
+    // 경사도 부여
+    const data: SlopeDatum[] = addSlope(params);
+
+    // 보조 통계/축
+    const meters  = data.map(d => d.meter);
     const heights = data.map(d => d.height);
 
-    const meterFirst = Math.min(...meters);
-    const meterLast  = Math.max(...meters);
-
+    const meterLast = Math.max(...meters);
     const heightMin = Math.min(...heights);
     const heightMax = Math.max(...heights);
 
     const minIdx = heights.indexOf(heightMin);
     const maxIdx = heights.indexOf(heightMax);
 
-    const meterAtMin = data[minIdx]?.meter;
-    const meterAtMax = data[maxIdx]?.meter;
+    const meterAtMin = data[minIdx]?.meter ?? 0;
+    const meterAtMax = data[maxIdx]?.meter ?? 0;
 
-    const Y_STEP = 5; // y축 눈금 간격(m)
+    const Y_STEP = 5;
     const yDomainMin = Math.floor(heightMin / Y_STEP) * Y_STEP;
     const yDomainMax = Math.ceil(heightMax / Y_STEP) * Y_STEP;
 
     const yTicks: number[] = [];
     for (let v = yDomainMin; v <= yDomainMax; v += Y_STEP) yTicks.push(v);
 
-    const xTicks = initXTick(meterLast, 500); // 500m 간격
+    const xTicks = initXTick(meterLast, 500);
 
-    // 4) 오르막/내리막 분할
+    // 오르막/내리막 분리
     const { up, down } = segmentBySlope(data);
 
-    // 5) Tooltip
+    // Tooltip
     type CustomTooltipProps = {
         active?: boolean;
         payload?: Array<{ payload: SlopeDatum }>;
@@ -87,7 +125,7 @@ export default function SlopeGraph() {
                 lineHeight: 1.4
             }}>
                 <div><strong>이동 거리</strong> : {formatKm(p.meter)}</div>
-                <div><strong>고도</strong> : {`${p.height.toFixed(0)}m`}</div>  {/* ✅ 고도는 m 단위 */}
+                <div><strong>고도</strong> : {`${p.height.toFixed(0)}m`}</div>
                 <div><strong>경사도</strong> : {`${p.slope >= 0 ? '+' : ''}${p.slope.toFixed(1)}%`}</div>
             </div>
         );
@@ -150,12 +188,10 @@ export default function SlopeGraph() {
                             connectNulls={false}
                         />
 
-                        {/* 최저점 */}
+                        {/* 최저/최고점 */}
                         <ReferenceDot x={meterAtMin} y={heightMin} r={4} fill="#1e63ff" stroke="#000">
                             <Label value={`${heightMin.toFixed(0)}m`} position="bottom" style={{ fontSize: 14 }} />
                         </ReferenceDot>
-
-                        {/* 최고점 */}
                         <ReferenceDot x={meterAtMax} y={heightMax} r={4} fill="#ff4d4f" stroke="#000">
                             <Label value={`${heightMax.toFixed(0)}m`} position="top" style={{ fontSize: 14 }} />
                         </ReferenceDot>
