@@ -55,6 +55,7 @@ export default function Page() {
         if(tempEntity) tempEntity.show = next;
 
         const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
+        console.log(pedestrianEntity);
         if(pedestrianEntity) pedestrianEntity.show = !next;
 
         requestRender()
@@ -75,8 +76,8 @@ export default function Page() {
     // NOTE 1. 처음 화면 생성 및 onAutomaticRoute 변경 시 동기화
     useEffect(()=>{
         // TODO: 섹션 별 페이스 요청 API
-        const pedestrianStrategies = postPaceMaker(pedestrianRoute)
-        const tempStrategies = postPaceMaker(tempRoute)
+        // const pedestrianStrategies = postPaceMaker(pedestrianRoute)
+        // const tempStrategies = postPaceMaker(tempRoute)
 
         dispatch(openWithData({
             sectionStrategies:sectionStrategies,

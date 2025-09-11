@@ -30,7 +30,6 @@ export async function hospitalOnClick() {
     });
     // api response 데이터 반환
     const hospitalResponse: CommonResponse<Hospital[]> = response.data;
-    console.log("hospitalResponse", hospitalResponse);
     const hospitals = hospitalResponse.data ?? [];
 
     // NOTE 2. 예외처리 (병원이 조회되지 않았을 경우)

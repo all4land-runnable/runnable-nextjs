@@ -24,7 +24,9 @@ import requestRender from "@/app/components/organisms/cesium/util/requestRender"
 import upsertTempRoute from "@/app/pages/route-drawing/utils/upsertTempRoute";
 import {resetRouteDrawing, setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/routeDrawingSlice";
 import {parseTempRoute} from "@/app/pages/route-drawing/utils/parseTempRoute";
-import {getPedestrianRoute} from "@/app/pages/route-drawing/utils/getPedestrianRoute";
+import {parsePedestrianRoute} from "@/app/pages/route-drawing/utils/parsePedestrianRoute";
+import {getPedestrianResponse} from "@/app/pages/route-drawing/utils/postPedestrianRoute";
+import {addPedestrianEntity} from "@/app/pages/route-drawing/utils/addPedestrianEntity";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -77,7 +79,7 @@ export default function Page() {
             title: "경로 저장", // 제목
             content: "경로를 저장하시겠습니까?", // 본문
             // 확인 버튼 눌렀을 때 수행될 동작 구현
-            onConfirm: ()=>{
+            onConfirm: async ()=>{
                 // TODO: 원형 경로 삭제 후 추가한다.
 
                 // NOTE 1. 임시 경로 엔티티를 불러온다.
@@ -87,17 +89,26 @@ export default function Page() {
                 const tempRoute = parseTempRoute(tempEntityMarkers);
                 dispatch(setTempRoute(tempRoute)); // TempRoute를 저장한다.
 
-                // NOTE 3. 자동 경로를 Route로 파싱한다.
-                getPedestrianRoute(tempRoute).then(([pedestrianEntity, pedestrianRoute])=> {
-                    dispatch(setPedestrianRoute(pedestrianRoute))
-                    viewer.entities.add(pedestrianEntity)
+                // NOTE 4. 자동 경로 API를 요청한다.
+                const coordinates: [number, number][] = tempRoute.sections.flatMap((section) =>
+                    section.points.map((point) => [point.longitude, point.latitude] as [number, number])
+                );
+                const pedestrianResponse = await getPedestrianResponse(coordinates);
+                console.log(pedestrianResponse);
 
-                    // NOTE 4. 창을 닫는다.
-                    close();
+                // NOTE 5. 자동 경로 엔티티를 불러온다.
+                const pedestrianEntity = addPedestrianEntity(pedestrianResponse);
+                viewer.entities.add(pedestrianEntity);
 
-                    // NOTE 5. 화면을 이동한다.
-                    router.push('/pages/route-save')
-                })
+                // NOTE 6. 자동 경로를 Route로 파싱한다.
+                const pedestrianRoute = parsePedestrianRoute(pedestrianEntity, pedestrianResponse);
+                dispatch(setPedestrianRoute(pedestrianRoute));
+
+                // NOTE 8. 창을 닫는다.
+                close();
+
+                // NOTE 9. 화면을 이동한다.
+                router.push('/pages/route-save')
             },
             onCancel: close
         })
