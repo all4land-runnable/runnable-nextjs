@@ -34,8 +34,8 @@ export default function MapPrime3DViewer() {
                 "current": true,
             }],
             initialCamera: {
-                longitude: 126.91867,
-                latitude: 37.51589,
+                longitude: 126.9264,
+                latitude: 37.5151,
                 height: 2000,
                 heading: 340,
                 pitch: -50,

@@ -1,6 +1,41 @@
-/* SlopeGraph.module.css */
 .slopeGraph {
     width: 100%;
-    height: 180px; /* 원하는 높이 */
-    user-select: none;
+    background: #fffaf0;           /* 은은한 배경 */
+    border-radius: 12px;
+    padding: 8px 6px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    box-sizing: border-box;         /* ✅ 패딩 포함 계산 */
+}
+
+/* 항상 447:221(≈0.4944) 비율 유지 */
+.ratioBox {
+    width: 100%;
+    aspect-ratio: 447 / 221;
+    box-sizing: border-box;
+}
+
+/* aspect-ratio 미지원 브라우저용 폴백 (선택) */
+@supports not (aspect-ratio: 1) {
+    .ratioBox {
+        position: relative;
+        height: 0;
+        padding-top: calc(221 / 447 * 100%); /* 49.44% */
+    }
+    .ratioBox > * {
+        position: absolute;
+        inset: 0;
+    }
+}
+
+/* 빈 상태도 같은 비율로 */
+.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 447 / 221;
+    color: #777;
+    background: #fafafa;
+    border-radius: 8px;
+    box-sizing: border-box;
 }

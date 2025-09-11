@@ -26,7 +26,7 @@ import {resetRouteDrawing, setPedestrianRoute, setTempRoute} from "@/app/store/r
 import {parseTempRoute} from "@/app/pages/route-drawing/utils/parseTempRoute";
 import {parsePedestrianRoute} from "@/app/pages/route-drawing/utils/parsePedestrianRoute";
 import {addPedestrianEntity} from "@/app/pages/route-drawing/utils/addPedestrianEntity";
-import {getPedestrianRoute} from "@/app/pages/route-drawing/utils/postPedestrianRoute";
+import {entitiesToLngLat, getPedestrianRoute} from "@/app/pages/route-drawing/utils/postPedestrianRoute";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -90,11 +90,7 @@ export default function Page() {
                 dispatch(setTempRoute(tempRoute)); // TempRoute를 저장한다.
 
                 // NOTE 4. 자동 경로 API를 요청한다.
-                const coordinates: [number, number][] = tempRoute.sections.flatMap((section) =>
-                    section.points.map((point) => [point.longitude, point.latitude] as [number, number])
-                );
-                console.log("coordinates",coordinates);
-                getPedestrianRoute(coordinates)
+                getPedestrianRoute(entitiesToLngLat(tempEntityMarkers))
                     .then(pedestrianResponse=>{
                         // NOTE 5. 자동 경로 엔티티를 불러온다.
                         const pedestrianEntity = addPedestrianEntity(pedestrianResponse);

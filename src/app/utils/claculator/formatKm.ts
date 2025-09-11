@@ -1,3 +1,4 @@
+// src/app/utils/claculator/formatKm.ts
 export function formatKm(distance:number){
     return distance < 1000
         ? `${distance.toFixed(0)}m`

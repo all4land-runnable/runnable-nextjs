@@ -55,7 +55,6 @@ export default function Page() {
         if(tempEntity) tempEntity.show = next;
 
         const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
-        console.log(pedestrianEntity);
         if(pedestrianEntity) pedestrianEntity.show = !next;
 
         requestRender()
