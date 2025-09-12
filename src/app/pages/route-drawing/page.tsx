@@ -44,7 +44,7 @@ export default function Page() {
     const [paceActive, setPaceActive] = useState(false); // 희망 속도 (분/㎞를 초로 가정: 180(3'00") ~ 480(8'00"))
     const [paceSeconds, setPaceSeconds] = useState(0); // 6'30" = 390초
     const { openConfirm, close } = useModal(); // 모달 여부 // TODO: 필요한가?
-    const [ circular, setCircular ] = useState<boolean>(true); // 원형 경로 설정 여부
+    const [ circular, setCircular ] = useState<boolean>(false); // 원형 경로 설정 여부
 
     /**
      * 이전 페이지로 되돌아가는 함수
@@ -112,10 +112,13 @@ export default function Page() {
      * 원형 경로를 성정하기 위함
      */
     const circularRoute = () => {
+        setCircular(prev => !prev);
         // 만약 원형이 아닌경우, 원형으로 지정
-        if (circular) addCircular();
+        if (!circular)
+            addCircular();
         // 원형을 설정한 경우, 원형 해제
-        else removeCircular();
+        else
+            removeCircular();
     };
 
     /**
@@ -157,15 +160,14 @@ export default function Page() {
 
             try {
                 // NOTE 3. 예외처리: 기존 보조선이 남아있다면 제거(중복 추가 방지)
-                const circular_line = viewer.entities.getById("circular_line");
-                if (circular_line) viewer.entities.remove(circular_line);
+                viewer.entities.removeById("circular_line");
 
                 // NOTE 4. 보조 폴리라인 엔티티 추가
                 viewer.entities.add({
                     id: "circular_line",
                     polyline: new Cesium.PolylineGraphics({
                         positions: positions,
-                        width: 8,
+                        width: 10,
                         material: Cesium.Color.RED.withAlpha(0.3),
                         clampToGround: true,
                     }),
@@ -178,9 +180,8 @@ export default function Page() {
     const removeCircular = ()=>{
         setCircular(false);
 
-        const circular_line = viewer.entities.getById("circular_line");
-        if (circular_line) viewer.entities.remove(circular_line);
-        viewer.scene.requestRender?.();
+        viewer.entities.removeById("circular_line");
+        requestRender()
     };
 
     // NOTE 1. 처음 페이지에 들어오면 자동으로 그리기가 활성화된다.

@@ -6,6 +6,10 @@ import { EPS, isFiniteNum, pushIfNotDuplicate } from "@/app/pages/route-drawing/
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import { getPedestrianRouteMarkers } from "@/app/staticVariables";
 
+// ⬇ 추가: 총거리 계산 및 포맷
+import calcDistance from "@/app/utils/claculator/calcDistance";
+import { formatKm } from "@/app/utils/claculator/formatKm";
+
 // 기존 마커와 위치가 같은지(위경도 기준) 판단
 function isSameLonLat(a: Cartesian3, b: Cartesian3): boolean {
     const cartoA = Cesium.Ellipsoid.WGS84.cartesianToCartographic(a);
@@ -48,12 +52,37 @@ function upsertPedestrianMarker(position: Cartesian3): Entity {
     return marker;
 }
 
+/** 마지막 마커에 tailLabel 세팅 */
+function setTailLabel(entity: Cesium.Entity, text: string) {
+    const label =
+        entity.label ??
+        new Cesium.LabelGraphics({
+            font: "14px sans-serif",
+            fillColor: Cesium.Color.BLACK,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            outlineColor: Cesium.Color.WHITE,
+            outlineWidth: 2,
+            verticalOrigin: Cesium.VerticalOrigin.TOP,
+            pixelOffset: new Cesium.Cartesian2(0, -40),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            showBackground: true,
+            backgroundColor: Cesium.Color.WHITE.withAlpha(0.8),
+            backgroundPadding: new Cesium.Cartesian2(6, 4),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            eyeOffset: new Cesium.Cartesian3(0, 0, -20),
+        });
+
+    label.text = new Cesium.ConstantProperty(text);
+    entity.label = label;
+}
+
 /**
  * PedestrianResponse(FeatureCollection) → Cesium Entity(Polyline)
  * - Point / LineString 순서를 properties.index로 정렬하여 순차 연결
  * - 인접 중복 좌표 제거 (연결부 이중 점 제거)
  * - 좌표는 [lng, lat] 기준
  * - 각 LineString의 시작/끝점에 보행자 마커 추가
+ * - ✅ 전체 경로 총거리 tailLabel을 마지막 마커에 표시
  */
 export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Entity {
     const features = pedestrianResponse?.features ?? [];
@@ -66,6 +95,9 @@ export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Ent
     // 2) 좌표 평탄화 + 인접 중복 제거 + 섹션 끝점 마커 추가
     const coords: [number, number][] = [];
     let lastTail: [number, number] | undefined;
+
+    // 마지막 지점 마커 참조(라벨 부착 대상)
+    let lastTailMarker: Entity | undefined;
 
     for (const f of sorted) {
         if (!f?.geometry) continue;
@@ -81,7 +113,7 @@ export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Ent
             upsertPedestrianMarker(Cesium.Cartesian3.fromDegrees(headLng, headLat));
         }
         if (isFiniteNum(tailLng) && isFiniteNum(tailLat)) {
-            upsertPedestrianMarker(Cesium.Cartesian3.fromDegrees(tailLng, tailLat));
+            lastTailMarker = upsertPedestrianMarker(Cesium.Cartesian3.fromDegrees(tailLng, tailLat));
         }
 
         // 평탄화하면서 인접 중복 제거
@@ -107,7 +139,7 @@ export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Ent
     const positions =
         coords.length >= 2 ? Cesium.Cartesian3.fromDegreesArray(coords.flat()) : [];
 
-    return new Cesium.Entity({
+    const entity = new Cesium.Entity({
         id: "pedestrian_entity",
         polyline: coords.length >= 2
             ? {
@@ -118,4 +150,25 @@ export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Ent
             }
             : undefined,
     });
+
+    // 4) ✅ 총거리 tailLabel 업데이트 (경로가 2점 이상일 때)
+    try {
+        if (positions.length >= 2) {
+            const totalMeters = calcDistance(positions as Cartesian3[]);
+            // 라벨 부착용 마커 확보 (마지막 마커가 없다면 강제로 생성)
+            const tailPos =
+                positions[positions.length - 1] as Cartesian3;
+            const tailMarker = lastTailMarker ?? upsertPedestrianMarker(tailPos);
+
+            setTailLabel(tailMarker, `예상거리: ${formatKm(totalMeters)}`);
+
+            // 즉시 렌더링 요청
+            const viewer = getViewer();
+            viewer.scene.requestRender?.();
+        }
+    } catch {
+        // 라벨 계산 실패 시 무시 (엔티티 생성은 계속)
+    }
+
+    return entity;
 }
