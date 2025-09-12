@@ -11,7 +11,6 @@ import {
     setRightSidebarOpen,
 } from "@/app/store/redux/feature/rightSidebarSlice";
 import {Chip} from "@/app/components/atom/chip/Chip";
-import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {RootState} from "@/app/store/redux/store";
 import {useRouter} from "next/navigation";
 import hideMarkers from "@/app/utils/markers/hideMarkers";
@@ -21,7 +20,7 @@ import CommonResponse from "@/api/response/common_response";
 import {PaceMakerResponse} from "@/type/paceMakerResponse";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {Route} from "@/type/route";
-import {setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/routeDrawingSlice";
+import {setPedestrianRoute} from "@/app/store/redux/feature/routeDrawingSlice";
 import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
 
 /**
@@ -81,19 +80,20 @@ export default function Page() {
                 dispatch(setPedestrianRoute(updatedPedestrian));
             }
 
-            if (tempRoute) {
-                const tempStrategies = await postPaceMaker(tempRoute);
-                if (canceled) return;
-                const updatedTemp: Route = {
-                    ...tempRoute,
-                    sections: tempRoute.sections.map((section, index) => ({
-                        ...section,
-                        pace: tempStrategies[index]?.pace ?? section.pace,
-                        strategies: tempStrategies[index]?.strategies ?? section.strategies,
-                    })),
-                };
-                dispatch(setTempRoute(updatedTemp));
-            }
+            // TODO: 백엔드 연산 낭비로 시연 전까지는 주석처리.
+            // if (tempRoute) {
+            //     const tempStrategies = await postPaceMaker(tempRoute);
+            //     if (canceled) return;
+            //     const updatedTemp: Route = {
+            //         ...tempRoute,
+            //         sections: tempRoute.sections.map((section, index) => ({
+            //             ...section,
+            //             pace: tempStrategies[index]?.pace ?? section.pace,
+            //             strategies: tempStrategies[index]?.strategies ?? section.strategies,
+            //         })),
+            //     };
+            //     dispatch(setTempRoute(updatedTemp));
+            // }
         })();
 
         return () => {

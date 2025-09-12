@@ -1,7 +1,6 @@
 'use client'
 
 import styles from "./RightSideBar.module.css"
-import {remToPx} from "@/app/utils/claculator/pxToRem";
 import PaceStrategy from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {Chip} from "@/app/components/atom/chip/Chip";
 import SlopeGraph from "@/app/components/molecules/slope-graph/SlopeGraph";
