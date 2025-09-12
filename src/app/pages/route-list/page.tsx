@@ -5,7 +5,6 @@ import React from "react";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
 import {Chip} from "@/app/components/atom/chip/Chip";
-import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {useRouter} from "next/navigation";
 import {setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 import {useDispatch} from "react-redux";
@@ -34,7 +33,7 @@ export default function Page() {
     return (
         <section className={styles.bottomSheet}>
             <div className={styles.listChips}>
-                <Chip label={"홈"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={()=> {
+                <Chip label={"홈"} activable={false} onClickAction={()=> {
                     dispatch(setRightSidebarOpen(false));
 
                     router.push('/')

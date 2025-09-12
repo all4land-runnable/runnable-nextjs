@@ -49,9 +49,9 @@ export default function RightSideBar() {
             </div>
             <div className={styles.sidebarBottom}> {/* 오른쪽 사이드바 하단 */}
                 <div className={styles.detailInfo}>
-                    <Chip label={"구간 속도"} backgroundColor={"#FCDE8C"} fontSize={remToPx(0.75)} onClickAction={() => {
+                    <Chip label={"구간 속도"} onClickAction={() => {
                     }}/> {/* 구간 속도 */}
-                    <Chip label={"페이스 분석"} backgroundColor={"#FCDE8C"} fontSize={remToPx(0.75)} onClickAction={() => {
+                    <Chip label={"페이스 분석"} onClickAction={() => {
                     }}/> {/* 페이스 분석 */}
                 </div>
                 <button className={[styles.routeSimulation, styles.routeSimulationFont].join(' ')} onClick={similationOnClick}>

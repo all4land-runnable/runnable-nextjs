@@ -15,8 +15,6 @@ import {UnactiveError} from "@/error/unactiveError";
  */
 type ChipProps = {
     label: string;
-    backgroundColor: React.CSSProperties['backgroundColor'];
-    fontSize: React.CSSProperties['fontSize'];
     activable?: boolean;
     onClickAction: () => void | Promise<void>;
     inActiveOnClickAction?: ()=>void | Promise<void>;
@@ -28,7 +26,7 @@ type ChipProps = {
  * @param chipParam 칩 버튼 속성
  * @constructor
  */
-export function Chip({label, backgroundColor, fontSize, activable = true, onClickAction, inActiveOnClickAction}: ChipProps) {
+export function Chip({label, activable = true, onClickAction, inActiveOnClickAction}: ChipProps) {
     // 활성화 상태
     const [active, setActive] = React.useState(true);
 
@@ -55,7 +53,6 @@ export function Chip({label, backgroundColor, fontSize, activable = true, onClic
         <button
             type="button"
             className={[styles.chip, styles.chipFont, active ? styles.chipActive : styles.chipInactive].join(' ')}
-            style={{fontSize: fontSize, backgroundColor: active ? backgroundColor : undefined,}}
             aria-pressed={active}
             onClick={handleClick}
         > {/* 폰트 크기와 배경색은 인자 값으로 변경 가능하다. */}

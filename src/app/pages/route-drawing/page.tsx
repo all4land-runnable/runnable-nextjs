@@ -1,7 +1,7 @@
 'use client';
 
 import React, {useEffect, useState} from "react";
-import styles from './page.module.css'
+import styles from './page.module.scss'
 import RouteOptionSlider from "@/app/components/molecules/route-option-slider/RouteOptionSlider";
 import {formatKm} from "@/app/utils/claculator/formatKm";
 import {formatKg} from "@/app/utils/claculator/formatKg";
@@ -214,11 +214,11 @@ export default function Page() {
         <>
             <section className={styles.bottomSheet}>
                 <div className={styles.drawingController}>
-                    <Chip label={"뒤로 가기"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={returnPage}/>
-                    <Chip label={"운동 가능 시간"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} onClickAction={workoutAvailabilityOnClick}/>
-                    <Chip label={"음수대 정보 표시"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} onClickAction={saveDrinkingFountainsInfoOnClick}/>
-                    <Chip label={"원형 경로"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} onClickAction={circularRoute}/>
-                    <Chip label={"경로 완성"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={completeDrawing}/>
+                    <Chip label={"뒤로 가기"} activable={false} onClickAction={returnPage}/>
+                    <Chip label={"운동 가능 시간"} onClickAction={workoutAvailabilityOnClick}/>
+                    <Chip label={"음수대 정보 표시"} onClickAction={saveDrinkingFountainsInfoOnClick}/>
+                    <Chip label={"원형 경로"} onClickAction={circularRoute}/>
+                    <Chip label={"경로 완성"} activable={false} onClickAction={completeDrawing}/>
                 </div>
             </section>
 

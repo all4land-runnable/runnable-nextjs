@@ -1,6 +1,6 @@
 'use client';
 
-import styles from './page.module.css'
+import styles from './page.module.scss'
 import React, {useEffect} from "react";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
@@ -134,9 +134,9 @@ export default function Page() {
         <>
             <section className={styles.bottomSheet}>
                 <div className={styles.listChips}>
-                    <Chip label={"뒤로가기"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={backButton}/>
-                    <Chip label={"자동해제"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={toggleAutomatic}/>
-                    <Chip label={"경로 저장"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={()=>{alert("경로를 저장하시겠습니까")}}/>
+                    <Chip label={"뒤로가기"} activable={false} onClickAction={backButton}/>
+                    <Chip label={"자동해제"} activable={false} onClickAction={toggleAutomatic}/>
+                    <Chip label={"경로 저장"} activable={false} onClickAction={()=>{alert("경로를 저장하시겠습니까")}}/>
                 </div>
             </section>
         </>

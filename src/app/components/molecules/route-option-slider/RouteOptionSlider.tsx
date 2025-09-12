@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import styles from "./RouteOptionSlider.module.css";
+import styles from "./RouteOptionSlider.module.scss";
 
 type RouteOptionSliderProps = {
     /** 카드 좌측 레이블 텍스트 */
@@ -23,6 +23,11 @@ type RouteOptionSliderProps = {
     onToggleAction: (next: boolean) => void;
 };
 
+// CSSProperties에 커스텀 변수('--progress')를 추가
+interface SliderStyle extends React.CSSProperties {
+    '--progress'?: string;
+}
+
 export default function RouteOptionSlider({label, value, formatValue, min, max, step = 1, active = false, onSlideAction, onToggleAction}: RouteOptionSliderProps) {
     // 슬라이더의 값이 변경되면 일어나는 동작
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,12 +35,18 @@ export default function RouteOptionSlider({label, value, formatValue, min, max, 
         if (!Number.isNaN(next)) onSlideAction(next);
     };
 
+    const progress = (value - min) * 100 / (max - min);
+
+    const sliderStyle: SliderStyle = {
+        '--progress': `${progress}%`,
+    };
+
     return (
         <div className={[styles.routeOptionSlider, active ? styles.active : styles.inactive,].join(" ")}>
             <div className={styles.header}>
-                <div>
-                    <span className={styles.label}>{label}</span> {/* 슬라이더 설명 */}
-                    <span className={styles.label}>{formatValue}</span> {/* 현재 값 */}
+                <div className={styles.leftHeader}>
+                    <span className={styles.title}>{label}</span> {/* 슬라이더 설명 */}
+                    <span className={styles.unit}>{formatValue}</span> {/* 현재 값 */}
                 </div>
                 {/* 우측 원형 토글 (꽉 찬/비어있는 링) */}
                 <svg
@@ -44,8 +55,8 @@ export default function RouteOptionSlider({label, value, formatValue, min, max, 
                     xmlns="http://www.w3.org/2000/svg"
                     aria-pressed={active}
                 >
-                    <circle cx="10.5" cy="10.5" r={9} stroke="#FAD05A" strokeWidth={3} fill="none"/> {/* 바깥 링 */}
-                    {active && (<circle cx="10.5" cy="10.5" r={5.0} fill="#FAD05A"/>)} {/* 활성 점(원하는 크기로) */}
+                    <circle cx="10.5" cy="10.5" r={9} stroke="#009ECE" strokeWidth={3} fill="none"/> {/* 바깥 링 */}
+                    {active && (<circle cx="10.5" cy="10.5" r={5.0} fill="#009ECE"/>)} {/* 활성 점(원하는 크기로) */}
                 </svg>
             </div>
 
@@ -56,6 +67,7 @@ export default function RouteOptionSlider({label, value, formatValue, min, max, 
                 step={step} // 한 칸단 이동 량
                 value={value} // 현재 값
                 onChange={handleChange} // 값 변동 시 함수
+                style={sliderStyle}
                 disabled={!active} // 비활성화 여부
                 className={styles.slider} // 디자인
             />

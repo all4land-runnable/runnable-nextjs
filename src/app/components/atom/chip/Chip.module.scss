@@ -1,19 +1,15 @@
-/* Chip.module.scss */
-$gray-200: #e5e7eb;
-$gray-500: #6b7280;
-$radius: 20px;
-$transition: .12s ease;
-
+// src/app/components/atom/chip/Chip.module.scss
 .chip {
   display: inline-flex;
   justify-content: center;
   align-items: center;
 
   border: none;
-  border-radius: $radius;
-  padding: 0.75rem;
+  border-radius: 100px;
+  padding: 12px 24px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
 
-  transition: transform $transition, box-shadow $transition, background-color $transition;
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
   cursor: pointer;
 
   pointer-events: auto;
@@ -24,16 +20,17 @@ $transition: .12s ease;
 }
 
 .chipFont {
-  color: black;
-  font-weight: normal;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 /* 활성 상태 → 배경은 prop에서 지정됨 */
 .chipActive {
-  color: black;
+  background-color: #F7F8F9;
+  color: #33B5DC;
 }
 
 .chipInactive {
-  background-color: $gray-200;
-  color: $gray-500;
+  background-color: #C9CDD2;
+  color: #33B5DC;
 }

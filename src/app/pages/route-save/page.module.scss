@@ -1,10 +1,16 @@
 .bottomSheet {
     position: absolute;
+    transform: translateX(-50%);
+    left: 50%;
+
+    bottom: 12px;
     z-index: 10;
 
-    left: 50%;
-    bottom: 12px;
-    transform: translateX(-50%);
+    border-radius: 100px;
+    box-sizing: border-box;
+    padding: 16px;
+
+    background-color: gray;
 }
 
 .listChips {
@@ -14,7 +20,7 @@
     align-items: center;
 
     height: fit-content;
-    gap: 0.75rem;
+    gap: 16px;
 
     pointer-events: auto;
 }
