@@ -5,4 +5,6 @@
     left: 50%;
     bottom: 12px;
     transform: translateX(-50%);
+
+    pointer-events: auto
 }

@@ -48,8 +48,6 @@ const rightSideBarSlice = createSlice({
         openWithData(
             state,
             action: PayloadAction<{
-                pedestrianRoute?: Route;
-                tempRoute?: Route;
                 sectionStrategies?: SectionStrategyParam[];
                 routeRankingParams?: RouteRankingParam[];
             }>

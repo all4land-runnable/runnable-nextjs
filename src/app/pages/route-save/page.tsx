@@ -76,10 +76,12 @@ export default function Page() {
         const pedestrianStrategies = postPaceMaker(pedestrianRoute)
         const tempStrategies = postPaceMaker(tempRoute)
 
-        dispatch(openWithData({
-            sectionStrategies:sectionStrategies,
-            routeRankingParams:routeRankingParams
-        }))
+        dispatch(
+            openWithData({
+                sectionStrategies:sectionStrategies,
+                routeRankingParams:routeRankingParams
+            })
+        )
     },[])
 
     // NOTE 2. 자동해제 동작 수행

@@ -5,10 +5,11 @@ import {remToPx} from "@/app/utils/claculator/pxToRem";
 import PaceStrategy from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {Chip} from "@/app/components/atom/chip/Chip";
 import SlopeGraph from "@/app/components/molecules/slope-graph/SlopeGraph";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "@/app/store/redux/store";
 import {useModal} from "@/app/store/modal/ModalProvider";
 import {useRouter} from "next/navigation";
+import {setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 
 /**
  * 오른쪽 사이드바를 구현하는 함수
@@ -16,6 +17,7 @@ import {useRouter} from "next/navigation";
  */
 export default function RightSideBar() {
     const router = useRouter();
+    const dispatch = useDispatch()
     const open = useSelector((state: RootState) => state.rightSideBar.rightSidebarOpen);
 
     const sectionStrategies = useSelector((state: RootState)=> state.rightSideBar.sectionStrategies);
@@ -32,6 +34,7 @@ export default function RightSideBar() {
             // 확인 버튼 눌렀을 때 수행될 동작 구현
             onConfirm: async () => {
                 close(); // 모달 닫기
+                dispatch(setRightSidebarOpen(false));
                 router.push('/pages/route-simulation');
             },
             onCancel: close
@@ -43,7 +46,6 @@ export default function RightSideBar() {
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
                 <SlopeGraph/>
                 <PaceStrategy sectionStrategyParams={sectionStrategies}/> {/* 페이스 전략 카드 */}
-                {/*<RouteRanking routeRankingParam={routeRankingParams}/> /!* 경로 랭킹 *!/*/}
             </div>
             <div className={styles.sidebarBottom}> {/* 오른쪽 사이드바 하단 */}
                 <div className={styles.detailInfo}>

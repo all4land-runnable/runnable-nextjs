@@ -13,6 +13,8 @@ import {remToPx} from "@/app/utils/claculator/pxToRem";
 import styles from "./page.module.css";
 import {setAutomaticRoute, setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 import {useRouter} from "next/navigation";
+import CategorySelect from "@/app/components/atom/category-select/CategorySelect";
+import {formatSpeed} from "@/app/pages/route-simulation/utils/formatSpeed";
 
 export default function Page() {
     const viewer = getViewer();
@@ -23,6 +25,9 @@ export default function Page() {
     const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
     const tempEntity = viewer.entities.getById(getTempEntity());
     const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
+
+    // 카테고리 상태
+    const [cat, setCat] = React.useState('×1.0');
 
     // NOTE 0. 시뮬레이션용 객체 생성
     // 추적용 가상 엔티티
@@ -230,7 +235,9 @@ export default function Page() {
         clock.stopTime = Cesium.JulianDate.clone(stop);
         clock.currentTime = Cesium.JulianDate.clone(start);
         clock.clockRange = Cesium.ClockRange.CLAMPED;
-        clock.multiplier = 1;
+
+        clock.multiplier = formatSpeed(cat);
+
         clock.shouldAnimate = true;
 
         // NOTE 5. 기존 카메라 위치 저장
@@ -295,6 +302,16 @@ export default function Page() {
         startSimulation(routeEntity);
     };
 
+    /**
+     * 배속 실시간 변경
+     */
+    useEffect(() => {
+        // 시뮬레이션이 진행 중일 때만 반영
+        if (postRenderCbRef.current) {
+            clock.multiplier = formatSpeed(cat);
+        }
+    }, [cat, clock]);
+
     if (!pedestrianEntity || !tempEntity) {
         return <>엔티티가 존재하지 않습니다.</>;
     }
@@ -304,6 +321,7 @@ export default function Page() {
             <Chip label={"뒤로가기"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={backButton}/>
             <Chip label={postRenderCbRef.current ? "정지" : "시뮬레이션 시작"} backgroundColor={"#FCDE8C"} fontSize={remToPx(0.75)} onClickAction={handleToggle}/> {/* 시뮬레이션 시작 */}
             <Chip label={"자동 경로"} backgroundColor={"#FCDE8C"} fontSize={remToPx(0.75)} onClickAction={()=>{dispatch(setAutomaticRoute(!automaticRoute))}}/> {/* 자동 경로 토글 */}
+            <CategorySelect categories={['×1.0', '×1.5', '×3.0', '×4.0', '×10.0']} value={cat} onChangeAction={(value: string) => setCat(value)}/> {/* 경로 카테고리 */}
         </section>
     );
 }
