@@ -3,7 +3,7 @@
 import styles from './page.module.scss'
 import React, {useEffect} from "react";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
-import {getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
+import {getPedestrianRouteMarkers, getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
 import {useDispatch, useSelector} from "react-redux";
 import {
     openWithData,
@@ -12,7 +12,7 @@ import {
 } from "@/app/store/redux/feature/rightSidebarSlice";
 import {Chip} from "@/app/components/atom/chip/Chip";
 import {RootState} from "@/app/store/redux/store";
-import {useRouter} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import hideMarkers from "@/app/utils/markers/hideMarkers";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 import apiClient from "@/api/apiClient";
@@ -20,7 +20,7 @@ import CommonResponse from "@/api/response/common_response";
 import {PaceMakerResponse} from "@/type/paceMakerResponse";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {Route} from "@/type/route";
-import {setPedestrianRoute} from "@/app/store/redux/feature/routeDrawingSlice";
+import {setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/routeDrawingSlice";
 import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
 
 /**
@@ -31,6 +31,8 @@ export default function Page() {
     const viewer = getViewer();
     const dispatch = useDispatch()
     const router = useRouter();
+
+    const { luggageWeight, paceSeconds } = useParams<{ luggageWeight: string; paceSeconds: string }>();
 
     const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
     const tempRoute = useSelector((state:RootState) => state.routeDrawing.tempRoute);
@@ -52,6 +54,7 @@ export default function Page() {
         const tempEntity = viewer.entities.getById(getTempEntity());
         if(tempEntity) tempEntity.show = next;
 
+        hideMarkers(getPedestrianRouteMarkers(), !next);
         const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
         if(pedestrianEntity) pedestrianEntity.show = !next;
 
@@ -63,12 +66,10 @@ export default function Page() {
         // route가 없으면 아무 것도 안 함
         if (!pedestrianRoute && !tempRoute) return;
 
-        let canceled = false;
-
         (async () => {
             if (pedestrianRoute) {
-                const pedestrianStrategies = await postPaceMaker(pedestrianRoute);
-                if (canceled) return;
+                const pedestrianStrategies = await postPaceMaker(Number(luggageWeight), Number(paceSeconds), pedestrianRoute);
+
                 const updatedPedestrian: Route = {
                     ...pedestrianRoute,
                     sections: pedestrianRoute.sections.map((section, index) => ({
@@ -81,25 +82,20 @@ export default function Page() {
             }
 
             // TODO: 백엔드 연산 낭비로 시연 전까지는 주석처리.
-            // if (tempRoute) {
-            //     const tempStrategies = await postPaceMaker(tempRoute);
-            //     if (canceled) return;
-            //     const updatedTemp: Route = {
-            //         ...tempRoute,
-            //         sections: tempRoute.sections.map((section, index) => ({
-            //             ...section,
-            //             pace: tempStrategies[index]?.pace ?? section.pace,
-            //             strategies: tempStrategies[index]?.strategies ?? section.strategies,
-            //         })),
-            //     };
-            //     dispatch(setTempRoute(updatedTemp));
-            // }
+            if (tempRoute) {
+                const tempStrategies = await postPaceMaker(Number(luggageWeight), Number(paceSeconds), tempRoute);
+                const updatedTemp: Route = {
+                    ...tempRoute,
+                    sections: tempRoute.sections.map((section, index) => ({
+                        ...section,
+                        pace: tempStrategies[index]?.pace ?? section.pace,
+                        strategies: tempStrategies[index]?.strategies ?? section.strategies,
+                    })),
+                };
+                dispatch(setTempRoute(updatedTemp));
+            }
         })();
-
-        return () => {
-            canceled = true; // 늦게 도착한 응답 무시
-        };
-    }, [dispatch, pedestrianRoute, tempRoute]);
+    }, [dispatch, luggageWeight, paceSeconds, pedestrianRoute, tempRoute]);
 
 
     useEffect(() => {
@@ -143,20 +139,21 @@ export default function Page() {
     )
 }
 
-let counter = 0
-
-async function postPaceMaker(route?: Route) {
+async function postPaceMaker(luggageWeight: number, paceSeconds: number, route?: Route) {
+    console.log("luggageWeight", luggageWeight);
+    console.log("paceSeconds", paceSeconds);
     if (!route) return []; // 안전 가드
-    console.log(counter++);
     const response = await apiClient.post<CommonResponse<PaceMakerResponse>>(
         '/api/v1/pace_maker',
         {
             luggageWeight: 0,
             paceSeconds: 420,
-            sections: route.sections.map(s => ({
-                distance: s.distance,
-                slope: s.slope,
-                startPlace: s.startPlace,
+            sections: route.sections.map(section => ({
+                luggageWeight:luggageWeight==0?null:luggageWeight,
+                paceSeconds:paceSeconds==0?null:paceSeconds,
+                distance: section.distance,
+                slope: section.slope,
+                startPlace: section.startPlace,
             })),
         },
         { baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL }

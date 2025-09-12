@@ -7,7 +7,6 @@ import {formatKm} from "@/app/utils/claculator/formatKm";
 import {formatKg} from "@/app/utils/claculator/formatKg";
 import {formatPace} from "@/app/utils/claculator/formatPace";
 import {Chip} from "@/app/components/atom/chip/Chip";
-import {remToPx} from "@/app/utils/claculator/pxToRem";
 import {useRouter} from "next/navigation";
 import {useModal} from "@/app/store/modal/ModalProvider";
 import {getTempRouteMarkers, setTempEntity} from "@/app/staticVariables";
@@ -41,9 +40,9 @@ export default function Page() {
     const [limitActive, setLimitActive] = useState<boolean>(false); // 거리 제한(meter)
     const [limitRange, setLimitRange] = useState<number>(5);
     const [luggageActive, setLuggageActive] = useState(false); // 짐 무게 (kg)
-    const [luggageWeight, setLuggageWeight] = useState(1.5);
+    const [luggageWeight, setLuggageWeight] = useState(0);
     const [paceActive, setPaceActive] = useState(false); // 희망 속도 (분/㎞를 초로 가정: 180(3'00") ~ 480(8'00"))
-    const [paceSeconds, setPaceSeconds] = useState(390); // 6'30" = 390초
+    const [paceSeconds, setPaceSeconds] = useState(0); // 6'30" = 390초
     const { openConfirm, close } = useModal(); // 모달 여부 // TODO: 필요한가?
     const [ circular, setCircular ] = useState<boolean>(true); // 원형 경로 설정 여부
 
@@ -83,29 +82,27 @@ export default function Page() {
                 // TODO: 원형 경로 삭제 후 추가한다.
 
                 // NOTE 1. 임시 경로 엔티티를 불러온다.
-                const tempEntityMarkers = getTempRouteMarkers()
+                const tempEntityMarkers = getTempRouteMarkers();
 
                 // NOTE 2. 임시 경로를 Route로 파싱한다.
                 const tempRoute = await parseTempRoute(tempEntityMarkers);
                 dispatch(setTempRoute(tempRoute)); // TempRoute를 저장한다.
 
                 // NOTE 4. 자동 경로 API를 요청한다.
-                getPedestrianRoute(entitiesToLngLat(tempEntityMarkers))
-                    .then(pedestrianResponse=>{
-                        // NOTE 5. 자동 경로 엔티티를 불러온다.
-                        const pedestrianEntity = addPedestrianEntity(pedestrianResponse);
-                        viewer.entities.add(pedestrianEntity);
+                const pedestrianResponse = await getPedestrianRoute(entitiesToLngLat(tempEntityMarkers));
 
-                        // NOTE 6. 자동 경로를 Route로 파싱한다.
-                        parsePedestrianRoute(pedestrianEntity, pedestrianResponse)
-                            .then(pedestrianRoute=> dispatch(setPedestrianRoute(pedestrianRoute)));
-                    });
+                // NOTE 5. 자동 경로 엔티티를 불러온다.
+                const pedestrianEntity = addPedestrianEntity(pedestrianResponse);
+                viewer.entities.add(pedestrianEntity);
 
-                // NOTE 8. 창을 닫는다.
+                // NOTE 6. 자동 경로를 Route로 파싱한다.
+                const pedestrianRoute = await parsePedestrianRoute(pedestrianEntity, pedestrianResponse);
+                dispatch(setPedestrianRoute(pedestrianRoute));
+
+                // NOTE 7. 창을 닫는다.
                 close();
-
-                // NOTE 9. 화면을 이동한다.
-                router.push('/pages/route-save')
+                // NOTE 8. 화면을 이동한다.
+                router.push(`/pages/route-save/${luggageWeight}/${paceSeconds}`);
             },
             onCancel: close
         })

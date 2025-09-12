@@ -5,7 +5,7 @@ import * as Cesium from "cesium";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import { RootState } from "@/app/store/redux/store";
 import {useDispatch, useSelector} from "react-redux";
-import {getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
+import {getPedestrianRouteMarkers, getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
 import hideMarkers from "@/app/utils/markers/hideMarkers";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 import {Chip} from "@/app/components/atom/chip/Chip";
@@ -58,11 +58,12 @@ export default function Page() {
     // NOTE 1. 자동해제 동작 수행
     useEffect(() => {
         const on = automaticRoute;
-        hideMarkers(getTempRouteMarkers(), on);
 
+        hideMarkers(getTempRouteMarkers(), on);
         const tempEntity = viewer.entities.getById(getTempEntity());
         if(tempEntity) tempEntity.show = on;
 
+        hideMarkers(getPedestrianRouteMarkers(), on!);
         const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
         if(pedestrianEntity) pedestrianEntity.show = !on;
 
