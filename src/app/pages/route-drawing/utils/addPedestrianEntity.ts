@@ -2,16 +2,7 @@
 import * as Cesium from "cesium";
 import { Entity } from "cesium";
 import { PedestrianResponse } from "@/api/response/pedestrianResponse";
-
-const EPS = 1e-12;
-const isFiniteNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
-
-function pushIfNotDuplicate(acc: [number, number][], c: [number, number]) {
-    if (acc.length === 0) { acc.push(c); return; }
-    const [plng, plat] = acc[acc.length - 1];
-    const [clng, clat] = c;
-    if (Math.abs(plng - clng) > EPS || Math.abs(plat - clat) > EPS) acc.push(c);
-}
+import {EPS, isFiniteNum, pushIfNotDuplicate} from "@/app/pages/route-drawing/utils/pushIfNotDuplicate";
 
 /**
  * PedestrianResponse(FeatureCollection) → Cesium Entity(Polyline)
@@ -34,33 +25,24 @@ export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Ent
     for (const f of sorted) {
         if (!f?.geometry) continue;
 
-        if (f.geometry.type === "Point") {
-            const pt = f.geometry.coordinates as [number, number];
-            if (!isFiniteNum(pt?.[0]) || !isFiniteNum(pt?.[1])) continue;
+        if (f.geometry.type === "Point") continue
 
-            // 직전 라인 꼬리점과 동일하면 스킵(연결부 중복 제거)
-            if (lastTail && Math.abs(lastTail[0] - pt[0]) < EPS && Math.abs(lastTail[1] - pt[1]) < EPS) {
+        const line = f.geometry.coordinates as [number, number][];
+        if (!Array.isArray(line) || line.length === 0) continue;
+
+        for (let i = 0; i < line.length; i++) {
+            const c = line[i];
+            if (!isFiniteNum(c?.[0]) || !isFiniteNum(c?.[1])) continue;
+
+            // 라인 시작점이 직전 tail과 같으면 드롭
+            if (i === 0 && lastTail &&
+                Math.abs(lastTail[0] - c[0]) < EPS && Math.abs(lastTail[1] - c[1]) < EPS) {
                 continue;
             }
-            pushIfNotDuplicate(coords, pt);
-            // Point는 tail 갱신하지 않음
-        } else if (f.geometry.type === "LineString") {
-            const line = f.geometry.coordinates as [number, number][];
-            if (!Array.isArray(line) || line.length === 0) continue;
-
-            for (let i = 0; i < line.length; i++) {
-                const c = line[i];
-                if (!isFiniteNum(c?.[0]) || !isFiniteNum(c?.[1])) continue;
-
-                // 라인 시작점이 직전 tail과 같으면 드롭
-                if (i === 0 && lastTail &&
-                    Math.abs(lastTail[0] - c[0]) < EPS && Math.abs(lastTail[1] - c[1]) < EPS) {
-                    continue;
-                }
-                pushIfNotDuplicate(coords, c);
-            }
-            lastTail = coords[coords.length - 1];
+            pushIfNotDuplicate(coords, c);
         }
+        lastTail = coords[coords.length - 1];
+
     }
 
     // 3) Entity 생성
@@ -72,20 +54,6 @@ export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Ent
         polyline: coords.length >= 2
             ? {
                 positions,
-                width: 5,
-                material: Cesium.Color.fromCssColorString("#4D7C0F"),
-                clampToGround: true,
-            }
-            : undefined,
-    });
-}
-
-export function addPolyline(coordinates: [number, number][]) {
-    return new Cesium.Entity({
-        id: "pedestrian_entity",
-        polyline: coords.length >= 2
-            ? {
-                coordinates,
                 width: 5,
                 material: Cesium.Color.fromCssColorString("#4D7C0F"),
                 clampToGround: true,

@@ -4,10 +4,7 @@ import { Entity, JulianDate, Cartesian3 } from "cesium";
 import type { Route, Section, Point } from "@/type/route";
 import type { PedestrianResponse, Feature } from "@/api/response/pedestrianResponse";
 import {calcHeight} from "@/app/pages/route-drawing/utils/calcHeight";
-
-const EPS = 1e-12;
-const isFiniteNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
-const toRad = (deg: number) => (deg * Math.PI) / 180;
+import {EPS, isFiniteNum, toRad} from "@/app/pages/route-drawing/utils/pushIfNotDuplicate";
 
 /** 하버사인: [lng,lat] in degrees */
 function geoDistanceMeters(a: [number, number], b: [number, number]): number {
