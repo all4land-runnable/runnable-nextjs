@@ -52,7 +52,7 @@ export default function PaceStrategy({sectionStrategyParams}: PaceStrategyProps)
                             </span>
                             <div className={styles.strategies}> {/* 각 구간 별 전략들 선회 */}
                                 {sectionStrategy.strategies.map((strategy, index) => (
-                                    <span className={[styles.strategy, styles.strategyFont].join(' ')} key={`strategy-${index}`}>{strategy}</span>
+                                    <span className={[styles.strategy, styles.strategyFont].join(' ')} key={`strategy-${index}`}>- {strategy}</span>
                                 ))}
                             </div>
                         </div>
