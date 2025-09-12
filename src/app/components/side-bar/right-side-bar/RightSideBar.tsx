@@ -4,19 +4,39 @@ import styles from "./RightSideBar.module.css"
 import {remToPx} from "@/app/utils/claculator/pxToRem";
 import PaceStrategy from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {Chip} from "@/app/components/atom/chip/Chip";
-import RouteSimulation from "@/app/components/atom/route-simulation/RouteSimulation";
 import SlopeGraph from "@/app/components/molecules/slope-graph/SlopeGraph";
 import {useSelector} from "react-redux";
 import {RootState} from "@/app/store/redux/store";
+import {useModal} from "@/app/store/modal/ModalProvider";
+import {useRouter} from "next/navigation";
 
 /**
  * 오른쪽 사이드바를 구현하는 함수
  * @constructor
  */
 export default function RightSideBar() {
+    const router = useRouter();
     const open = useSelector((state: RootState) => state.rightSideBar.rightSidebarOpen);
 
     const sectionStrategies = useSelector((state: RootState)=> state.rightSideBar.sectionStrategies);
+
+    const { openConfirm, close } = useModal(); // 모달 여부 // TODO: 필요한가?
+
+    /**
+     * 경로 확정 완료 전 알림 전송
+     */
+    const similationOnClick= () => {
+        openConfirm({
+            title: "3D 시뮬레이션", // 제목
+            content: "시뮬레이션을 시작하겠습니까?", // 본문
+            // 확인 버튼 눌렀을 때 수행될 동작 구현
+            onConfirm: async () => {
+                close(); // 모달 닫기
+                router.push('/pages/route-simulation');
+            },
+            onCancel: close
+        })
+    }
 
     return (
         open && <section className={styles.rightSideBar}>
@@ -32,7 +52,9 @@ export default function RightSideBar() {
                     <Chip label={"페이스 분석"} backgroundColor={"#FCDE8C"} fontSize={remToPx(0.75)} onClickAction={() => {
                     }}/> {/* 페이스 분석 */}
                 </div>
-                <RouteSimulation/>
+                <button className={[styles.routeSimulation, styles.routeSimulationFont].join(' ')} onClick={similationOnClick}>
+                    3D 시뮬레이션
+                </button>
             </div>
         </section>
     )

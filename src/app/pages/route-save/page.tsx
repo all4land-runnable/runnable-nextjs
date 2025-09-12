@@ -31,10 +31,9 @@ export default function Page() {
     const viewer = getViewer();
     const dispatch = useDispatch()
 
+    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
     const tempRoute = useSelector((state:RootState) => state.routeDrawing.tempRoute);
     const pedestrianRoute = useSelector((state:RootState) => state.routeDrawing.pedestrianRoute);
-
-    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
 
     const router = useRouter();
 
@@ -75,8 +74,8 @@ export default function Page() {
     // NOTE 1. 처음 화면 생성 및 onAutomaticRoute 변경 시 동기화
     useEffect(()=>{
         // TODO: 섹션 별 페이스 요청 API
-        // const pedestrianStrategies = postPaceMaker(pedestrianRoute)
-        // const tempStrategies = postPaceMaker(tempRoute)
+        const pedestrianStrategies = postPaceMaker(pedestrianRoute)
+        const tempStrategies = postPaceMaker(tempRoute)
 
         dispatch(openWithData({
             sectionStrategies:sectionStrategies,
@@ -105,6 +104,7 @@ export default function Page() {
                 <div className={styles.listChips}>
                     <Chip label={"뒤로가기"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={backButton}/>
                     <Chip label={"자동해제"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={toggleAutomatic}/>
+                    <Chip label={"경로 저장"} backgroundColor={"#FF9F9F"} fontSize={remToPx(1.125)} activable={false} onClickAction={()=>{alert("경로를 저장하시겠습니까")}}/>
                 </div>
             </section>
         </>
