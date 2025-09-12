@@ -1,0 +1,8 @@
+.bottomSheet {
+    position: absolute;
+    z-index: 10;
+
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+}

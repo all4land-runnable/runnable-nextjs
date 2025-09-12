@@ -30,12 +30,11 @@ import {Route} from "@/type/route";
 export default function Page() {
     const viewer = getViewer();
     const dispatch = useDispatch()
+    const router = useRouter();
 
     const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
     const tempRoute = useSelector((state:RootState) => state.routeDrawing.tempRoute);
     const pedestrianRoute = useSelector((state:RootState) => state.routeDrawing.pedestrianRoute);
-
-    const router = useRouter();
 
     const backButton = ()=>{
         viewer.entities.removeById("pedestrian_entity")
@@ -95,7 +94,7 @@ export default function Page() {
         if(pedestrianEntity) pedestrianEntity.show = !on;
 
         requestRender()
-    }, [automaticRoute]);
+    }, [automaticRoute, viewer.entities]);
 
     // 오른쪽 사이드바 확장 상태
     return (
