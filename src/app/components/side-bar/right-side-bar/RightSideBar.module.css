@@ -1,11 +1,12 @@
 .rightSideBar {
     display: flex;
     flex-direction: column;
-    justify-content: start;
+    justify-content: space-between;
 
-    padding: 0.50rem;
-    width: 25rem;
-    height: calc(100vh - 7rem);
+
+    padding: 8px;
+    width: 360px;
+    height: calc(100% - 80px);
 
     pointer-events: auto;
     overflow: hidden;             /* 바깥 넘침 숨김 */
@@ -25,7 +26,7 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-        gap: 0.75rem;
+        gap: 8px;
     }
 
     .detailInfo {
@@ -48,7 +49,9 @@
     border-radius: 12px;
     border: none;
 
-    background: #ACE5F6;
+    background: #33B5DC;
+    color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
 }
 
 .routeSimulation:hover {

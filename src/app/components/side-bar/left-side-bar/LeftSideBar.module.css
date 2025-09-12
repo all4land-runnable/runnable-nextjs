@@ -1,11 +1,12 @@
 .leftSideBar {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     justify-content: start;
+    box-sizing: border-box;
 
-    padding: 0.50rem;
-    width: 25rem;
-    height: calc(100vh - 7rem);
+    padding: 8px;
+    width: 360px;
+    height: calc(100% - 80px);
 
     pointer-events: auto;
     overflow: hidden;             /* 바깥 넘침 숨김 */
@@ -14,7 +15,7 @@
     background: rgba(255, 255, 255, 0.80);
     backdrop-filter: blur(8px);
 
-    gap: 1rem;
+    gap: 8px;
 
     /* 카드 레일(세로 슬라이드 영역) */
     .routeCardList {
@@ -28,7 +29,7 @@
         scroll-snap-type: y mandatory;
         scrollbar-width: thin;        /* Firefox */
 
-        gap: 1rem;
+        gap: 16px;
 
         /* 각 카드가 “찰칵” 붙도록 */
         .snap {

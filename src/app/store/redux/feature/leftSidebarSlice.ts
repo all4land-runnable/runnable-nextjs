@@ -13,14 +13,14 @@ const leftSidebarSlice = createSlice({
     name: "leftSidebar",
     initialState,
     reducers: {
-        toggleOpen(state) {
+        toggleLeftSidebarOpen(state) {
             state.open = !state.open;
         },
-        setOpen(state, action: PayloadAction<boolean>) {
+        setLeftSidebarOpen(state, action: PayloadAction<boolean>) {
             state.open = action.payload;
         },
     }
 })
 
-export const { toggleOpen, setOpen } = leftSidebarSlice.actions;
+export const { toggleLeftSidebarOpen, setLeftSidebarOpen } = leftSidebarSlice.actions;
 export default leftSidebarSlice.reducer;
