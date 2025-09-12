@@ -1,6 +1,7 @@
 'use client';
 
 import styles from './PaceStrategy.module.css';
+import {formatKm} from "@/app/utils/claculator/formatKm";
 
 /**
  * 구간 전략 속성
@@ -9,6 +10,7 @@ import styles from './PaceStrategy.module.css';
  * @param strategies 구간 내 전략들
  */
 export type SectionStrategyParam = {
+    distance:number;
     startPlace: string;
     strategies: string[];
 };
@@ -46,7 +48,7 @@ export default function PaceStrategy({sectionStrategyParams}: PaceStrategyProps)
 
                         <div className={styles.section}> {/* 각 전략 선회 */}
                             <span className={styles.startPlaceFont}> {/* 출발 지점 이름 */}
-                                {sectionStrategy.startPlace}
+                                {formatKm(sectionStrategy.distance)} : {sectionStrategy.startPlace}
                             </span>
                             <div className={styles.strategies}> {/* 각 구간 별 전략들 선회 */}
                                 {sectionStrategy.strategies.map((strategy, index) => (

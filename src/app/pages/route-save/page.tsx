@@ -3,8 +3,7 @@
 import styles from './page.module.css'
 import React, {useEffect} from "react";
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
-import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
-import {getPedestrianEntity, getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
+import {getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
 import {useDispatch, useSelector} from "react-redux";
 import {
     openWithData,
@@ -22,6 +21,7 @@ import CommonResponse from "@/api/response/common_response";
 import {PaceMakerResponse} from "@/type/paceMakerResponse";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {Route} from "@/type/route";
+import {setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/routeDrawingSlice";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -58,31 +58,61 @@ export default function Page() {
         requestRender()
     };
 
-    // NOTE: 샘플 구간 전략 속성
-    const sectionStrategies: SectionStrategyParam[] = [
-        { startPlace: '여의도 공원 입구', strategies: ['페이스를 유지해 주세요!'] },
-        { startPlace: '마포대교 사거리', strategies: ["매우 가파른 경사입니다. 7'20'페이스를 유지하세요!","주변에 음수대가 있습니다. 수분을 보충할 수 있습니다."] },
-    ];
-
-    // NOTE: 샘플 경로 랭킹 속성
-    const routeRankingParams: RouteRankingParam[] = [
-        { name: '김명민', rank: 1, pace: 21800 },
-        { name: '김명준', rank: 2, pace: 22800 }
-    ]
-
     // NOTE 1. 처음 화면 생성 및 onAutomaticRoute 변경 시 동기화
-    useEffect(()=>{
-        // TODO: 섹션 별 페이스 요청 API
-        const pedestrianStrategies = postPaceMaker(pedestrianRoute)
-        const tempStrategies = postPaceMaker(tempRoute)
+    useEffect(() => {
+        // route가 없으면 아무 것도 안 함
+        if (!pedestrianRoute && !tempRoute) return;
 
-        dispatch(
-            openWithData({
-                sectionStrategies:sectionStrategies,
-                routeRankingParams:routeRankingParams
-            })
-        )
-    },[])
+        let canceled = false;
+
+        (async () => {
+            if (pedestrianRoute) {
+                const pedestrianStrategies = await postPaceMaker(pedestrianRoute);
+                if (canceled) return;
+                const updatedPedestrian: Route = {
+                    ...pedestrianRoute,
+                    sections: pedestrianRoute.sections.map((section, index) => ({
+                        ...section,
+                        pace: pedestrianStrategies[index]?.pace ?? section.pace,
+                        strategies: pedestrianStrategies[index]?.strategies ?? section.strategies,
+                    })),
+                };
+                dispatch(setPedestrianRoute(updatedPedestrian));
+            }
+
+            if (tempRoute) {
+                const tempStrategies = await postPaceMaker(tempRoute);
+                if (canceled) return;
+                const updatedTemp: Route = {
+                    ...tempRoute,
+                    sections: tempRoute.sections.map((section, index) => ({
+                        ...section,
+                        pace: tempStrategies[index]?.pace ?? section.pace,
+                        strategies: tempStrategies[index]?.strategies ?? section.strategies,
+                    })),
+                };
+                dispatch(setTempRoute(updatedTemp));
+            }
+        })();
+
+        return () => {
+            canceled = true; // 늦게 도착한 응답 무시
+        };
+    }, [dispatch, pedestrianRoute, tempRoute]);
+
+
+    useEffect(() => {
+        const sourceSections =
+            (automaticRoute ? tempRoute?.sections : pedestrianRoute?.sections) ?? [];
+
+        const sectionStrategies: SectionStrategyParam[] = sourceSections.map(section => ({
+            distance: section.distance,
+            startPlace: section.startPlace,
+            strategies: section.strategies,
+        }));
+
+        dispatch(openWithData({ sectionStrategies }));
+    }, [automaticRoute, dispatch, pedestrianRoute, tempRoute]);
 
     // NOTE 2. 자동해제 동작 수행
     useEffect(() => {
@@ -112,24 +142,25 @@ export default function Page() {
     )
 }
 
-function postPaceMaker(route: Route){
-    return apiClient.post<CommonResponse<PaceMakerResponse>>('/api/v1/pace_maker',{
-        luggageWeight: 0,
-        paceSeconds: 420,
-        route: {
+let counter = 0
+
+async function postPaceMaker(route?: Route) {
+    if (!route) return []; // 안전 가드
+    console.log(counter++);
+    const response = await apiClient.post<CommonResponse<PaceMakerResponse>>(
+        '/api/v1/pace_maker',
+        {
+            luggageWeight: 0,
+            paceSeconds: 420,
             sections: route.sections.map(s => ({
                 distance: s.distance,
                 slope: s.slope,
+                startPlace: s.startPlace,
             })),
         },
-    }, {
-        baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
-    }).then((response)=>{
-        const paceMakerResponse: CommonResponse<PaceMakerResponse> = response.data;
-
-        if(!paceMakerResponse || !paceMakerResponse.data)
-            throw new Error("routeResponse returned from route")
-
-        return paceMakerResponse.data
-    })
+        { baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL }
+    );
+    const body = response.data;
+    if (!body || !body.data) throw new Error('routeResponse returned from route');
+    return body.data;
 }

@@ -163,7 +163,7 @@ export async function parsePedestrianRoute(
             slope: Number(slopePct.toFixed(2)),
             pace: 0,
             startPlace,
-            strategies: startPlace,
+            strategies: [],
             points: secPoints,
         });
 

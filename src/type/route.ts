@@ -12,7 +12,7 @@ export type Section = {
 
     pace: number;
     startPlace: string;
-    strategies: string;
+    strategies: string[];
 
     points: Point[];
 }

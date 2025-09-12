@@ -1,8 +1,6 @@
 // src/app/store/redux/feature/rightSidebarSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
-import {RouteRankingParam} from "@/app/components/molecules/route-ranking/RouteRanking";
-import {Route} from "@/type/route";
 
 type RightSideBarState = {
     rightSidebarOpen: boolean;
@@ -10,7 +8,6 @@ type RightSideBarState = {
     automaticRoute: boolean;
 
     sectionStrategies: SectionStrategyParam[];
-    routeRankingParams: RouteRankingParam[];
 }
 
 const initialState: RightSideBarState = {
@@ -19,7 +16,6 @@ const initialState: RightSideBarState = {
     automaticRoute: false,
 
     sectionStrategies: [],
-    routeRankingParams: [],
 };
 
 const rightSideBarSlice = createSlice({
@@ -42,19 +38,14 @@ const rightSideBarSlice = createSlice({
         setSectionStrategies(state, action: PayloadAction<SectionStrategyParam[]>) {
             state.sectionStrategies = action.payload;
         },
-        setRouteRankingParams(state, action: PayloadAction<RouteRankingParam[]>) {
-            state.routeRankingParams = action.payload;
-        },
         openWithData(
             state,
             action: PayloadAction<{
                 sectionStrategies?: SectionStrategyParam[];
-                routeRankingParams?: RouteRankingParam[];
             }>
         ) {
-            const { sectionStrategies, routeRankingParams } = action.payload;
+            const { sectionStrategies } = action.payload;
             if (sectionStrategies) state.sectionStrategies = sectionStrategies;
-            if (routeRankingParams) state.routeRankingParams = routeRankingParams;
             state.rightSidebarOpen = true;
         },
         resetRightSidebar() {
@@ -68,7 +59,6 @@ export const {
     setRightSidebarOpen,
     setAutomaticRoute,
     setSectionStrategies,
-    setRouteRankingParams,
     openWithData,
     resetRightSidebar,
 } = rightSideBarSlice.actions;

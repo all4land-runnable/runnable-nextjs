@@ -118,7 +118,7 @@ export async function parseTempRoute(tempMarkers: Entity[]): Promise<Route> {
             slope: Number(slopePct.toFixed(2)),
             pace: 0,
             startPlace: "",
-            strategies: "",
+            strategies: [],
             points: secPoints,
         });
     }

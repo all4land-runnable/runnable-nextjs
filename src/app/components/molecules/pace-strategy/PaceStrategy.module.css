@@ -32,6 +32,25 @@
 
     list-style: none;
     gap: 1rem;
+
+    /* ▼ 추가: 최대 5개만 보이고 나머지는 스크롤 */
+    --row-height: 72px;              /* 항목 예상 높이(필요시 조정) */
+    max-height: calc(var(--row-height) * 5);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.25rem;          /* 스크롤바 겹침 방지 */
+}
+
+/* 선택: 스크롤바 스타일 */
+.sectionList::-webkit-scrollbar {
+    width: 6px;
+}
+.sectionList::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 999px;
+}
+.sectionList::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .sectionStrategy {
