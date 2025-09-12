@@ -195,7 +195,7 @@ export default function Page() {
             type: "POLYLINE",
             once: true, // 한번만 실행
             finalOptions: {
-                width: 8,
+                width: 10,
                 material: Cesium.Color.RED,
                 clampToGround: true,
             },

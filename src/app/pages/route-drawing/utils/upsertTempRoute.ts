@@ -56,9 +56,9 @@ export default function upsertTempRoute(
                 position: new Cesium.ConstantPositionProperty(position),
                 point: {
                     pixelSize: 10,
-                    color: Cesium.Color.RED,
-                    outlineColor: Cesium.Color.BLACK,
-                    outlineWidth: 2,
+                    color: Cesium.Color.WHITE,
+                    outlineColor: Cesium.Color.RED,
+                    outlineWidth: 6,
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                     disableDepthTestDistance: Number.POSITIVE_INFINITY,
                 },

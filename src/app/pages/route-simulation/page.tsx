@@ -15,6 +15,7 @@ import {setAutomaticRoute, setRightSidebarOpen} from "@/app/store/redux/feature/
 import {useRouter} from "next/navigation";
 import CategorySelect from "@/app/components/atom/category-select/CategorySelect";
 import {formatSpeed} from "@/app/pages/route-simulation/utils/formatSpeed";
+import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
 
 export default function Page() {
     const viewer = getViewer();
@@ -49,7 +50,7 @@ export default function Page() {
     } | null>(null);
 
     const backButton = ()=>{
-        viewer.entities.removeById("pedestrian_entity")
+        removePedestrianRoute()
         dispatch(setRightSidebarOpen(false));
         router.back();
     }

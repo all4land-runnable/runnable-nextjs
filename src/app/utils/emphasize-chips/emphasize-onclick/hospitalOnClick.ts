@@ -57,11 +57,11 @@ export async function hospitalOnClick() {
 
             // 병원 아이콘 (크기 50×50 고정)
             billboard: {
-                image: '/resource/hospital.png',
+                image: '/resource/hospital.svg',
                 verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                 heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
                 width: 50,
-                height: 50,
+                height: 66.456,
                 pixelOffset: new Cesium.Cartesian2(0, -10),
                 disableDepthTestDistance: Number.POSITIVE_INFINITY,
             },

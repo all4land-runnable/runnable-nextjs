@@ -61,11 +61,11 @@ export async function drinkingFountainOnClick() {
             id, // 고유 엔티티 ID 지정
             position: Cesium.Cartesian3.fromDegrees(Number(drinkingFountain.lng), Number(drinkingFountain.lat)), // 음수대 위치
             billboard: { // 음수대 아이콘 (크기 50×50 고정) px임
-                image: '/resource/drinking-fountain.png',
+                image: '/resource/drinking-fountain.svg',
                 verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                 heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
                 width: 50,
-                height: 50,
+                height: 66.456,
                 pixelOffset: new Cesium.Cartesian2(0, -10),
                 disableDepthTestDistance: Number.POSITIVE_INFINITY,
             },

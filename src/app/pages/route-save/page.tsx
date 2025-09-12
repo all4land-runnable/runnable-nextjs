@@ -22,6 +22,7 @@ import {PaceMakerResponse} from "@/type/paceMakerResponse";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {Route} from "@/type/route";
 import {setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/routeDrawingSlice";
+import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -37,7 +38,7 @@ export default function Page() {
     const pedestrianRoute = useSelector((state:RootState) => state.routeDrawing.pedestrianRoute);
 
     const backButton = ()=>{
-        viewer.entities.removeById("pedestrian_entity")
+        removePedestrianRoute()
         dispatch(setRightSidebarOpen(false));
         router.back();
     }

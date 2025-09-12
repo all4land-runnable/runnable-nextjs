@@ -14,7 +14,7 @@ declare global {
 
         // for Drawing
         tempRouteMarkers?:Cesium.Entity[]
-        pedestrianRoute?: Cesium.Entity
+        pedestrianRouteMarkers?: Cesium.Entity[];
 
         // for TOC
         crosswalks?: Cesium.Entity[]
@@ -33,31 +33,27 @@ export function getTempEntity(): string {
     return window.TEMP_ENTITY;
 }
 
-export const setPedestrianEntity = (entity: Cesium.Entity|undefined) => window.pedestrianRoute = entity;
-export const getPedestrianEntity = ()=>{
-    if(!window.pedestrianRoute) throw new Error('Pedestrian not found.');
-    return window.pedestrianRoute
-}
-
-export const setTempRouteMarkers = (entities: Cesium.Entity[]) => getTempRouteMarkers().push(...entities);
 export const getTempRouteMarkers = ()=>{
     if(!window.tempRouteMarkers || window.tempRouteMarkers.length === 0) window.tempRouteMarkers = [];
     return window.tempRouteMarkers
 }
 
-export const setCrosswalk = (entities: Cesium.Entity[]) => getCrosswalk().push(...entities);
+export const getPedestrianRouteMarkers = () => {
+    if (!window.pedestrianRouteMarkers || window.pedestrianRouteMarkers.length === 0)
+        window.pedestrianRouteMarkers = [];
+    return window.pedestrianRouteMarkers;
+};
+
 export const getCrosswalk = ()=>{
     if(!window.crosswalks || window.crosswalks?.length === 0) window.crosswalks = [];
     return window.crosswalks;
 }
 
-export const setDrinkingFoundation = (entities: Cesium.Entity[]) => getDrinkingFoundation().push(...entities);
 export const getDrinkingFoundation = ()=>{
     if(!window.drinkingFountains || window.drinkingFountains?.length === 0) window.drinkingFountains = [];
     return window.drinkingFountains;
 }
 
-export const setHospital = (entities: Cesium.Entity[]) => getHospital().push(...entities);
 export const getHospital = ()=>{
     if(!window.hospitals || window.hospitals?.length === 0) window.hospitals = [];
     return window.hospitals;
