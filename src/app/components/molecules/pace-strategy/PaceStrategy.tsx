@@ -2,24 +2,13 @@
 
 import styles from './PaceStrategy.module.css';
 import {formatKm} from "@/app/utils/claculator/formatKm";
-
-/**
- * 구간 전략 속성
- *
- * @param startPlace 구간 시작점
- * @param strategies 구간 내 전략들
- */
-export type SectionStrategyParam = {
-    distance:number;
-    startPlace: string;
-    strategies: string[];
-};
+import {Route} from "@/type/route";
 
 /**
  * 구간 전략의 집합은 페이스 전략을 의미한다.
  */
 type PaceStrategyProps = {
-    sectionStrategyParams: SectionStrategyParam[];
+    route: Route
 };
 
 /**
@@ -28,7 +17,7 @@ type PaceStrategyProps = {
  * @param sectionStrategies 구간 전략들 속성
  * @constructor
  */
-export default function PaceStrategy({sectionStrategyParams}: PaceStrategyProps) {
+export default function PaceStrategy({route}: PaceStrategyProps) {
     return (
         <section className={styles.sectionStrategyCard}>
             {/* 카드 이름 */}
@@ -39,7 +28,7 @@ export default function PaceStrategy({sectionStrategyParams}: PaceStrategyProps)
             {/* 구간 전략 영역 */}
             <div className={styles.sectionList}>
                 {/* 각 전략 선회 */}
-                {sectionStrategyParams.map((sectionStrategy, index) => (
+                {route.sections.map((sectionStrategy, index) => (
                     <div className={styles.sectionStrategy} key={`$section-strategy_${index}`}>
                         <div className={styles.marker}> {/* 세로 선 구현 */}
                             <span className={styles.dot} /> {/* TODO: 점 그리기 오류 있음 */}

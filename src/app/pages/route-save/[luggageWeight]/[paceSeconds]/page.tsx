@@ -2,11 +2,9 @@
 
 import styles from './page.module.scss'
 import React, {useEffect} from "react";
-import {SectionStrategyParam} from "@/app/components/molecules/pace-strategy/PaceStrategy";
 import {getPedestrianRouteMarkers, getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
 import {useDispatch, useSelector} from "react-redux";
 import {
-    openWithData,
     setAutomaticRoute,
     setRightSidebarOpen,
 } from "@/app/store/redux/feature/rightSidebarSlice";
@@ -24,7 +22,8 @@ import {setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/routeD
 import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
 
 /**
- * 홈 화면을 구현하는 함수
+ * 경로 저장을 그리는 함수
+ *
  * @constructor
  */
 export default function Page() {
@@ -32,19 +31,28 @@ export default function Page() {
     const dispatch = useDispatch()
     const router = useRouter();
 
+    // URL에서 필요한 데이터 얻기
     const { luggageWeight, paceSeconds } = useParams<{ luggageWeight: string; paceSeconds: string }>();
 
+    // 자동 경로 여부를 결정하는 상태값
     const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
+    // 임시 경로를 결정하는 상태값
     const tempRoute = useSelector((state:RootState) => state.routeDrawing.tempRoute);
+    // 보행자 경로를 결정하는 상태값
     const pedestrianRoute = useSelector((state:RootState) => state.routeDrawing.pedestrianRoute);
 
+    /**
+     * 뒤로가기 버튼 onClick
+     */
     const backButton = ()=>{
         removePedestrianRoute()
         dispatch(setRightSidebarOpen(false));
         router.back();
     }
 
-    // 클릭 시 즉시 반영(다음 상태 기준)
+    /**
+     * 토글 버튼 onClick
+     */
     const toggleAutomatic = () => {
         const next = !automaticRoute;
         dispatch(setAutomaticRoute(next));
@@ -61,16 +69,23 @@ export default function Page() {
         requestRender()
     };
 
+    useEffect(() => {
+        console.log(1)
+        dispatch(setRightSidebarOpen(true));
+        console.log(2)
+    }, [dispatch]);
+
     // NOTE 1. 처음 화면 생성 및 onAutomaticRoute 변경 시 동기화
     useEffect(() => {
-        // route가 없으면 아무 것도 안 함
-        if (!pedestrianRoute && !tempRoute) return;
-
         (async () => {
+            // NOTE 1-1. 보행자 경로의 경로 전략을 갱신하는 함수
+            // TODO: 경로 전략이 추가되기 전까지 로딩 화면을 만들기
             if (pedestrianRoute) {
+                // NOTE 1-1-1. FastAPI PaceMaker LLM에게 페이스 및 전략 요청
                 const pedestrianStrategies = await postPaceMaker(Number(luggageWeight), Number(paceSeconds), pedestrianRoute);
 
-                const updatedPedestrian: Route = {
+                // NOTE 1-1-1. 기존 PedestrianRoute 갱신
+                const updatedPedestrian: Route = { // 기존 PedestrianRoute는 직접적으로 값을 변경하지 못한다. 개로운 객체로 이전하는 로직 구현
                     ...pedestrianRoute,
                     sections: pedestrianRoute.sections.map((section, index) => ({
                         ...section,
@@ -78,12 +93,21 @@ export default function Page() {
                         strategies: pedestrianStrategies[index]?.strategies ?? section.strategies,
                     })),
                 };
+                // 데이터 갱신하기 TODO: 여기서 값이 갱신되면, 화면 내용도 바뀌게 useEffect 추가하기
                 dispatch(setPedestrianRoute(updatedPedestrian));
             }
+        })();
+    }, [pedestrianRoute]);
 
-            // TODO: 백엔드 연산 낭비로 시연 전까지는 주석처리.
+    useEffect(() => {
+        (async () => {
+            // NOTE 1-2. 임시 경로의 경로 전략을 갱신하는 함수
+            // TODO: 경로 전략이 추가되기 전까지 로딩 화면을 만들기
             if (tempRoute) {
+                // NOTE 1-2-1. FastAPI PaceMaker LLM에게 페이스 및 전략 요청
                 const tempStrategies = await postPaceMaker(Number(luggageWeight), Number(paceSeconds), tempRoute);
+
+                // NOTE 1-2-2. 기존 TempRoute 갱신
                 const updatedTemp: Route = {
                     ...tempRoute,
                     sections: tempRoute.sections.map((section, index) => ({
@@ -92,38 +116,27 @@ export default function Page() {
                         strategies: tempStrategies[index]?.strategies ?? section.strategies,
                     })),
                 };
+                // 데이터 갱신하기 TODO: 여기서 값이 갱신되면, 화면 내용도 바뀌게 useEffect 추가하기
                 dispatch(setTempRoute(updatedTemp));
             }
         })();
-    }, [dispatch, luggageWeight, paceSeconds, pedestrianRoute, tempRoute]);
+    }, [tempRoute]);
 
-
+    // NOTE 2. 자동 경로 상태가 바뀌는 경우 수행
     useEffect(() => {
-        const sourceSections =
-            (automaticRoute ? tempRoute?.sections : pedestrianRoute?.sections) ?? [];
+        // NOTE 2-1. 자동해제 동작 수행
+        hideMarkers(getTempRouteMarkers(), automaticRoute);
 
-        const sectionStrategies: SectionStrategyParam[] = sourceSections.map(section => ({
-            distance: section.distance,
-            startPlace: section.startPlace,
-            strategies: section.strategies,
-        }));
-
-        dispatch(openWithData({ sectionStrategies }));
-    }, [automaticRoute, dispatch, pedestrianRoute, tempRoute]);
-
-    // NOTE 2. 자동해제 동작 수행
-    useEffect(() => {
-        const on = automaticRoute;
-        hideMarkers(getTempRouteMarkers(), on);
-
+        // 임시 경로가 보이게 한다.
         const tempEntity = viewer.entities.getById(getTempEntity());
-        if(tempEntity) tempEntity.show = on;
+        if(tempEntity) tempEntity.show = automaticRoute;
 
+        // 보행자 경로가 보이게 한다.
         const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
-        if(pedestrianEntity) pedestrianEntity.show = !on;
+        if(pedestrianEntity) pedestrianEntity.show = !automaticRoute;
 
         requestRender()
-    }, [automaticRoute, viewer.entities]);
+    }, [automaticRoute]);
 
     // 오른쪽 사이드바 확장 상태
     return (

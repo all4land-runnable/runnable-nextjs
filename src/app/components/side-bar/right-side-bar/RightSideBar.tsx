@@ -19,9 +19,14 @@ export default function RightSideBar() {
     const dispatch = useDispatch()
     const open = useSelector((state: RootState) => state.rightSideBar.rightSidebarOpen);
 
-    const sectionStrategies = useSelector((state: RootState)=> state.rightSideBar.sectionStrategies);
-
     const { openConfirm, close } = useModal(); // 모달 여부 // TODO: 필요한가?
+
+    // 자동 경로 여부를 결정하는 상태값
+    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
+    // 임시 경로를 결정하는 상태값
+    const tempRoute = useSelector((state:RootState) => state.routeDrawing.tempRoute);
+    // 보행자 경로를 결정하는 상태값
+    const pedestrianRoute = useSelector((state:RootState) => state.routeDrawing.pedestrianRoute);
 
     /**
      * 경로 확정 완료 전 알림 전송
@@ -44,7 +49,7 @@ export default function RightSideBar() {
         open && <section className={styles.rightSideBar}>
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
                 <SlopeGraph/>
-                <PaceStrategy sectionStrategyParams={sectionStrategies}/> {/* 페이스 전략 카드 */}
+                <PaceStrategy route={automaticRoute?tempRoute:pedestrianRoute}/> {/* 페이스 전략 카드 */}
             </div>
             <div className={styles.sidebarBottom}> {/* 오른쪽 사이드바 하단 */}
                 <div className={styles.detailInfo}>
