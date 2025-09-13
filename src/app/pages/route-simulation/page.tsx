@@ -320,10 +320,12 @@ export default function Page() {
 
     return (
         <section className={styles.bottomSheet}>
-            <Chip label={"뒤로가기"} activable={false} onClickAction={backButton}/>
-            <Chip label={postRenderCbRef.current ? "정지" : "시뮬레이션 시작"} onClickAction={handleToggle}/> {/* 시뮬레이션 시작 */}
-            <Chip label={"자동 경로"} onClickAction={()=>{dispatch(setAutomaticRoute(!automaticRoute))}}/> {/* 자동 경로 토글 */}
-            <CategorySelect categories={['×1.0', '×1.5', '×3.0', '×4.0', '×10.0']} value={cat} onChangeAction={(value: string) => setCat(value)}/> {/* 경로 카테고리 */}
+            <div className={styles.listChips}>
+                <Chip label={"뒤로가기"} activable={false} onClickAction={backButton}/>
+                <Chip label={postRenderCbRef.current ? "정지" : "시뮬레이션 시작"} onClickAction={handleToggle}/> {/* 시뮬레이션 시작 */}
+                <Chip label={"자동 경로"} onClickAction={()=>{dispatch(setAutomaticRoute(!automaticRoute))}}/> {/* 자동 경로 토글 */}
+                <CategorySelect categories={['×1.0', '×1.5', '×3.0', '×4.0', '×10.0']} value={cat} onChangeAction={(value: string) => setCat(value)}/> {/* 경로 카테고리 */}
+            </div>
         </section>
     );
 }

@@ -12,3 +12,15 @@
 
     background-color: gray;
 }
+
+.listChips {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    height: fit-content;
+    gap: 16px;
+
+    pointer-events: auto;
+}
