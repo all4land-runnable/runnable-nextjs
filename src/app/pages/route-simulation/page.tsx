@@ -1,47 +1,167 @@
 'use client';
 
-import React, {useCallback, useEffect, useRef} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as Cesium from "cesium";
-import getViewer from "@/app/components/organisms/cesium/util/getViewer";
-import { RootState } from "@/app/store/redux/store";
-import {useDispatch, useSelector} from "react-redux";
-import {getPedestrianRouteMarkers, getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
-import hideMarkers from "@/app/utils/markers/hideMarkers";
-import requestRender from "@/app/components/organisms/cesium/util/requestRender";
-import {Chip} from "@/app/components/atom/chip/Chip";
-import {remToPx} from "@/app/utils/claculator/pxToRem";
 import styles from "./page.module.scss";
-import {setAutomaticRoute, setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
-import {useRouter} from "next/navigation";
+
+import getViewer from "@/app/components/organisms/cesium/util/getViewer";
+import requestRender from "@/app/components/organisms/cesium/util/requestRender";
+
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/app/store/redux/store";
+import { setAutomaticRoute } from "@/app/store/redux/feature/rightSidebarSlice";
+
+import { useRouter } from "next/navigation";
+import { Chip } from "@/app/components/atom/chip/Chip";
 import CategorySelect from "@/app/components/atom/category-select/CategorySelect";
-import {formatSpeed} from "@/app/pages/route-simulation/utils/formatSpeed";
-import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
+
+import { getPedestrianRouteMarkers, getTempEntity, getTempRouteMarkers } from "@/app/staticVariables";
+import hideMarkers from "@/app/utils/markers/hideMarkers";
+
+import { Route } from "@/type/route";
+import { formatSpeed } from "@/app/pages/route-simulation/utils/formatSpeed";
+
+type FlyToOptions = Parameters<Cesium.Camera['flyTo']>[0];
+
+/**
+ * 유틸/상수
+ */
+const SPEED_BASE_MS = 3; // 카메라 시속: 지정 m/s
+const ALT_OFFSET_M  = 2; // 카메라 고도: 지면 + 2 m
+const BACK_OFFSET_M = 8; // 카메라 위치: 진행 방향 뒤 8m
+const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n)); // 경로 길이에 따른 duration을 안전 범위로 제한
+
+/**
+ * 두 좌표간 방위각을 계산하는 함수. (카메라의 시점을 정하기 위함)
+ */
+const headingBetween = (from: Cesium.Cartographic, to: Cesium.Cartographic) => {
+    const deltaLongitude = to.longitude - from.longitude;
+    const y = Math.sin(deltaLongitude) * Math.cos(to.latitude);
+    const x =
+        Math.cos(from.latitude) * Math.sin(to.latitude) -
+        Math.sin(from.latitude) * Math.cos(to.latitude) * Math.cos(deltaLongitude);
+    const brng = Math.atan2(y, x); // -π..π 범위를 반환하므로 0..2π 범위로 변환한다.
+    return Cesium.Math.zeroToTwoPi(brng);
+};
+
+/**
+ * 타깃 카토그래픽에서 '지면+offset'의 월드 좌표 반환
+ *
+ * 카메라가 있을 높이를 계산한다.
+ * Offset은 추가로 연산될 값(카메라 위치)을 의미한다.
+ */
+const groundPosWithOffset = (scene: Cesium.Scene, carto: Cesium.Cartographic, offset: number) => {
+    const ground = scene.globe.getHeight(carto); // 지면 높이 추출. 타일 로딩 상태에 따라 갱신된다.
+    const h = (ground ?? carto.height ?? 0) + offset; // 높이에 오프셋을 추가
+    return Cesium.Cartesian3.fromRadians(carto.longitude, carto.latitude, h); // Cartesian을 추가
+};
+
+/**
+ * 타깃(지면+2 m)을 기준으로 heading 방향 ENU 프레임에서 '뒤로 BACK_OFFSET_M, 위로 ALT_OFFSET_M' 오프셋을 적용한 카메라 포즈 계산
+ * Matrix4.getColumn은 Cartesian4를 요구하므로, 추출 후 Cartesian3로 변환하여 방향 벡터에 사용한다.
+ */
+const cameraPoseAtWaypoint = (
+    scene: Cesium.Scene,
+    carto: Cesium.Cartographic,
+    heading: number
+) => {
+    // 타깃: 지면+2 m
+    const target = groundPosWithOffset(scene, carto, ALT_OFFSET_M);
+
+    // ENU 프레임. target에서 동-북-업 축을 얻는다.
+    const enu = Cesium.Transforms.eastNorthUpToFixedFrame(target);
+
+    // getColumn의 반환 타입은 Cartesian4이므로, 이후 연산용으로 Cartesian3로 변환한다.
+    const east4  = Cesium.Matrix4.getColumn(enu, 0, new Cesium.Cartesian4());  // X
+    const north4 = Cesium.Matrix4.getColumn(enu, 1, new Cesium.Cartesian4());  // Y
+    const east   = Cesium.Cartesian3.fromCartesian4(east4,  new Cesium.Cartesian3());
+    const north  = Cesium.Cartesian3.fromCartesian4(north4, new Cesium.Cartesian3());
+
+    // 진행 방향 벡터(heading=0 → north, 시계방향): forward
+    const forward = Cesium.Cartesian3.normalize(
+        Cesium.Cartesian3.add(
+            Cesium.Cartesian3.multiplyByScalar(north, Math.cos(heading), new Cesium.Cartesian3()),
+            Cesium.Cartesian3.multiplyByScalar(east,  Math.sin(heading), new Cesium.Cartesian3()),
+            new Cesium.Cartesian3()
+        ),
+        new Cesium.Cartesian3()
+    );
+
+    // 카메라 위치 = target - forward*BACK_OFFSET_M (이미 target에서 +2m 반영됨)
+    const back = Cesium.Cartesian3.multiplyByScalar(forward, -BACK_OFFSET_M, new Cesium.Cartesian3());
+    const destination = Cesium.Cartesian3.add(target, back, new Cesium.Cartesian3());
+
+    // 수직축, 횡축, 종축 설정. 약간 아래로 보도록 pitch를 음수로 준다.
+    const pitch = Cesium.Math.toRadians(-10);
+    const roll = 0;
+    return { destination, orientation: { heading, pitch, roll } as FlyToOptions['orientation'] };
+};
+
+/**
+ * camera.flyTo를 Promise로 래핑 (현재 버전 타입을 그대로 추론)
+ */
+const flyToAsync = (camera: Cesium.Camera, opts: FlyToOptions) =>
+    new Promise<void>((resolve) => {
+        // 카메라가 이동하는 동안 작업을 도중에 이동, 정지할 수 있는 리스너를 추가
+        camera.flyTo({
+            ...opts,
+            complete: () => resolve(),
+            cancel: () => resolve(),
+        });
+    });
+
+/**
+ * 카메라가 이동할 전체 경로를 설정한다.
+ * 경유지는 각 섹션의 첫 점, 마지막 목적지는 마지막 섹션의 마지막 점이다.
+ * 경유지의 고도는 사용하지 않고, 실제 이동 시 지면 높이에 +2m를 적용한다.
+ */
+const buildWaypoints = (route?: Route): Cesium.Cartographic[] => {
+    const wayPoints: Cesium.Cartographic[] = []; // 카메라가 이동할 경로 지점들
+    if (!route?.sections?.length) return wayPoints;
+
+    // NOTE 1. 모든 경로의 첫번재 지점을 경유지로 설정한다.
+    for (const section of route.sections) {
+        const point = section.points[0];
+        if (!point) continue;
+        wayPoints.push(Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.height ?? 0)); // 여기서 2m는 넣지 않는다. 지면 샘플 후 2m 오프셋을 적용하기 때문.
+    }
+
+    // NOTE 2. 최종 구간을 목적지로 추가한다.
+    const lastSection = route.sections[route.sections.length - 1];
+    const lastPoint = lastSection?.points?.[lastSection.points.length - 1];
+    if (lastPoint) {
+        const lastCarto = Cesium.Cartographic.fromDegrees(
+            lastPoint.longitude,
+            lastPoint.latitude,
+            lastPoint.height ?? 0 // 여기서 2m는 넣지 않는다. 지면 샘플 후 2m 오프셋을 적용하기 때문.
+        );
+        const prev = wayPoints[wayPoints.length - 1];
+        if (!prev || Math.abs(prev.longitude - lastCarto.longitude) > 1e-7 || Math.abs(prev.latitude - lastCarto.latitude) > 1e-7) {
+            wayPoints.push(lastCarto);
+        }
+    }
+
+    return wayPoints;
+};
 
 export default function Page() {
     const viewer = getViewer();
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     const router = useRouter();
-    const clock = viewer.clock;
 
-    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
-    const tempEntity = viewer.entities.getById(getTempEntity());
-    const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
+    const automaticRoute = useSelector((s: RootState) => s.rightSideBar.automaticRoute);
+    const tempRoute = useSelector((s: RootState) => s.routeDrawing.tempRoute);
+    const pedestrianRoute = useSelector((s: RootState) => s.routeDrawing.pedestrianRoute);
 
-    // 카테고리 상태
-    const [cat, setCat] = React.useState('×1.0');
+    const [simulation, setSimulation] = useState(false);
 
-    // NOTE 0. 시뮬레이션용 객체 생성
-    // 추적용 가상 엔티티
-    const trackerRef = useRef<Cesium.Entity | null>(null);
-    // 카메라 루프 콜백 저장
-    const postRenderCbRef = useRef<((scene: Cesium.Scene, time: Cesium.JulianDate) => void) | null>(null);
+    // 현재 사용할 Route
+    const currentRoute = automaticRoute ? tempRoute : pedestrianRoute;
 
-    // scratch 객체(alloc 최소화) // TODO: 사용 이유 조사할 것
-    const scratchQuat = useRef(new Cesium.Quaternion());
-    const scratchRot = useRef(new Cesium.Matrix3());
-    const scratchMat4 = useRef(new Cesium.Matrix4());
-    const firstAlignDoneRef = useRef(false); // 처음 한 번만 정면 정렬
+    // 카테고리 셀렉터 상태
+    const [category, setCategory] = React.useState('×1.0');
 
+    // 시작 전 카메라 위치 저장소
     const savedCameraRef = useRef<{
         destination: Cesium.Cartesian3;
         heading: number;
@@ -49,201 +169,52 @@ export default function Page() {
         roll: number;
     } | null>(null);
 
+    // 시뮬레이션 실행/취소 제어용 ref (state 캡처 문제 방지)
+    const isRunningRef = useRef(false);
+    const cancelRef = useRef<{ cancelled: boolean }>({ cancelled: false });
+
+    /**
+     * 뒤로가기 버튼
+     */
     const backButton = ()=>{
-        removePedestrianRoute()
-        dispatch(setRightSidebarOpen(false));
+        stopSimulation(); // 복귀까지 수행
         router.back();
     }
 
-    // NOTE 1. 자동해제 동작 수행
+    /**
+     * 자동경로에 맞게 Entity 변경
+     */
     useEffect(() => {
-        const on = automaticRoute;
-
-        hideMarkers(getTempRouteMarkers(), on);
+        hideMarkers(getTempRouteMarkers(), automaticRoute);
         const tempEntity = viewer.entities.getById(getTempEntity());
-        if(tempEntity) tempEntity.show = on;
+        if (tempEntity) tempEntity.show = automaticRoute;
 
-        hideMarkers(getPedestrianRouteMarkers(), on!);
+        hideMarkers(getPedestrianRouteMarkers(), !automaticRoute);
         const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
-        if(pedestrianEntity) pedestrianEntity.show = !on;
+        if (pedestrianEntity) pedestrianEntity.show = !automaticRoute;
 
-        requestRender()
-    }, [automaticRoute, viewer.entities]);
-
-    // NOTE 2. Polyline에서 경로 좌표 배열 추출
-    const extractPositions = useCallback((entity: Cesium.Entity): Cesium.Cartesian3[] | null => {
-        const when = viewer.clock.currentTime;
-
-        // 현재 시간에 있는 경로들을 추출한다.
-        const positions = entity?.polyline?.positions;
-        if (!positions) return []
-
-        return positions.getValue(when) as Cesium.Cartesian3[];
-    }, [viewer.clock]);
-
-    // NOTE 3. Polyline Positions를 기반으로 SampledPositionProperty 추출
-    const buildPathProperty = useCallback((positions: Cesium.Cartesian3[]) => {
-        const samplePositions = new Cesium.SampledPositionProperty();
-
-        // 예외처리: 경로가 존재하지 않는다면, 기본값 반환
-        if (positions.length < 2) {
-            return {
-                samplePositionProperty: samplePositions,
-                start: Cesium.JulianDate.now(),
-                stop: Cesium.JulianDate.now()
-            };
-        }
-
-        // 좌표계 불러오기
-        const ellipsoid = Cesium.Ellipsoid.WGS84;
-        // 위도 경도 추출 (cartographic)
-        const cartographic = positions.map((c) => ellipsoid.cartesianToCartographic(c));
-
-        // 시작 시간
-        const start = Cesium.JulianDate.addSeconds(Cesium.JulianDate.now(), 1, new Cesium.JulianDate());
-        // 엔티티의 애니메이션을 제작하면서 누적 시간을 측정하는 객체이다.
-        let time = Cesium.JulianDate.clone(start);
-
-        // ???
-        samplePositions.setInterpolationOptions({
-            interpolationAlgorithm: Cesium.LagrangePolynomialApproximation,
-            interpolationDegree: 2,
-        });
-
-        // 엔티티가 이동할 속도
-        const PaceSpeed = 1000 / (6 * 60);
-
-        // 각 위치를 순회하면서 SampledPostitions에 경로 추가
-        samplePositions.addSample(time, positions[0]);
-        for (let i = 1; i < cartographic.length; i++) {
-            const geo = new Cesium.EllipsoidGeodesic(cartographic[i - 1], cartographic[i]);
-            const meter = geo.surfaceDistance; // meter
-            const speed = meter / PaceSpeed; // seconds
-            time = Cesium.JulianDate.addSeconds(time, speed, new Cesium.JulianDate());
-            samplePositions.addSample(time, positions[i]);
-        }
-
-        // ???
-        samplePositions.forwardExtrapolationType = Cesium.ExtrapolationType.NONE;
-        samplePositions.forwardExtrapolationDuration = 30;
-        return { samplePositionProperty: samplePositions, start, stop: time };
-    }, []);
+        requestRender();
+        stopSimulation(); // 토글 시 시뮬레이션 중단 및 원래 시점 복귀
+    }, [automaticRoute]);
 
     /**
-     * 카메라가 엔티티 추적을 시작하는 함수
+     * 시뮬레이션 시작: ENU 오프셋(뒤 8 m, 위 2 m) 기반 flyTo → 도착 직후 setView로 보정
      */
-    const startCameraFollow = useCallback((trackEntity: Cesium.Entity) => {
-        // 혹시 이전 콜백 있으면 제거
-        if (postRenderCbRef.current) {
-            viewer.scene.postRender.removeEventListener(postRenderCbRef.current);
-            postRenderCbRef.current = null;
-        }
-
-        // trackedEntity 해제(우리가 직접 제어) // TODO: 사용 이유 조사할 것
-        viewer.trackedEntity = undefined;
-        firstAlignDoneRef.current = false; // 새 추적 시작마다 초기화
-
-        // 카메라가 존재하는 위치(뒤 20m)
-        const CAMERA_OFFSET_LOCAL = new Cesium.Cartesian3(-10, 0, 0);
-
-        const cameraMovement = (scene: Cesium.Scene) => {
-            const time = clock.currentTime;
-
-            // NOTE 1. 카메라가 추적하고 있는 엔티티의 위치와 방향을 얻는다.
-            const entityPosition = trackEntity.position?.getValue(time);
-            const entityOrientation = trackEntity.orientation?.getValue(time, scratchQuat.current);
-            if (!entityPosition || !entityOrientation) return;
-
-            // 1) 엔티티의 회전/모델행렬
-            const rot = Cesium.Matrix3.fromQuaternion(entityOrientation, scratchRot.current);
-            const model = Cesium.Matrix4.fromRotationTranslation(rot, entityPosition, scratchMat4.current);
-
-            // NOTE 2. 엔티티 자체(model)를 원점으로 하여 카메라 배치:
-            //    - 타깃: 엔티티 위치(= model 원점)
-            //    - 위치: 엔티티 로컬 기준 뒤 10m(CAMERA_OFFSET_LOCAL)
-            //    ⇒ 항상 targetEntity를 바라보는 시점 유지
-            scene.camera.lookAtTransform(model, CAMERA_OFFSET_LOCAL);
-        };
-
-        viewer.scene.postRender.addEventListener(cameraMovement);
-        postRenderCbRef.current = cameraMovement;
-    }, [clock, viewer]);
-
-    /**
-     * 카메라가 엔티티 추적을 종료하는 함수
-     */
-    const stopCameraFollow = useCallback(() => {
-        if (postRenderCbRef.current) {
-            viewer.scene.postRender.removeEventListener(postRenderCbRef.current);
-            postRenderCbRef.current = null;
-        }
-        viewer.scene.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-    }, [viewer]);
-
-    /**
-     * 시뮬레이션을 시작하는 함수
-     */
-    const startSimulation = useCallback((routeEntity: Cesium.Entity) => {
-        // 기존 추적 엔티티 제거
-        if (trackerRef.current) {
-            viewer.entities.remove(trackerRef.current);
-            trackerRef.current = null;
-        }
-
-        // NOTE 1. 엔티티의 좌표 정보를 추출한다.
-        const positions = extractPositions(routeEntity);
-        if (!positions || positions.length < 2) {
-            console.warn("경로가 충분하지 않습니다. Polyline.positions 또는 최소 2개 점 필요");
+    const startSimulation = useCallback(async () => {
+        if (!currentRoute) {
+            stopSimulation();
             return;
         }
+        if (isRunningRef.current) return;
 
-        // NOTE 2. {경로 객체, 시작 시간, 소요 시간} 측정
-        const { samplePositionProperty, start, stop } = buildPathProperty(positions);
+        isRunningRef.current = true;
+        cancelRef.current.cancelled = false;
 
-        // NOTE 3. 진행 방향 자동 회전 // TODO: 사용 이유 조사할 것
-        const adjustedPosition = new Cesium.CallbackPositionProperty(
-            (t, result) => {
-                const base = samplePositionProperty.getValue(t);
-                if (!base) return undefined;
-                const carto = Cesium.Cartographic.fromCartesian(base);
-                const ground = viewer.scene.globe.getHeight(carto);
-                carto.height = (ground ?? carto.height ?? 0) + 2.0;
-                return Cesium.Cartesian3.fromRadians(
-                    carto.longitude,
-                    carto.latitude,
-                    carto.height,
-                    Cesium.Ellipsoid.WGS84,
-                    result as Cesium.Cartesian3
-                );
-            },
-            false,
-            Cesium.ReferenceFrame.FIXED
-        );
+        const scene = viewer.scene;
+        const camera = scene.camera;
 
-        // 엔티티 생성 시 적용
-        const tracker = viewer.entities.add({
-            id: "tracker",
-            availability: new Cesium.TimeIntervalCollection([
-                new Cesium.TimeInterval({ start, stop }),
-            ]),
-            position: adjustedPosition,
-            orientation: new Cesium.VelocityOrientationProperty(adjustedPosition),
-            point: { pixelSize: 1, color: Cesium.Color.TRANSPARENT, show: true },
-        });
-        trackerRef.current = tracker;
-
-        // NOTE 4. 시계정보 최신화
-        clock.startTime = Cesium.JulianDate.clone(start);
-        clock.stopTime = Cesium.JulianDate.clone(stop);
-        clock.currentTime = Cesium.JulianDate.clone(start);
-        clock.clockRange = Cesium.ClockRange.CLAMPED;
-
-        clock.multiplier = formatSpeed(cat);
-
-        clock.shouldAnimate = true;
-
-        // NOTE 5. 기존 카메라 위치 저장
-        const cam = viewer.scene.camera;
+        // 시작 전 카메라 저장
+        const cam = scene.camera;
         savedCameraRef.current = {
             destination: cam.positionWC.clone(),
             heading: cam.heading,
@@ -251,80 +222,118 @@ export default function Page() {
             roll: cam.roll,
         };
 
-        // NOTE 6. 카메라가 엔티티 추적을 시작
-        startCameraFollow(tracker);
-    }, [buildPathProperty, clock, extractPositions, startCameraFollow, viewer]);
+        // 경유지
+        const wps = buildWaypoints(currentRoute);
+        if (wps.length === 0) {
+            alert("유효한 경유지가 없습니다.");
+            stopSimulation();
+            return;
+        }
+
+        // 속도(m/s) = 기본속도 × 배속
+        const mult = formatSpeed(category);
+        theSpeedLoop: {
+            const speed = SPEED_BASE_MS * mult;
+
+            // 경유지 순회
+            const ellipsoid = Cesium.Ellipsoid.WGS84;
+            for (let i = 0; i < wps.length; i++) {
+                if (cancelRef.current.cancelled) break;
+
+                const here = wps[i];
+                const next = wps[i + 1] ?? wps[i];
+                const heading = headingBetween(here, next);
+
+                // 카메라 포즈 계산(뒤 8 m, 위 2 m)
+                const pose = cameraPoseAtWaypoint(scene, here, heading);
+
+                // duration 계산(거리/속도)
+                let duration = 1.0;
+                if (i > 0) {
+                    const g = new Cesium.EllipsoidGeodesic(wps[i - 1], wps[i], ellipsoid);
+                    const dist = g.surfaceDistance;
+                    duration = clamp(dist / speed, 0.6, 5.0);
+                }
+
+                await flyToAsync(camera, {
+                    destination: pose.destination,
+                    orientation: pose.orientation,
+                    duration, // 일정 속도 기반 이동
+                    easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT,
+                });
+
+                // 도착 직후, 지형 로딩에 따른 고도 편차를 제거하기 위해 정확한 포즈로 한 번 더 보정
+                const corrected = cameraPoseAtWaypoint(scene, here, heading);
+                camera.setView({
+                    destination: corrected.destination,
+                    orientation: corrected.orientation,
+                });
+            }
+        }
+
+        // 정상 종료 시 원래 시점으로 복귀
+        if (!cancelRef.current.cancelled) {
+            const saved = savedCameraRef.current;
+            if (saved) {
+                camera.setView({
+                    destination: saved.destination,
+                    orientation: { heading: saved.heading, pitch: saved.pitch, roll: saved.roll },
+                });
+            }
+        }
+
+        savedCameraRef.current = null;
+        isRunningRef.current = false;
+    }, [currentRoute, category, viewer.scene]);
 
     /**
-     * 시뮬레이션을 종료하는 함수
+     * 시뮬레이션을 정지하는 함수
+     * 종료하는 즉시 원래 시점으로 복귀한다.
      */
     const stopSimulation = useCallback(() => {
-        clock.shouldAnimate = false; // 애니메이션 제거
-        if (trackerRef.current) { // tracker 제거 및 종료
-            viewer.entities.remove(trackerRef.current);
-            trackerRef.current = null;
-        }
-        stopCameraFollow(); // 카메라 고정 제거
+        cancelRef.current.cancelled = true;
+        isRunningRef.current = false;
 
-        // 기존 카메라 상태로 복구
-        if (savedCameraRef.current) {
-            const { destination, heading, pitch, roll } = savedCameraRef.current;
-            viewer.scene.camera.setView({
-                destination,
-                orientation: { heading, pitch, roll },
-            });
-            savedCameraRef.current = null;
-        }
-    }, [clock, stopCameraFollow, viewer]);
+        const camera = savedCameraRef.current;
+        if (!camera) return;
+
+        const { destination, heading, pitch, roll } = camera;
+        viewer.scene.camera.setView({
+            destination,
+            orientation: { heading, pitch, roll },
+        });
+        savedCameraRef.current = null;
+    }, [viewer.scene.camera]);
 
     /**
-     * 엔티티/옵션 바뀔 때 자동 종료
-     */
-    useEffect(() => {
-        if (!pedestrianEntity || !tempEntity) return;
-        return () => {
-            stopSimulation();
-        };
-    }, [automaticRoute, pedestrianEntity, tempEntity, stopSimulation]);
-
-    /**
-     * 애니메이션 시작 종료 토글
+     * 시뮬레이션을 시작, 종료하는 함수
      */
     const handleToggle = () => {
-        // 토글
-        if (postRenderCbRef.current) {
+        if (isRunningRef.current) {
+            setSimulation(false);
             stopSimulation();
-            return;
+        } else {
+            setSimulation(true);
+            startSimulation();
         }
-        const routeEntity = automaticRoute ? tempEntity : pedestrianEntity;
-        if (!routeEntity) {
-            alert("엔티티가 존재하지 않습니다.");
-            return;
-        }
-        startSimulation(routeEntity);
     };
-
-    /**
-     * 배속 실시간 변경
-     */
-    useEffect(() => {
-        // 시뮬레이션이 진행 중일 때만 반영
-        if (postRenderCbRef.current) {
-            clock.multiplier = formatSpeed(cat);
-        }
-    }, [cat, clock]);
-
-    if (!pedestrianEntity || !tempEntity) {
-        return <>엔티티가 존재하지 않습니다.</>;
-    }
 
     return (
         <section className={styles.bottomSheet}>
             <div className={styles.listChips}>
-                <Chip label={"뒤로가기"} activable={false} onClickAction={backButton}/>
-                <Chip label={postRenderCbRef.current ? "정지" : "시뮬레이션 시작"} onClickAction={handleToggle}/> {/* 시뮬레이션 시작 */}
-                <Chip label={"자동 경로"} onClickAction={()=>{dispatch(setAutomaticRoute(!automaticRoute))}}/> {/* 자동 경로 토글 */}
-                <CategorySelect categories={['×1.0', '×1.5', '×3.0', '×4.0', '×10.0']} value={cat} onChangeAction={(value: string) => setCat(value)}/> {/* 경로 카테고리 */}
+                <Chip label={"뒤로가기"} activable={false} onClickAction={() => { stopSimulation(); router.back(); }} />
+                <Chip label={isRunningRef.current ? "정지" : "시뮬레이션 시작"} onClickAction={handleToggle} />
+                <Chip
+                    label={"자동 경로"}
+                    onClickAction={() => {
+                        dispatch(setAutomaticRoute(!automaticRoute));
+                    }}
+                />
+                <CategorySelect
+                    categories={["×1.0", "×1.5", "×3.0", "×4.0", "×10.0"]}
+                    value={category}
+                    onChangeAction={(v: string) => setCategory(v)}
+                />
             </div>
         </section>
     );
