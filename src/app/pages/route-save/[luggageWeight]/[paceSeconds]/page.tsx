@@ -11,7 +11,7 @@ import {
 import {Chip} from "@/app/components/atom/chip/Chip";
 import {RootState} from "@/app/store/redux/store";
 import {useParams, useRouter} from "next/navigation";
-import hideMarkers from "@/app/utils/markers/hideMarkers";
+import hideMarkers, {removeMarkers} from "@/app/utils/markers/hideMarkers";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 import apiClient from "@/api/apiClient";
 import CommonResponse from "@/api/response/common_response";
@@ -20,6 +20,14 @@ import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {Route} from "@/type/route";
 import {setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/routeDrawingSlice";
 import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
+import {getTempPolyline} from "@/app/pages/route-drawing/utils/getTempPolyline";
+import {getCircularPolyline} from "@/app/pages/route-drawing/utils/getCircularPolyline";
+import {useModal} from "@/app/store/modal/ModalProvider";
+import {Entity} from "cesium";
+import {parseTempRoute} from "@/app/pages/route-drawing/utils/parseTempRoute";
+import {entitiesToLngLat, getPedestrianRoute} from "@/app/pages/route-drawing/utils/postPedestrianRoute";
+import {addPedestrianEntity} from "@/app/pages/route-drawing/utils/addPedestrianEntity";
+import {parsePedestrianRoute} from "@/app/pages/route-drawing/utils/parsePedestrianRoute";
 
 /**
  * 경로 저장을 그리는 함수
@@ -30,6 +38,7 @@ export default function Page() {
     const viewer = getViewer();
     const dispatch = useDispatch()
     const router = useRouter();
+    const { openConfirm, close } = useModal(); // 모달 여부 // TODO: 필요한가?
 
     // URL에서 필요한 데이터 얻기
     const { luggageWeight, paceSeconds } = useParams<{ luggageWeight: string; paceSeconds: string }>();
@@ -45,9 +54,28 @@ export default function Page() {
      * 뒤로가기 버튼 onClick
      */
     const backButton = ()=>{
-        removePedestrianRoute()
-        dispatch(setRightSidebarOpen(false));
-        router.back();
+        openConfirm({
+            title: "경로 확정 취소", // 제목
+            content: "지금까지의 모든 경로가 제거됩니다.", // 본문
+            // 확인 버튼 눌렀을 때 수행될 동작 구현
+            onConfirm: async ()=>{
+                // NOTE 1. 추가한 사용자 경로 엔티티 제거
+                // TODO: PedestrianRoute 잔존 정보는 존재한다.
+                removePedestrianRoute()
+
+                // NOTE 2. 모든 기존 정보 제거
+                viewer.entities.removeById(getTempEntity()); // tempEntity 제거
+                viewer.entities.removeById("pedestrian_entity"); // pedestrianEntity 제거
+                viewer.entities.removeById("circular_line"); // 원형 경로 보조선 제거
+                removeMarkers(getTempRouteMarkers()) // 마커 제거
+                removeMarkers(getPedestrianRouteMarkers()) // pedestrianEntity 제거
+
+                // NOTE 3. 우측 사이드바 닫기
+                dispatch(setRightSidebarOpen(false));
+                router.back();
+            },
+            onCancel: close
+        })
     }
 
     /**

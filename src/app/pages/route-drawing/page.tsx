@@ -26,6 +26,8 @@ import {parseTempRoute} from "@/app/pages/route-drawing/utils/parseTempRoute";
 import {parsePedestrianRoute} from "@/app/pages/route-drawing/utils/parsePedestrianRoute";
 import {addPedestrianEntity} from "@/app/pages/route-drawing/utils/addPedestrianEntity";
 import {entitiesToLngLat, getPedestrianRoute} from "@/app/pages/route-drawing/utils/postPedestrianRoute";
+import {getTempPolyline} from "@/app/pages/route-drawing/utils/getTempPolyline";
+import {getCircularPolyline} from "@/app/pages/route-drawing/utils/getCircularPolyline";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -43,7 +45,7 @@ export default function Page() {
     const [luggageWeight, setLuggageWeight] = useState(0);
     const [paceActive, setPaceActive] = useState(false); // 희망 속도 (분/㎞를 초로 가정: 180(3'00") ~ 480(8'00"))
     const [paceSeconds, setPaceSeconds] = useState(0); // 6'30" = 390초
-    const { openConfirm, close } = useModal(); // 모달 여부 // TODO: 필요한가?
+    const { openConfirm, close } = useModal(); // 모달 여부
     const [ circular, setCircular ] = useState<boolean>(false); // 원형 경로 설정 여부
 
     /**
@@ -83,41 +85,7 @@ export default function Page() {
                 const tempEntityMarkers: Entity[] = getTempRouteMarkers();
 
                 // 만약 원형 경로라면 닫는 변까지 시각적으로 보여주고(옵션), 마커 배열에도 첫 점을 다시 넣어준다.
-                if (circular) {
-                    // 1) 마커 → 현재 좌표 배열(Cartesian3[]) 추출
-                    const time = viewer.clock.currentTime;
-                    const isFiniteCartesian3 = (c?: Cartesian3): c is Cartesian3 =>
-                        !!c && Number.isFinite(c.x) && Number.isFinite(c.y) && Number.isFinite(c.z);
-
-                    const positions: Cartesian3[] = tempEntityMarkers
-                        .map((m: Entity) => m.position?.getValue?.(time) as Cartesian3 | undefined) // ← TS: m에 타입 명시
-                        .filter(isFiniteCartesian3);
-
-                    if (positions.length >= 2) {
-                        // 2) 닫는 변(마지막 → 첫 점) 추가
-                        positions.push(positions[0]);
-
-                        // 3) 기존 temp polyline 엔티티를 동일 id로 교체하여 시각적으로 '닫힌 선'을 표시 (선택)
-                        const tempId = getTempEntity();
-                        viewer.entities.removeById(tempId);
-                        viewer.entities.add(
-                            new Cesium.Entity({
-                                id: tempId,
-                                polyline: {
-                                    positions,
-                                    width: 10,
-                                    material: Cesium.Color.RED,
-                                    clampToGround: true,
-                                },
-                            })
-                        );
-
-                        // 4) API/파싱에서 닫힌 경로를 원한다면 마커 배열에도 첫 점을 한 번 더 넣어준다.
-                        //    (같은 엔티티를 push해도 좌표 값만 쓰는 로직이면 무방)
-                        tempEntityMarkers.push(tempEntityMarkers[0]);
-                    }
-                }
-
+                getTempPolyline(tempEntityMarkers, getTempEntity(), circular)
 
                 // NOTE 2. 임시 경로를 Route로 파싱한다.
                 const tempRoute = await parseTempRoute(tempEntityMarkers);
@@ -136,6 +104,7 @@ export default function Page() {
 
                 // NOTE 7. 창을 닫는다.
                 close();
+
                 // NOTE 8. 화면을 이동한다.
                 router.push(`/pages/route-save/${luggageWeight}/${paceSeconds}`);
             },
@@ -159,58 +128,19 @@ export default function Page() {
     /**
      * 원형 경로를 설정하는 함수
      */
-        // 원형 경로를 설정하는 함수
     const addCircular = () => {
-            setCircular(true);
+        setCircular(true);
 
-            const tempEntities = getTempRouteMarkers();
+        const tempEntities = getTempRouteMarkers();
 
-            // NOTE 1. 예외처리: 사용자가 지점을 제대로 찍지 않은 경우
-            if (!tempEntities || tempEntities.length < 2) {
-                alert("최소한 두개의 지점을 선택해주세요.");
-                return;
-            }
+        // NOTE 1. 예외처리: 사용자가 지점을 제대로 찍지 않은 경우
+        if (!tempEntities || tempEntities.length < 2) {
+            alert("최소한 두개의 지점을 선택해주세요.");
+            return;
+        }
 
-            // NOTE 2. 현재 시각 기준으로 엔티티의 좌표 추출
-            const isFiniteCartesian3 = (c?: Cartesian3): c is Cartesian3 =>
-                !!c && Number.isFinite(c.x) && Number.isFinite(c.y) && Number.isFinite(c.z);
-
-            const positions = new Cesium.CallbackProperty(
-                (t?: JulianDate): Cartesian3[] => {
-                    const time = t ?? Cesium.JulianDate.now();
-
-                    const points = getTempRouteMarkers()
-                        .map(e => e.position?.getValue?.(time) as Cartesian3 | undefined)
-                        .filter(isFiniteCartesian3);
-
-                    if (points.length < 2) return [];
-                    const first = points[0];
-                    const last = points.at(-1)!;     // 마지막 점
-
-                    // 양끝 점 연결
-                    return [last, first];
-                },
-                false
-            );
-
-            try {
-                // NOTE 3. 예외처리: 기존 보조선이 남아있다면 제거(중복 추가 방지)
-                viewer.entities.removeById("circular_line");
-
-                // NOTE 4. 보조 폴리라인 엔티티 추가
-                viewer.entities.add({
-                    id: "circular_line",
-                    polyline: new Cesium.PolylineGraphics({
-                        positions: positions,
-                        width: 10,
-                        material: Cesium.Color.RED.withAlpha(0.3),
-                        clampToGround: true,
-                    }),
-                });
-
-                requestRender()
-            } catch {} // 에러 발생 시, 더이상 진행하지 않음
-        };
+        getCircularPolyline()
+    };
 
     const removeCircular = ()=>{
         setCircular(false);
