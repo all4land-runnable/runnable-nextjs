@@ -9,7 +9,7 @@ import {formatPace} from "@/app/utils/claculator/formatPace";
 import {Chip} from "@/app/components/atom/chip/Chip";
 import {useRouter} from "next/navigation";
 import {useModal} from "@/app/store/modal/ModalProvider";
-import {getTempRouteMarkers, setTempEntity} from "@/app/staticVariables";
+import {getTempEntity, getTempRouteMarkers, setTempEntity} from "@/app/staticVariables";
 import getDrawer from "@/app/components/organisms/cesium/drawer/getDrawer";
 import workoutAvailabilityOnClick from "@/app/utils/drawing-chips/drawing-controller-onclick/workoutAvailabilityOnClick";
 import saveDrinkingFountainsInfoOnClick from "@/app/utils/drawing-chips/drawing-controller-onclick/saveDrinkingFountainsInfoOnClick";
@@ -17,7 +17,7 @@ import {setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 import {useDispatch} from "react-redux";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import * as Cesium from "cesium";
-import {Cartesian3, JulianDate} from "cesium";
+import {Cartesian3, Entity, JulianDate} from "cesium";
 import {removeTempRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 import upsertTempRoute from "@/app/pages/route-drawing/utils/upsertTempRoute";
@@ -79,10 +79,45 @@ export default function Page() {
             content: "경로를 저장하시겠습니까?", // 본문
             // 확인 버튼 눌렀을 때 수행될 동작 구현
             onConfirm: async ()=>{
-                // TODO: 원형 경로 삭제 후 추가한다.
-
                 // NOTE 1. 임시 경로 엔티티를 불러온다.
-                const tempEntityMarkers = getTempRouteMarkers();
+                const tempEntityMarkers: Entity[] = getTempRouteMarkers();
+
+                // 만약 원형 경로라면 닫는 변까지 시각적으로 보여주고(옵션), 마커 배열에도 첫 점을 다시 넣어준다.
+                if (circular) {
+                    // 1) 마커 → 현재 좌표 배열(Cartesian3[]) 추출
+                    const time = viewer.clock.currentTime;
+                    const isFiniteCartesian3 = (c?: Cartesian3): c is Cartesian3 =>
+                        !!c && Number.isFinite(c.x) && Number.isFinite(c.y) && Number.isFinite(c.z);
+
+                    const positions: Cartesian3[] = tempEntityMarkers
+                        .map((m: Entity) => m.position?.getValue?.(time) as Cartesian3 | undefined) // ← TS: m에 타입 명시
+                        .filter(isFiniteCartesian3);
+
+                    if (positions.length >= 2) {
+                        // 2) 닫는 변(마지막 → 첫 점) 추가
+                        positions.push(positions[0]);
+
+                        // 3) 기존 temp polyline 엔티티를 동일 id로 교체하여 시각적으로 '닫힌 선'을 표시 (선택)
+                        const tempId = getTempEntity();
+                        viewer.entities.removeById(tempId);
+                        viewer.entities.add(
+                            new Cesium.Entity({
+                                id: tempId,
+                                polyline: {
+                                    positions,
+                                    width: 10,
+                                    material: Cesium.Color.RED,
+                                    clampToGround: true,
+                                },
+                            })
+                        );
+
+                        // 4) API/파싱에서 닫힌 경로를 원한다면 마커 배열에도 첫 점을 한 번 더 넣어준다.
+                        //    (같은 엔티티를 push해도 좌표 값만 쓰는 로직이면 무방)
+                        tempEntityMarkers.push(tempEntityMarkers[0]);
+                    }
+                }
+
 
                 // NOTE 2. 임시 경로를 Route로 파싱한다.
                 const tempRoute = await parseTempRoute(tempEntityMarkers);

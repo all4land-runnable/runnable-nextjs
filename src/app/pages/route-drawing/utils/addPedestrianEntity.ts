@@ -155,7 +155,6 @@ export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Ent
     try {
         if (positions.length >= 2) {
             const totalMeters = calcDistance(positions as Cartesian3[]);
-            // 라벨 부착용 마커 확보 (마지막 마커가 없다면 강제로 생성)
             const tailPos =
                 positions[positions.length - 1] as Cartesian3;
             const tailMarker = lastTailMarker ?? upsertPedestrianMarker(tailPos);
