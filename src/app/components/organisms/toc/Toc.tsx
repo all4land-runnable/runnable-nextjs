@@ -10,8 +10,9 @@ import {getCrosswalk, getDrinkingFoundation, getHospital} from "@/app/staticVari
 import storageBoxOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/storageBoxOnClick";
 import {hospitalOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/hospitalOnClick";
 import {drinkingFountainOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
-import altitudeOnClick from "@/app/utils/tile-chips/title-onclick/altitudeOnClick";
+import altitudeOnClick from "@/app/utils/tile-chips/altitude-onclick/altitudeOnClick";
 import React from "react";
+import temperatureOnClick from "@/app/utils/tile-chips/temperature-onclick/temperatureOnClick";
 
 
 export default function Toc() {
@@ -29,8 +30,8 @@ export default function Toc() {
             {/* 타일 버튼 모음 */}
             <div className={styles.tileChips}>
                 <Chip label="고도 표시" onClickAction={altitudeOnClick}/>
-                <Chip label="재질 표시" onClickAction={async () => {}}/> {/* TODO: 재질 표시 로직 */}
-                <Chip label="온도 측정" onClickAction={async () => {}}/> {/* TODO: 온도 측정 로직 */}
+                {/*<Chip label="재질 표시" onClickAction={async () => {}}/> /!* TODO: 재질 표시 로직 *!/*/}
+                <Chip label="온도 측정" onClickAction={temperatureOnClick}/> {/* TODO: 온도 측정 로직 */}
             </div>
         </div>
     )
