@@ -77,3 +77,9 @@
     color: #9aa1ad;
     text-align: right;
 }
+
+.contents {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}

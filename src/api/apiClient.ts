@@ -33,6 +33,9 @@ export const apiClient = {
     put: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
         instance.put<T>(url, data, config),
 
+    patch: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+        instance.patch<T>(url, data, config),
+
     delete: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
         instance.delete<T>(url, config),
 };
