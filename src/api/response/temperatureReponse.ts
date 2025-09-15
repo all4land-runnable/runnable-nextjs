@@ -1,8 +1,4 @@
-export interface TemperatureResponse {
-    temperature: Temperature[];
-}
-
-export interface Temperature {
+export type Temperature = {
     baseDate: string; // "YYYYMMDD"
     baseTime: string; // "HHMM"
     category: "TMP";  // 고정

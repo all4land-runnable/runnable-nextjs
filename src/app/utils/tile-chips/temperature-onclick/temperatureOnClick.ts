@@ -3,7 +3,7 @@ import apiClient from "@/api/apiClient";
 import CommonResponse from "@/api/response/common_response";
 import { getCameraPosition } from "@/app/components/organisms/cesium/util/getCameraPosition";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
-import { TemperatureResponse, Temperature } from "@/api/response/temperatureReponse";
+import { Temperature } from "@/api/response/temperatureReponse";
 import * as Cesium from "cesium";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 
@@ -20,43 +20,50 @@ export default async function temperatureOnClick() {
 
     // NOTE 1. 해당 위치의 온도 정보를 얻는다.
     // 온도 정보 API를 요청
-    const response = await apiClient.get<CommonResponse<TemperatureResponse>>(
+    const response = await apiClient.get<CommonResponse<Temperature[]>>(
         "/api/v1/temperature/forecast",
         {
             baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
             params: {
                 lat: point.lat,
-                lon: point.lon,
-                radius_m: 500
+                lon: point.lon
             }
         }
     );
-    const temperature: Temperature[] = response.data?.data?.temperature ?? [];
-    temperature.sort((a, b) => (a.fcstDate + a.fcstTime).localeCompare(b.fcstDate + b.fcstTime));
-    const target = temperature[0];
+    const temperatures:Temperature[] = response.data.data ?? [];
+
+    temperatures.sort((a, b) => (a.fcstDate + a.fcstTime).localeCompare(b.fcstDate + b.fcstTime));
+    const target = temperatures[0];
     const tempValue: number | null = target?.fcstValue ?? null;
 
     // EMD 폴리곤
     const emdRes = await apiClient.get<EmdResponse>(
         "/api/v1/geoms/emd",
-        { baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL, params: { lat: point.lat, lon: point.lon } }
+        {
+            baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
+            params: {
+                lat: point.lat,
+                lon: point.lon
+            }
+        }
     );
 
     const feature: EmdFeature | null = emdRes.data.feature;
     if (!feature) {
-        console.warn("해당 위치의 읍면동 폴리곤을 찾지 못했습니다.");
+        alert("해당 위치의 읍면동 폴리곤을 찾지 못했습니다.");
         return;
     }
 
-    // geometry가 문자열로 올 가능성 방어
-    const geometry: Geometry = feature.geometry;
-
     const geojson: FeatureCollection = {
         type: "FeatureCollection",
-        features: [{ type: "Feature", properties: feature.properties, geometry }],
+        features: [{
+            type: "Feature",
+            properties: feature.properties,
+            geometry: feature.geometry
+        }],
     };
 
-    const color = _colorByTemperature(tempValue);
+    const color = getColor(tempValue);
 
     // 기존 DS 제거
     const prev = viewer.dataSources.getByName("emd-temperature");
@@ -86,29 +93,48 @@ export default async function temperatureOnClick() {
         });
     }
 
-    viewer.dataSources.add(ds);
-    viewer.flyTo(ds, { duration: 0.8 });
+    await viewer.dataSources.add(ds);
 }
 
-/** 온도→색상 매핑: 파랑 → 보라 → 빨강 */
-const _colorByTemperature = (temp: number | null): Cesium.Color => {
-    if (temp == null || !isFinite(temp)) return Cesium.Color.GRAY;
-    const minT = -10, maxT = 35;
-    const t = Math.max(0, Math.min(1, (temp - minT) / (maxT - minT)));
-    const c1 = Cesium.Color.BLUE, c2 = Cesium.Color.PURPLE, c3 = Cesium.Color.RED;
+/**
+ * 온도 → 색상 매핑
+ *  -5℃ 이하  : 파랑(최대 파란값)
+ *  -5℃ ~ 0℃ : 파랑 → 하양 선형 보간
+ *   0℃ ~ 30℃: 하양 → 빨강 선형 보간
+ *  30℃ 이상 : 빨강(최대 빨간값)
+ *
+ * 파랑(영하) > 하양(0℃) > 빨강(영상) 그라디언트
+ */
+const getColor = (temperature: number): Cesium.Color => {
+    console.log(temperature);
+    // 온도 최대값 최소값 지정
+    const coldStop = -5;
+    const hotStop = 30;
 
-    const lerp01 = (a: number, b: number, k: number) => a + (b - a) * k;
-    if (t < 0.5) {
-        const k = t / 0.5;
-        return Cesium.Color.fromAlpha(
-            Cesium.Color.fromBytes(lerp01(c1.red, c2.red, k) * 255, lerp01(c1.green, c2.green, k) * 255, lerp01(c1.blue, c2.blue, k) * 255, 255),
-            1
-        );
-    } else {
-        const k = (t - 0.5) / 0.5;
-        return Cesium.Color.fromAlpha(
-            Cesium.Color.fromBytes(lerp01(c2.red, c3.red, k) * 255, lerp01(c2.green, c3.green, k) * 255, lerp01(c2.blue, c3.blue, k) * 255, 255),
-            1
-        );
+    const blue = Cesium.Color.BLUE;
+    const white = Cesium.Color.WHITE;
+    const red = Cesium.Color.RED;
+
+    // 채널(0~1) 선형보간 헬퍼
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    // 경계 클램프
+    if (temperature <= coldStop) return new Cesium.Color(blue.red, blue.green, blue.blue, 1.0);
+    if (temperature >= hotStop)  return new Cesium.Color(red.red,  red.green,  red.blue,  1.0);
+
+    // -5℃ ~ 0℃ : Blue -> White
+    if (temperature < 0) {
+        const t = (temperature - coldStop) / (0 - coldStop); // 0~1
+        const r = lerp(blue.red,   white.red,   t);
+        const g = lerp(blue.green, white.green, t);
+        const b = lerp(blue.blue,  white.blue,  t);
+        return new Cesium.Color(r, g, b, 1.0);
     }
+
+    // 0℃ ~ 30℃ : White -> Red
+    const t = (temperature - 0) / (hotStop - 0); // 0~1
+    const r = lerp(white.red,   red.red,   t);
+    const g = lerp(white.green, red.green, t);
+    const b = lerp(white.blue,  red.blue,  t);
+    return new Cesium.Color(r, g, b, 1.0);
 };
