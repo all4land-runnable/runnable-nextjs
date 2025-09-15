@@ -20,14 +20,8 @@ import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {Route} from "@/type/route";
 import {setPedestrianRoute, setTempRoute} from "@/app/store/redux/feature/routeDrawingSlice";
 import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
-import {getTempPolyline} from "@/app/pages/route-drawing/utils/getTempPolyline";
-import {getCircularPolyline} from "@/app/pages/route-drawing/utils/getCircularPolyline";
 import {useModal} from "@/app/store/modal/ModalProvider";
-import {Entity} from "cesium";
-import {parseTempRoute} from "@/app/pages/route-drawing/utils/parseTempRoute";
-import {entitiesToLngLat, getPedestrianRoute} from "@/app/pages/route-drawing/utils/postPedestrianRoute";
-import {addPedestrianEntity} from "@/app/pages/route-drawing/utils/addPedestrianEntity";
-import {parsePedestrianRoute} from "@/app/pages/route-drawing/utils/parsePedestrianRoute";
+import {postUserRoute} from "@/app/pages/route-save/[luggageWeight]/[paceSeconds]/utils/postUserRoutes";
 
 /**
  * 경로 저장을 그리는 함수
@@ -78,6 +72,21 @@ export default function Page() {
         })
     }
 
+    const confirmButton = ()=>{
+        openConfirm({
+            title: "경로 확정",
+            content: "경로를 확정하시겠습니까?",
+            onConfirm: async ()=>{
+                // NOTE 1. 경로를 저장한다.
+                // 사용자의 선택에 따라 임시 경로와 보행자 경로를 구분한다.
+                postUserRoute(1, "임시 카테고리명", automaticRoute ? tempRoute : pedestrianRoute)
+
+                // TODO: 모든 페이지 stack을 제거하고, 경로 보기로 이동한다.
+                router.replace("/pages/route-list")
+            }
+        })
+    }
+
     /**
      * 토글 버튼 onClick
      */
@@ -98,9 +107,7 @@ export default function Page() {
     };
 
     useEffect(() => {
-        console.log(1)
         dispatch(setRightSidebarOpen(true));
-        console.log(2)
     }, [dispatch]);
 
     // NOTE 1. 처음 화면 생성 및 onAutomaticRoute 변경 시 동기화
@@ -173,7 +180,7 @@ export default function Page() {
                 <div className={styles.listChips}>
                     <Chip label={"뒤로가기"} activable={false} onClickAction={backButton}/>
                     <Chip label={"자동해제"} activable={false} onClickAction={toggleAutomatic}/>
-                    <Chip label={"경로 저장"} activable={false} onClickAction={()=>{alert("경로를 저장하시겠습니까")}}/>
+                    <Chip label={"경로 저장"} activable={false} onClickAction={confirmButton}/>
                 </div>
             </section>
         </>
@@ -181,8 +188,6 @@ export default function Page() {
 }
 
 async function postPaceMaker(luggageWeight: number, paceSeconds: number, route?: Route) {
-    console.log("luggageWeight", luggageWeight);
-    console.log("paceSeconds", paceSeconds);
     if (!route) return []; // 안전 가드
     const response = await apiClient.post<CommonResponse<PaceMakerResponse>>(
         '/api/v1/pace_maker',
