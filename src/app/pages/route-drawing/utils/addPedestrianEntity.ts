@@ -9,6 +9,7 @@ import { getPedestrianRouteMarkers } from "@/app/staticVariables";
 // ⬇ 추가: 총거리 계산 및 포맷
 import calcDistance from "@/app/utils/claculator/calcDistance";
 import { formatKm } from "@/app/utils/claculator/formatKm";
+import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 
 // 기존 마커와 위치가 같은지(위경도 기준) 판단
 function isSameLonLat(a: Cartesian3, b: Cartesian3): boolean {
@@ -162,8 +163,7 @@ export function addPedestrianEntity(pedestrianResponse: PedestrianResponse): Ent
             setTailLabel(tailMarker, `예상거리: ${formatKm(totalMeters)}`);
 
             // 즉시 렌더링 요청
-            const viewer = getViewer();
-            viewer.scene.requestRender?.();
+            requestRender()
         }
     } catch {
         // 라벨 계산 실패 시 무시 (엔티티 생성은 계속)

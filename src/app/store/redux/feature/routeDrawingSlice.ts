@@ -3,29 +3,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 
 type RouteDrawingState = {
-    tempRoute: Route,
-    pedestrianRoute: Route;
+    tempRoute: Route|null,
+    pedestrianRoute: Route|null;
 }
 
 const initialState: RouteDrawingState = {
-    tempRoute: {
-        title:"",
-        description:"",
-        distance:-1.0,
-        pace:-1.0,
-        highHeight:-1.0,
-        lowHeight:-1.0,
-        sections: []
-    },
-    pedestrianRoute: {
-        title:"",
-        description:"",
-        distance:-1.0,
-        pace:-1.0,
-        highHeight:-1.0,
-        lowHeight:-1.0,
-        sections: []
-    }
+    tempRoute: null,
+    pedestrianRoute: null
 }
 
 const routeDrawingSlice = createSlice({

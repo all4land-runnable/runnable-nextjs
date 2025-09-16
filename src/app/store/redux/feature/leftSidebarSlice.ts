@@ -1,12 +1,15 @@
 // src/app/store/redux/feature/leftSidebarSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {Route} from "@/type/route";
 
 type leftSideBarState = {
     open: boolean;
+    routes: Route[];
 }
 
 const initialState: leftSideBarState = {
     open: false,
+    routes: []
 };
 
 const leftSidebarSlice = createSlice({
@@ -19,8 +22,19 @@ const leftSidebarSlice = createSlice({
         setLeftSidebarOpen(state, action: PayloadAction<boolean>) {
             state.open = action.payload;
         },
+        setRoutes(state, action: PayloadAction<Route[]>) {
+            state.routes = action.payload;
+        },
+        resetLeftSidebar() {
+            return initialState;
+        },
     }
 })
 
-export const { toggleLeftSidebarOpen, setLeftSidebarOpen } = leftSidebarSlice.actions;
+export const {
+    toggleLeftSidebarOpen,
+    setLeftSidebarOpen,
+    setRoutes,
+    resetLeftSidebar,
+} = leftSidebarSlice.actions;
 export default leftSidebarSlice.reducer;

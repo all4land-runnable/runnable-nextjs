@@ -1,30 +1,16 @@
 import styles from './RouteCard.module.css'
 import Image from "next/image";
-import {amPmFormat} from "@/app/utils/formattingTime";
 import { useDispatch } from 'react-redux'
 import { toggleOpen } from "@/app/store/redux/feature/rightSidebarSlice";
-
-/**
- * 경로 카드 속성
- *
- * @param title 제목
- * @param distance 총 거리
- * @param startTime 운동 가능 시간
- * @param endTime 운동 제한시간
- * @param description 경로에 대한 설명
- * @param imgUrl 경로 프로필 사진
- */
-export type RouteCardParam = {
-    title: string,
-    distance: number,
-    startTime: Date,
-    endTime: Date,
-    description: string
-    imgUrl: string
-}
+import {Route} from "@/type/route";
+import * as Cesium from "cesium";
+import {setPedestrianRoute} from "@/app/store/redux/feature/routeDrawingSlice";
+import getViewer from "@/app/components/organisms/cesium/util/getViewer";
+import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
+import {useState} from "react";
 
 type routeCardProps = {
-    routeCardParam: RouteCardParam;
+    route: Route;
 }
 
 /**
@@ -33,24 +19,50 @@ type routeCardProps = {
  * @param routeCard 경로 카드 속성
  * @constructor
  */
-export default function RouteCard({routeCardParam}: routeCardProps) {
+export default function RouteCard({route}: routeCardProps) {
+    const viewer = getViewer();
     const dispatch = useDispatch()
 
     /**
      * RouteCard 선택 함수
      */
+    const toggleRightSidebarOpen = () => {
+        // NOTE 1. route 직렬화
+        const positions = route.sections
+            .flatMap(section => section.points)
+            .map(point => Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.height ?? 0));
+
+        // NOTE 2. Entity로 추가
+        removePedestrianRoute()
+        const routeCardEntity = new Cesium.Entity({
+            id: "pedestrian_entity",
+            polyline: positions.length >= 2
+                ? {
+                    positions,
+                    width: 10,
+                    material: Cesium.Color.fromCssColorString("#F0FD3C"),
+                    clampToGround: true,
+                }
+                : undefined,
+        });
+        viewer.entities.add(routeCardEntity);
+
+        // NOTE 3. routeDrawingSlice에 데이터 저장
+        dispatch(setPedestrianRoute(route));
+        dispatch(toggleOpen())
+    }
 
     return (
-        <div className={styles.routeCard} onClick={()=> dispatch(toggleOpen())}> {/* RouteCard 가장 밖 테두리, 핸들러 지정 */}
+        <div className={styles.routeCard} onClick={()=> toggleRightSidebarOpen()}> {/* RouteCard 가장 밖 테두리, 핸들러 지정 */}
             <div className={styles.imageBox}> {/* 경로 대표 사진 */}
-                <Image src={routeCardParam.imgUrl} fill style={{ objectFit: "cover" }} alt=""/>
+                <Image src={"/resource/sample-image.png"} fill style={{ objectFit: "cover" }} alt=""/>
             </div>
 
-            <span className={styles.titleFont}>{routeCardParam.title}</span> {/* 경로 제목 */}
+            <span className={styles.titleFont}>{route.title}</span> {/* 경로 제목 */}
             {/* 속성 정보 나열 */}
-            <span className={styles.routeInfoFont}>거리: {routeCardParam.distance}km / 가능 시간:{amPmFormat(routeCardParam.startTime.getTime())}~{amPmFormat(routeCardParam.endTime.getTime())}</span>
+            <span className={styles.routeInfoFont}>거리: {route.distance}km / 가능 시간:{"TODO"}~{"TODO"}</span>
             {/* 경로 설명 */}
-            <span className={[styles.description, styles.descriptionFont].join(' ')}>{routeCardParam.description}</span>
+            <span className={[styles.description, styles.descriptionFont].join(' ')}>{route.description}</span>
         </div>
     )
 }

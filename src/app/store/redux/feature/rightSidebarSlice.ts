@@ -3,13 +3,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type RightSideBarState = {
     rightSidebarOpen: boolean;
-
     automaticRoute: boolean;
 }
 
 const initialState: RightSideBarState = {
     rightSidebarOpen: false,
-
     automaticRoute: false,
 };
 
@@ -23,7 +21,6 @@ const rightSideBarSlice = createSlice({
         setRightSidebarOpen(state, action: PayloadAction<boolean>) {
             state.rightSidebarOpen = action.payload;
         },
-
         setAutomaticRoute(state, action: PayloadAction<boolean>) {
             state.automaticRoute = action.payload
         },

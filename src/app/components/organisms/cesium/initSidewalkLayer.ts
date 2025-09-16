@@ -1,6 +1,7 @@
 import * as Cesium from "cesium";
 import {setSidewalkDS} from "@/app/staticVariables";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
+import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 
 /** 1) 앱 시작 시 한 번만 호출해서 미리 로드(숨김) */
 export async function initSidewalkLayer() {
@@ -20,7 +21,7 @@ export async function initSidewalkLayer() {
             sidewalkDS.show = false;
 
             // requestRender 모드에서 즉시 반영
-            viewer.scene.requestRender?.();
+            requestRender()
         })
     })
 }

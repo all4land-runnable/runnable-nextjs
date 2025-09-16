@@ -4,6 +4,7 @@ import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import calcDistance from "@/app/utils/claculator/calcDistance";
 import {getTempRouteMarkers} from "@/app/staticVariables";
 import {formatKm} from "@/app/utils/claculator/formatKm";
+import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 
 /**
  * 마지막 엔티티에 라벨을 지정하는 함수
@@ -93,5 +94,5 @@ export default function upsertTempRoute(
         const ent = tempRouteMarkers.pop()!; // 마지막 요소만 제거
         viewer.entities.remove(ent);
     }
-    viewer.scene.requestRender?.();
+    requestRender()
 }
