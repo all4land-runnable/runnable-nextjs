@@ -87,75 +87,79 @@ export default function Page() {
         })
     }
 
-    /**
-     * 토글 버튼 onClick
-     */
-    const toggleAutomatic = () => {
-        const next = !automaticRoute;
-        dispatch(setAutomaticRoute(next));
+    // 1) 보행자 경로 enrich 필요 여부
+    function needsEnrich(route?: Route) {
+        if (!route) return false;
+        return route.sections.some(s => s.pace == null || !s.strategies?.length);
+    }
 
-        // 다음 상태에 맞춰 즉시 UI 반영
-        hideMarkers(getTempRouteMarkers(), next);
-        const tempEntity = viewer.entities.getById(getTempEntity());
-        if(tempEntity) tempEntity.show = next;
+// 2) 얕은 비교로 불필요한 dispatch 차단
+    function shallowEqualEnrich(a: Route, b: Route) {
+        if (a.sections.length !== b.sections.length) return false;
+        for (let i = 0; i < a.sections.length; i++) {
+            const sa = a.sections[i], sb = b.sections[i];
+            if (sa.pace !== sb.pace) return false;
+            if ((sa.strategies?.length || 0) !== (sb.strategies?.length || 0)) return false;
+        }
+        return true;
+    }
 
-        hideMarkers(getPedestrianRouteMarkers(), !next);
-        const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
-        if(pedestrianEntity) pedestrianEntity.show = !next;
+// --- 보행자 경로 ---
+    useEffect(() => {
+        (async () => {
+            if (!pedestrianRoute || !needsEnrich(pedestrianRoute)) return;
 
-        requestRender()
-    };
+            const strategies = await postPaceMaker(
+                Number(luggageWeight),
+                Number(paceSeconds),
+                pedestrianRoute
+            );
 
+            const updated: Route = {
+                ...pedestrianRoute,
+                sections: pedestrianRoute.sections.map((s, i) => ({
+                    ...s,
+                    pace: strategies[i]?.pace ?? s.pace,
+                    strategies: strategies[i]?.strategies ?? s.strategies,
+                })),
+            };
+
+            if (!shallowEqualEnrich(pedestrianRoute, updated)) {
+                dispatch(setPedestrianRoute(updated));
+            }
+        })();
+    }, [pedestrianRoute, luggageWeight, paceSeconds, dispatch]);
+
+// --- 임시 경로 ---
+    useEffect(() => {
+        (async () => {
+            if (!tempRoute || !needsEnrich(tempRoute)) return;
+
+            const strategies = await postPaceMaker(
+                Number(luggageWeight),
+                Number(paceSeconds),
+                tempRoute
+            );
+
+            const updated: Route = {
+                ...tempRoute,
+                sections: tempRoute.sections.map((s, i) => ({
+                    ...s,
+                    pace: strategies[i]?.pace ?? s.pace,
+                    strategies: strategies[i]?.strategies ?? s.strategies,
+                })),
+            };
+
+            if (!shallowEqualEnrich(tempRoute, updated)) {
+                dispatch(setTempRoute(updated));
+            }
+        })();
+    }, [tempRoute, luggageWeight, paceSeconds, dispatch]);
+
+// --- 우측 사이드바 오픈: 한 번만 ---
     useEffect(() => {
         dispatch(setRightSidebarOpen(true));
     }, [dispatch]);
-
-    // NOTE 1. 처음 화면 생성 및 onAutomaticRoute 변경 시 동기화
-    useEffect(() => {
-        (async () => {
-            // NOTE 1-1. 보행자 경로의 경로 전략을 갱신하는 함수
-            // TODO: 경로 전략이 추가되기 전까지 로딩 화면을 만들기
-            if (pedestrianRoute) {
-                // NOTE 1-1-1. FastAPI PaceMaker LLM에게 페이스 및 전략 요청
-                const pedestrianStrategies = await postPaceMaker(Number(luggageWeight), Number(paceSeconds), pedestrianRoute);
-
-                // NOTE 1-1-1. 기존 PedestrianRoute 갱신
-                const updatedPedestrian: Route = { // 기존 PedestrianRoute는 직접적으로 값을 변경하지 못한다. 개로운 객체로 이전하는 로직 구현
-                    ...pedestrianRoute,
-                    sections: pedestrianRoute.sections.map((section, index) => ({
-                        ...section,
-                        pace: pedestrianStrategies[index]?.pace ?? section.pace,
-                        strategies: pedestrianStrategies[index]?.strategies ?? section.strategies,
-                    })),
-                };
-                // 데이터 갱신하기 TODO: 여기서 값이 갱신되면, 화면 내용도 바뀌게 useEffect 추가하기
-                dispatch(setPedestrianRoute(updatedPedestrian));
-            }
-        })();
-    }, [pedestrianRoute]);
-
-    useEffect(() => {
-        (async () => {
-            // NOTE 1-2. 임시 경로의 경로 전략을 갱신하는 함수
-            // TODO: 경로 전략이 추가되기 전까지 로딩 화면을 만들기
-            if (tempRoute) {
-                // NOTE 1-2-1. FastAPI PaceMaker LLM에게 페이스 및 전략 요청
-                const tempStrategies = await postPaceMaker(Number(luggageWeight), Number(paceSeconds), tempRoute);
-
-                // NOTE 1-2-2. 기존 TempRoute 갱신
-                const updatedTemp: Route = {
-                    ...tempRoute,
-                    sections: tempRoute.sections.map((section, index) => ({
-                        ...section,
-                        pace: tempStrategies[index]?.pace ?? section.pace,
-                        strategies: tempStrategies[index]?.strategies ?? section.strategies,
-                    })),
-                };
-                // 데이터 갱신하기 TODO: 여기서 값이 갱신되면, 화면 내용도 바뀌게 useEffect 추가하기
-                dispatch(setTempRoute(updatedTemp));
-            }
-        })();
-    }, [tempRoute]);
 
     // NOTE 2. 자동 경로 상태가 바뀌는 경우 수행
     useEffect(() => {
@@ -171,7 +175,23 @@ export default function Page() {
         if(pedestrianEntity) pedestrianEntity.show = !automaticRoute;
 
         requestRender()
-    }, [automaticRoute]);
+    }, []);
+
+    const toggleAutomatic = () => {
+        const next = !automaticRoute;
+        dispatch(setAutomaticRoute(next));
+
+        // 즉시 UI 반영
+        hideMarkers(getTempRouteMarkers(), next);
+        const tempEntity = viewer.entities.getById(getTempEntity());
+        if (tempEntity) tempEntity.show = next;
+
+        hideMarkers(getPedestrianRouteMarkers(), !next);
+        const pedestrianEntity = viewer.entities.getById("pedestrian_entity");
+        if (pedestrianEntity) pedestrianEntity.show = !next;
+
+        requestRender();
+    };
 
     // 오른쪽 사이드바 확장 상태
     return (

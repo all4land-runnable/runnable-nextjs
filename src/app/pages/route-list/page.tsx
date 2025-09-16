@@ -22,12 +22,15 @@ export default function Page() {
     const [routes, setRoutes] = useState<Route[]>()
 
     useEffect(() => {
+        let alive = true; // 언마운트 대비 (선택)
         (async () => {
             const userRoutes = await getRoutes(userId);
-            setRoutes(userRoutes);
-            console.log(routes);
+            if (!alive) return;
+            setRoutes(routes);
+            console.log(userRoutes); // 최신값 로그는 이걸로!
         })();
-    });
+        return () => { alive = false; };
+    }, []);
 
     return (
         <section className={styles.bottomSheet}>
