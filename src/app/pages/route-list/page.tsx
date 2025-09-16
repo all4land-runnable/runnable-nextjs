@@ -1,12 +1,14 @@
 'use client';
 
 import styles from '../../page.module.scss'
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Chip} from "@/app/components/atom/chip/Chip";
 import {useRouter} from "next/navigation";
 import {setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 import {useDispatch} from "react-redux";
 import {setLeftSidebarOpen} from "@/app/store/redux/feature/leftSidebarSlice";
+import {Route} from "@/type/route";
+import apiClient from "@/api/apiClient";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -16,8 +18,15 @@ export default function Page() {
     const dispatch = useDispatch()
     const router = useRouter();
 
+    const userId = 1; // 시연을 위한 하드코딩
+    const [routes, setRoutes] = useState<Route[]>()
+
     useEffect(() => {
-        dispatch(setLeftSidebarOpen(true))
+        (async () => {
+            const userRoutes = await getRoutes(userId);
+            setRoutes(userRoutes);
+            console.log(routes);
+        })();
     });
 
     return (
@@ -31,4 +40,12 @@ export default function Page() {
             </div>
         </section>
     )
+}
+
+async function getRoutes(userId:number) {
+    const response = await apiClient.get<Route[]>(
+        `/api/v1/next_routes/${userId}`,
+        { baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL }
+    )
+    return response.data
 }

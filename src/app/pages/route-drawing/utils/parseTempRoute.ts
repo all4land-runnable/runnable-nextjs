@@ -37,7 +37,7 @@ export async function parseTempRoute(tempMarkers: Entity[]): Promise<Route> {
     const globalSamples: Cartographic[] = [];
     const endpointSampleIndex: number[] = new Array(endpoints.length);
 
-    const STEP = 50; // ✅ 요청: 50m
+    const STEP = 50; // 요청: 50m
     for (let i = 0; i < endpoints.length - 1; i++) {
         const c0 = endpoints[i];
         const c1 = endpoints[i + 1];
