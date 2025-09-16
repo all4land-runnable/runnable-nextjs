@@ -22,7 +22,7 @@ function isSameLonLat(a: Cartesian3, b: Cartesian3): boolean {
 }
 
 /** 섹션 끝점에 마커 추가(있으면 재사용) */
-function upsertPedestrianMarker(position: Cartesian3): Entity {
+export function upsertPedestrianMarker(position: Cartesian3): Entity {
     const viewer = getViewer(); // getViewer가 async라면: const viewer = await getViewer(); 및 함수 async로 변경
     const now = Cesium.JulianDate.now();
 

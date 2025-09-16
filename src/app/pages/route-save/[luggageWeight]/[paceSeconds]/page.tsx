@@ -79,7 +79,7 @@ export default function Page() {
             onConfirm: async ()=>{
                 // NOTE 1. 경로를 저장한다.
                 // 사용자의 선택에 따라 임시 경로와 보행자 경로를 구분한다.
-                postUserRoute(1, "임시 카테고리명", automaticRoute ? tempRoute : pedestrianRoute)
+                await postUserRoute(1, "임시 카테고리명", automaticRoute ? tempRoute! : pedestrianRoute!)
 
                 // TODO: 모든 페이지 stack을 제거하고, 경로 보기로 이동한다.
                 router.replace("/pages/route-list")
@@ -104,7 +104,7 @@ export default function Page() {
         return true;
     }
 
-// --- 보행자 경로 ---
+    // --- 보행자 경로 ---
     useEffect(() => {
         (async () => {
             if (!pedestrianRoute || !needsEnrich(pedestrianRoute)) return;
@@ -130,7 +130,7 @@ export default function Page() {
         })();
     }, [pedestrianRoute, luggageWeight, paceSeconds, dispatch]);
 
-// --- 임시 경로 ---
+    // --- 임시 경로 ---
     useEffect(() => {
         (async () => {
             if (!tempRoute || !needsEnrich(tempRoute)) return;
@@ -156,7 +156,7 @@ export default function Page() {
         })();
     }, [tempRoute, luggageWeight, paceSeconds, dispatch]);
 
-// --- 우측 사이드바 오픈: 한 번만 ---
+    // --- 우측 사이드바 오픈: 한 번만 ---
     useEffect(() => {
         dispatch(setRightSidebarOpen(true));
     }, [dispatch]);

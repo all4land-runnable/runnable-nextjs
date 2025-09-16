@@ -11,6 +11,9 @@ import {Route} from "@/type/route";
 import apiClient from "@/api/apiClient";
 import {resetRouteDrawing} from "@/app/store/redux/feature/routeDrawingSlice";
 import CommonResponse from "@/api/response/common_response";
+import {removeMarkers} from "@/app/utils/markers/hideMarkers";
+import {getPedestrianRouteMarkers} from "@/app/staticVariables";
+import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -41,6 +44,8 @@ export default function Page() {
         <section className={styles.bottomSheet}>
             <div className={styles.listChips}>
                 <Chip label={"홈"} activable={false} onClickAction={()=> {
+                    removeMarkers(getPedestrianRouteMarkers())
+                    removePedestrianRoute()
                     dispatch(setRightSidebarOpen(false));
                     dispatch(setLeftSidebarOpen(false));
                     router.push('/')

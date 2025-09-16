@@ -8,6 +8,9 @@ import {setPedestrianRoute} from "@/app/store/redux/feature/routeDrawingSlice";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
 import {useState} from "react";
+import {upsertPedestrianMarker} from "@/app/pages/route-drawing/utils/addPedestrianEntity";
+import {removeMarkers} from "@/app/utils/markers/hideMarkers";
+import {getPedestrianRouteMarkers} from "@/app/staticVariables";
 
 type routeCardProps = {
     route: Route;
@@ -27,13 +30,24 @@ export default function RouteCard({route}: routeCardProps) {
      * RouteCard 선택 함수
      */
     const toggleRightSidebarOpen = () => {
-        // NOTE 1. route 직렬화
+        // NOTE 1. 기존 엔티티 제거
+        removePedestrianRoute() // 보행자 경로 제거
+        removeMarkers(getPedestrianRouteMarkers()) // 보행자 경로 마커 제거
+
+        // NOTE 2. route 직렬화
         const positions = route.sections
             .flatMap(section => section.points)
             .map(point => Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.height ?? 0));
 
-        // NOTE 2. Entity로 추가
-        removePedestrianRoute()
+        // NOTE 3. 마커 추가
+        route.sections.forEach(section => {
+            const point = section.points[0]
+            upsertPedestrianMarker(Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.height ?? 0 ));
+        })
+        const point = route.sections[route.sections.length - 1].points[route.sections[route.sections.length - 1].points.length-1];
+        upsertPedestrianMarker(Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.height ?? 0 ));
+
+        // NOTE 4. Entity로 추가
         const routeCardEntity = new Cesium.Entity({
             id: "pedestrian_entity",
             polyline: positions.length >= 2
@@ -47,7 +61,7 @@ export default function RouteCard({route}: routeCardProps) {
         });
         viewer.entities.add(routeCardEntity);
 
-        // NOTE 3. routeDrawingSlice에 데이터 저장
+        // NOTE 5. routeDrawingSlice에 데이터 저장
         dispatch(setPedestrianRoute(route));
         dispatch(toggleOpen())
     }

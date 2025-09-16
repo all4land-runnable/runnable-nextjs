@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import styles from "./LeftSideBar.module.css"
 import CategorySelect from "@/app/components/atom/category-select/CategorySelect";
 import RouteCard from "@/app/components/molecules/route-card/RouteCard";
