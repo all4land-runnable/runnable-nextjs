@@ -7,82 +7,61 @@ import { Temperature } from "@/api/response/temperatureReponse";
 import * as Cesium from "cesium";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 
-// 백엔드 응답 타입 (feature는 EMD 폴리곤 또는 null)
 type EmdFeature = Feature<Geometry, { bjd_cd: string; bjd_nm: string }>;
 interface EmdResponse { feature: EmdFeature | null; }
 
-/**
- * TMP(기온) 표시 Chip 버튼 클릭 핸들러
- */
+/** 문자열/숫자 섞여 올 수 있는 값을 안전하게 number로 */
+function toNumberOrNull(v: unknown): number | null {
+    const n = typeof v === "number" ? v : parseFloat(String(v));
+    return Number.isFinite(n) ? n : null;
+}
+
 export default async function temperatureOnClick() {
     const viewer = getViewer();
-    const point = getCameraPosition(); // { lat, lon }
+    const point = getCameraPosition();
 
-    // NOTE 1. 해당 위치의 온도 정보를 얻는다.
-    // 온도 정보 API를 요청
-    const response = await apiClient.get<CommonResponse<Temperature[]>>(
+    // 1) 온도
+    const resp = await apiClient.get<CommonResponse<Temperature[]>>(
         "/api/v1/temperature/forecast",
-        {
-            baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
-            params: {
-                lat: point.lat,
-                lon: point.lon
-            }
-        }
+        { baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL, params: { lat: point.lat, lon: point.lon } }
     );
-    const temperatures:Temperature[] = response.data.data ?? [];
+    const temps: Temperature[] = resp.data.data ?? [];
+    temps.sort((a, b) => (a.fcstDate + a.fcstTime).localeCompare(b.fcstDate + b.fcstTime));
+    const target = temps[0];
 
-    temperatures.sort((a, b) => (a.fcstDate + a.fcstTime).localeCompare(b.fcstDate + b.fcstTime));
-    const target = temperatures[0];
-    const tempValue: number | null = target?.fcstValue ?? null;
+    // ★ 여기에서 문자열을 number로 변환
+    const temp = toNumberOrNull(target?.fcstValue);
 
-    // EMD 폴리곤
+    // 2) EMD 폴리곤
     const emdRes = await apiClient.get<EmdResponse>(
         "/api/v1/geoms/emd",
-        {
-            baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
-            params: {
-                lat: point.lat,
-                lon: point.lon
-            }
-        }
+        { baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL, params: { lat: point.lat, lon: point.lon } }
     );
-
-    const feature: EmdFeature | null = emdRes.data.feature;
-    if (!feature) {
-        alert("해당 위치의 읍면동 폴리곤을 찾지 못했습니다.");
-        return;
-    }
+    const feature = emdRes.data.feature;
+    if (!feature) { alert("해당 위치의 읍면동 폴리곤을 찾지 못했습니다."); return; }
 
     const geojson: FeatureCollection = {
         type: "FeatureCollection",
-        features: [{
-            type: "Feature",
-            properties: feature.properties,
-            geometry: feature.geometry
-        }],
+        features: [{ type: "Feature", properties: feature.properties, geometry: feature.geometry }],
     };
 
-    const color = getColor(tempValue);
-
-    // 기존 DS 제거
-    const prev = viewer.dataSources.getByName("emd-temperature");
-    prev.forEach((ds) => viewer.dataSources.remove(ds, true));
+    // 기존 것 제거 후 로드
+    removeTemperature();
 
     const ds = await Cesium.GeoJsonDataSource.load(geojson, { clampToGround: true });
     ds.name = "emd-temperature";
 
-    // 스타일
+    const fill = getColorByStops(temp); // number | null 로 확실히 전달
+
     for (const e of ds.entities.values) {
         if (e.polygon) {
-            e.polygon.material = new Cesium.ColorMaterialProperty(color.withAlpha(0.6));
+            e.polygon.material = new Cesium.ColorMaterialProperty(fill); // alpha 0.6 포함
             e.polygon.outline = new Cesium.ConstantProperty(true);
-            e.polygon.outlineColor = new Cesium.ConstantProperty(Cesium.Color.BLACK.withAlpha(0.8));
-            e.polygon.outlineWidth = new Cesium.ConstantProperty(1.0);
+            e.polygon.outlineColor = new Cesium.ConstantProperty(Cesium.Color.BLACK.withAlpha(0.9));
         }
         e.label = new Cesium.LabelGraphics({
             text: new Cesium.ConstantProperty(
-                tempValue != null ? `${(tempValue as number).toFixed?.(1) ?? tempValue}℃` : "N/A"
+                temp != null ? `${temp.toFixed(1)}℃` : "N/A" // 문자열이 아닌 숫자 기준으로 표기
             ),
             fillColor: new Cesium.ConstantProperty(Cesium.Color.WHITE),
             font: new Cesium.ConstantProperty("16px sans-serif"),
@@ -96,45 +75,59 @@ export default async function temperatureOnClick() {
     await viewer.dataSources.add(ds);
 }
 
-/**
- * 온도 → 색상 매핑
- *  -5℃ 이하  : 파랑(최대 파란값)
- *  -5℃ ~ 0℃ : 파랑 → 하양 선형 보간
- *   0℃ ~ 30℃: 하양 → 빨강 선형 보간
- *  30℃ 이상 : 빨강(최대 빨간값)
- *
- * 파랑(영하) > 하양(0℃) > 빨강(영상) 그라디언트
- */
-const getColor = (temperature: number): Cesium.Color => {
-    console.log(temperature);
-    // 온도 최대값 최소값 지정
-    const coldStop = -5;
-    const hotStop = 30;
+/** 현재 떠 있는 emd-temperature 데이터소스를 제거 */
+export function removeTemperature() {
+    const viewer = getViewer();
+    const list = viewer.dataSources.getByName("emd-temperature");
+    list.forEach((ds) => viewer.dataSources.remove(ds, true));
+}
 
-    const blue = Cesium.Color.BLUE;
-    const white = Cesium.Color.WHITE;
-    const red = Cesium.Color.RED;
+function getColorByStops(t: number | null): Cesium.Color {
+    const ALPHA = 0.6;
 
-    // 채널(0~1) 선형보간 헬퍼
-    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-
-    // 경계 클램프
-    if (temperature <= coldStop) return new Cesium.Color(blue.red, blue.green, blue.blue, 1.0);
-    if (temperature >= hotStop)  return new Cesium.Color(red.red,  red.green,  red.blue,  1.0);
-
-    // -5℃ ~ 0℃ : Blue -> White
-    if (temperature < 0) {
-        const t = (temperature - coldStop) / (0 - coldStop); // 0~1
-        const r = lerp(blue.red,   white.red,   t);
-        const g = lerp(blue.green, white.green, t);
-        const b = lerp(blue.blue,  white.blue,  t);
-        return new Cesium.Color(r, g, b, 1.0);
+    // 유효치 없으면 회색 반투명
+    if (t == null || !Number.isFinite(t)) {
+        return Cesium.Color.fromBytes(128, 128, 128, Math.round(ALPHA * 255));
     }
 
-    // 0℃ ~ 30℃ : White -> Red
-    const t = (temperature - 0) / (hotStop - 0); // 0~1
-    const r = lerp(white.red,   red.red,   t);
-    const g = lerp(white.green, red.green, t);
-    const b = lerp(white.blue,  red.blue,  t);
-    return new Cesium.Color(r, g, b, 1.0);
-};
+    // 지정 색상 (주석의 기준 온도)
+    const DEEP_BLUE = Cesium.Color.fromBytes(  0,  90, 200); // 21.5℃
+    const PINK      = Cesium.Color.fromBytes(255, 105, 180); // 22.0℃
+    const GREEN     = Cesium.Color.fromBytes(  0, 150, 220); // 22.5℃
+    const WHITE     = Cesium.Color.fromBytes(255, 255, 255); // 23.0℃
+    const YELLOW    = Cesium.Color.fromBytes(255, 255,   0); // 23.5℃
+    const ORANGE    = Cesium.Color.fromBytes(255, 152,   0); // 24.0℃
+    const RED       = Cesium.Color.fromBytes(211,  47,  47); // 24.5℃
+    const PURPLE    = Cesium.Color.fromBytes(156,  39, 176); // 25.0℃
+
+    // 스톱(온도-색상) 테이블: 오름차순 정렬
+    const stops: Array<{ temp: number; color: Cesium.Color }> = [
+        { temp: 21.5, color: DEEP_BLUE },
+        { temp: 22.0, color: PINK      },
+        { temp: 22.5, color: GREEN     },
+        { temp: 23.0, color: WHITE     },
+        { temp: 23.5, color: YELLOW    },
+        { temp: 24.0, color: ORANGE    },
+        { temp: 24.5, color: RED       },
+        { temp: 25.0, color: PURPLE    },
+    ];
+
+    // 범위 밖은 양끝으로 클램프
+    if (t <= stops[0].temp) return stops[0].color.withAlpha(ALPHA);
+    if (t >= stops[stops.length - 1].temp) return stops[stops.length - 1].color.withAlpha(ALPHA);
+
+    // 구간 선형 보간
+    for (let i = 0; i < stops.length - 1; i++) {
+        const a = stops[i], b = stops[i + 1];
+        if (t >= a.temp && t <= b.temp) {
+            const k  = (t - a.temp) / (b.temp - a.temp); // 0..1
+            const r  = a.color.red   + (b.color.red   - a.color.red)   * k;
+            const g  = a.color.green + (b.color.green - a.color.green) * k;
+            const bl = a.color.blue  + (b.color.blue  - a.color.blue)  * k;
+            return new Cesium.Color(r, g, bl, ALPHA);
+        }
+    }
+
+    // 안전망 (논리상 도달 X)
+    return WHITE.withAlpha(ALPHA);
+}

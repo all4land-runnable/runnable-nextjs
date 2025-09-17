@@ -10,18 +10,27 @@ import {getCrosswalk, getDrinkingFoundation, getHospital} from "@/app/staticVari
 import storageBoxOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/storageBoxOnClick";
 import {hospitalOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/hospitalOnClick";
 import {drinkingFountainOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
-import changeAltitude from "@/app/utils/tile-chips/altitude-onclick/changeAltitude";
 import React, {useState} from "react";
-import temperatureOnClick from "@/app/utils/tile-chips/temperature-onclick/temperatureOnClick";
+import temperatureOnClick, {removeTemperature} from "@/app/utils/tile-chips/temperature-onclick/temperatureOnClick";
 import {setLayer} from "@/app/utils/tile-chips/setVWorldTile";
 
 
 export default function Toc() {
     const [vworldOpen, setVworldOpen] = useState<boolean>(false);
+    const [onTemperature, setOnTemperature] = useState<boolean>(false);
 
     const vworldOpenHandler = () => {
         setVworldOpen(!vworldOpen);
         setLayer("vworld", vworldOpen);
+    }
+
+    const onTemperatureHandler = () => {
+        setOnTemperature(!onTemperature);
+        if(onTemperature) {
+            removeTemperature()
+        } else {
+            temperatureOnClick().then()
+        }
     }
 
     return (
@@ -39,7 +48,7 @@ export default function Toc() {
             <div className={styles.tileChips}>
                 <Chip label={"브이월드"} onClickAction={()=>vworldOpenHandler()}/>
                 {/*<Chip label="재질 표시" onClickAction={async () => {}}/> /!* TODO: 재질 표시 로직 *!/*/}
-                <Chip label="온도 측정" onClickAction={temperatureOnClick}/> {/* TODO: 온도 측정 로직 */}
+                <Chip label="온도 측정" onClickAction={onTemperatureHandler}/> {/* TODO: 온도 측정 로직 */}
             </div>
         </div>
     )
