@@ -1,5 +1,6 @@
 'use client';
 
+import defaultStyle from '@/app/page.module.scss'
 import styles from './page.module.scss'
 import React, {useEffect} from "react";
 import {getPedestrianRouteMarkers, getTempEntity, getTempRouteMarkers} from "@/app/staticVariables";
@@ -196,7 +197,7 @@ export default function Page() {
     // 오른쪽 사이드바 확장 상태
     return (
         <>
-            <section className={styles.bottomSheet}>
+            <section className={defaultStyle.bottomSheet}>
                 <div className={styles.listChips}>
                     <Chip label={"뒤로가기"} activable={false} onClickAction={backButton}/>
                     <Chip label={"자동해제"} activable={false} onClickAction={toggleAutomatic}/>

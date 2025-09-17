@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as Cesium from "cesium";
 import styles from "./page.module.scss";
+import defaultStyle from '@/app/page.module.scss'
 
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
@@ -329,7 +330,7 @@ export default function Page() {
     };
 
     return (
-        <section className={styles.bottomSheet}>
+        <section className={defaultStyle.bottomSheet}>
             <div className={styles.listChips}>
                 <Chip label={"뒤로가기"} activable={false} onClickAction={() => { stopSimulation(); router.back(); }} />
                 <Chip label={isRunningRef.current ? "정지" : "시뮬레이션 시작"} onClickAction={handleToggle} />

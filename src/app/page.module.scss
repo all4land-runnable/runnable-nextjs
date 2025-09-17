@@ -12,27 +12,103 @@
 .main {
     display: inline-flex;
     flex-direction: column;
-
     width: 100%;
     height: 100%;
 }
 
+/* ---------- BottomSheet: Glass Dock Bar ---------- */
 .bottomSheet {
     position: absolute;
-    transform: translateX(-50%);
     left: 50%;
-
-    bottom: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
     z-index: 10;
 
-    border-radius: 100px;
-    box-sizing: border-box;
-    padding: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    background-color: gray;
+    /* 크기/여백 */
+    padding: 10px 14px;
+    gap: 16px;
+    box-sizing: border-box;
+    max-width: min(90vw, 720px);
+
+    /* 유리 느낌 */
+    background: linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.72) 0%,
+                    rgba(248,250,252,0.66) 100%
+    );
+    border: 1px solid rgba(47,179,222,0.28); /* 칩과 맞춘 틴트 */
+    backdrop-filter: blur(10px) saturate(1.05);
+    -webkit-backdrop-filter: blur(10px) saturate(1.05);
+
+    /* 입체감: 아래쪽 그림자 + 위쪽 하이라이트 */
+    border-radius: 24px;
+    box-shadow:
+            0 10px 28px rgba(0,0,0,0.22),
+            0 2px 6px rgba(0,0,0,0.10),
+            inset 0 0 0 0.5px rgba(255,255,255,0.35);
+
+    /* 얇은 바깥 링(맵 위에서 경계가 살짝 더 또렷) */
+    outline: 1px solid rgba(47,179,222,0.18);
+    outline-offset: 0;
+
+    /* 부드러운 등장 */
+    opacity: 0.98;
+    transform-origin: center bottom;
+    animation: bottomSheet-pop .18s cubic-bezier(.2,.8,.3,1) 1 backwards;
 }
 
-/* 공통 칩 행 패턴 */
+@keyframes bottomSheet-pop {
+    from { transform: translate(-50%, 6px) scale(0.98); opacity: 0.0; }
+    to   { transform: translate(-50%, 0)    scale(1.0);  opacity: 0.98; }
+}
+
+/* 내부 칩 행 */
+.routeChips {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: fit-content;
+    gap: 14px;
+    pointer-events: auto;
+}
+
+/* 작은 화면 최적화 */
+@media (max-width: 480px) {
+    .bottomSheet {
+        padding: 8px 10px;
+        border-radius: 18px;
+        gap: 12px;
+        max-width: calc(100vw - 24px);
+        box-shadow:
+                0 8px 20px rgba(0,0,0,0.22),
+                0 2px 5px rgba(0,0,0,0.10),
+                inset 0 0 0 0.5px rgba(255,255,255,0.33);
+    }
+    .routeChips { gap: 10px; }
+}
+
+/* 다크 테마(지도의 야간/그림자 톤과 일치) */
+@media (prefers-color-scheme: dark) {
+    .bottomSheet {
+        background: linear-gradient(
+                        180deg,
+                        rgba(20,24,28,0.55) 0%,
+                        rgba(20,24,28,0.45) 100%
+        );
+        border-color: rgba(47,179,222,0.22);
+        box-shadow:
+                0 12px 30px rgba(0,0,0,0.35),
+                0 2px 6px rgba(0,0,0,0.18),
+                inset 0 0 0 0.5px rgba(255,255,255,0.14);
+    }
+}
+
+/* 공통 칩 행 패턴 (유지) */
 %chip-row {
     display: flex;
     flex-direction: row;
@@ -41,22 +117,4 @@
     gap: 0.75rem;
     pointer-events: auto;
 }
-
-.listChips {
-    @extend %chip-row;
-    justify-content: center;
-    align-items: center;
-}
-
-.routeChips {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-
-    height: fit-content;
-    gap: 16px;
-
-    pointer-events: auto;
-}
-
+.listChips { @extend %chip-row; justify-content: center; align-items: center; }

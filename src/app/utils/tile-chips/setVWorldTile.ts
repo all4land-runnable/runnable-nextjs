@@ -28,11 +28,11 @@ export function setLayer(layerName: string, open: boolean) {
     const idx = collection.indexOf(layer);
 
     if (open) {
+        // 컬렉션에 있으면 제거(두 번째 인자=false: destroy 안 함 → 재사용 가능)
+        if (idx !== -1) collection.remove(layer, false);
+    } else {
         // 이미 추가되어 있지 않으면 추가
         if (idx === -1) collection.add(layer);
         else layer.show = true; // 이미 있다면 show만 보장
-    } else {
-        // 컬렉션에 있으면 제거(두 번째 인자=false: destroy 안 함 → 재사용 가능)
-        if (idx !== -1) collection.remove(layer, false);
     }
 }

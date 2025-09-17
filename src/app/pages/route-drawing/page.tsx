@@ -1,6 +1,7 @@
 'use client';
 
 import React, {useEffect, useState} from "react";
+import defaultStyle from '@/app/page.module.scss'
 import styles from './page.module.scss'
 import RouteOptionSlider from "@/app/components/molecules/route-option-slider/RouteOptionSlider";
 import {formatKm} from "@/app/utils/claculator/formatKm";
@@ -17,7 +18,7 @@ import {setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 import {useDispatch} from "react-redux";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import * as Cesium from "cesium";
-import {Cartesian3, Entity, JulianDate} from "cesium";
+import {Entity} from "cesium";
 import {removeTempRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
 import requestRender from "@/app/components/organisms/cesium/util/requestRender";
 import upsertTempRoute from "@/app/pages/route-drawing/utils/upsertTempRoute";
@@ -175,7 +176,7 @@ export default function Page() {
 
     return (
         <>
-            <section className={styles.bottomSheet}>
+            <section className={defaultStyle.bottomSheet}>
                 <div className={styles.drawingController}>
                     <Chip label={"뒤로 가기"} activable={false} onClickAction={returnPage}/>
                     <Chip label={"운동 가능 시간"} onClickAction={workoutAvailabilityOnClick}/>
