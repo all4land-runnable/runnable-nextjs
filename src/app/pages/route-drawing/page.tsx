@@ -187,9 +187,21 @@ export default function Page() {
             </section>
 
             <div className={styles.routeOptions}>
-                <RouteOptionSlider label="거리 제한" value={limitRange} formatValue={formatKm(limitRange)} min={0} max={50} step={0.1} active={limitActive} onSlideAction={setLimitRange} onToggleAction={setLimitActive}/>
-                <RouteOptionSlider label="짐 무게" value={luggageWeight} formatValue={formatKg(luggageWeight*1000)} min={0} max={20} step={1} active={luggageActive} onSlideAction={setLuggageWeight} onToggleAction={setLuggageActive}/>
-                <RouteOptionSlider label="희망 속도" value={paceSeconds} formatValue={formatPace(paceSeconds)} min={180} max={600} step={5} active={paceActive} onSlideAction={setPaceSeconds} onToggleAction={setPaceActive}/>
+                <RouteOptionSlider label="거리 제한" value={limitRange} formatValue={formatKm(limitRange)} min={0} max={42200} step={100} active={limitActive} onSlideAction={setLimitRange} onToggleAction={setLimitActive} optionButtons={[
+                    { name: "5km", value: 5000 },
+                    { name: "10km", value: 10000 },
+                    { name: "20km", value: 20000 },
+                ]}/>
+                <RouteOptionSlider label="짐 무게" value={luggageWeight} formatValue={formatKg(luggageWeight*1000)} min={0} max={15} step={0.5} active={luggageActive} onSlideAction={setLuggageWeight} onToggleAction={setLuggageActive} optionButtons={[
+                    { name: "2kg", value: 2.0 },
+                    { name: "5kg", value: 5.0 },
+                    { name: "10kg", value: 10.0 },
+                ]}/>
+                <RouteOptionSlider label="희망 속도" value={paceSeconds} formatValue={formatPace(paceSeconds)} min={180} max={560} step={5} active={paceActive} onSlideAction={setPaceSeconds} onToggleAction={setPaceActive}   optionButtons={[
+                    { name: "5'30''", value: 330 },
+                    { name: "6'00''", value: 360 },
+                    { name: "6'30''", value: 390 },
+                ]}/>
             </div>
         </>
     )
