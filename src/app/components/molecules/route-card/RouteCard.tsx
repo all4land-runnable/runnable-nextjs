@@ -7,7 +7,6 @@ import * as Cesium from "cesium";
 import {setPedestrianRoute} from "@/app/store/redux/feature/routeDrawingSlice";
 import getViewer from "@/app/components/organisms/cesium/util/getViewer";
 import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
-import {useState} from "react";
 import {upsertPedestrianMarker} from "@/app/pages/route-drawing/utils/addPedestrianEntity";
 import {removeMarkers} from "@/app/utils/markers/hideMarkers";
 import {getPedestrianRouteMarkers} from "@/app/staticVariables";
@@ -61,6 +60,8 @@ export default function RouteCard({route}: routeCardProps) {
         });
         viewer.entities.add(routeCardEntity);
 
+        flyToFit(viewer, positions, { paddingFactor: 1.2 });  // 화면에 꽉 차게
+
         // NOTE 5. routeDrawingSlice에 데이터 저장
         dispatch(setPedestrianRoute(route));
         dispatch(toggleOpen())
@@ -79,4 +80,34 @@ export default function RouteCard({route}: routeCardProps) {
             <span className={[styles.description, styles.descriptionFont].join(' ')}>{route.description}</span>
         </div>
     )
+}
+
+// positions: Cesium.Cartesian3[]
+function flyToFit(viewer: Cesium.Viewer, positions: Cesium.Cartesian3[], opts?: {
+    paddingFactor?: number;   // 여유비 (기본 1.2 = 20% 패딩)
+    heading?: number;         // 유지할 heading (기본: 현재)
+    pitch?: number;           // 기본: -30도
+    duration?: number;        // 비행 시간
+}) {
+    const scene = viewer.scene;
+    const camera = scene.camera;
+
+    const sphere = Cesium.BoundingSphere.fromPoints(positions);
+    // @ts-expect-error // 임시로 추가
+    const fovy = (camera.frustum as undefined).fovy ?? Cesium.Math.toRadians(60);
+    const aspect = scene.canvas.clientWidth / scene.canvas.clientHeight;
+
+    // 세로/가로 기준으로 필요한 거리 계산
+    const fitHeight = sphere.radius / Math.tan(fovy / 2);
+    const fitWidth  = fitHeight / aspect;
+    const padding   = opts?.paddingFactor ?? 1.2;
+    const range     = Math.max(fitHeight, fitWidth) * padding;
+
+    const heading = opts?.heading ?? camera.heading;
+    const pitch   = opts?.pitch   ?? Cesium.Math.toRadians(-30);
+
+    return camera.flyToBoundingSphere(sphere, {
+        offset: new Cesium.HeadingPitchRange(heading, pitch, range),
+        duration: opts?.duration ?? 0.5,
+    });
 }
