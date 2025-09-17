@@ -33,7 +33,7 @@ export default function Page() {
     const viewer = getViewer();
     const dispatch = useDispatch()
     const router = useRouter();
-    const { openConfirm, close } = useModal(); // 모달 여부 // TODO: 필요한가?
+    const { openConfirm, openSave, close } = useModal(); // 모달 여부 // TODO: 필요한가?
 
     // URL에서 필요한 데이터 얻기
     const { luggageWeight, paceSeconds } = useParams<{ luggageWeight: string; paceSeconds: string }>();
@@ -73,20 +73,41 @@ export default function Page() {
         })
     }
 
-    const confirmButton = ()=>{
-        openConfirm({
-            title: "경로 확정",
-            content: "경로를 확정하시겠습니까?",
-            onConfirm: async ()=>{
-                // NOTE 1. 경로를 저장한다.
-                // 사용자의 선택에 따라 임시 경로와 보행자 경로를 구분한다.
-                await postUserRoute(1, "임시 카테고리명", automaticRoute ? tempRoute! : pedestrianRoute!)
+    const confirmButton = () => {
+        openSave({
+            dialogTitle: '경로 저장',
+            initialTitle: '잠실 러닝 10K',
+            initialDescription: '왕복 10km, 물품보관함 있음',
+            initialCategory: '러닝',
+            onConfirm: async (title, description, category) => {
+                // 1) 불변 업데이트: 새 객체 생성
+                const updatedTemp = tempRoute
+                    ? { ...tempRoute, title, description }
+                    : undefined;
 
-                // TODO: 모든 페이지 stack을 제거하고, 경로 보기로 이동한다.
-                router.replace("/pages/route-list")
-            }
-        })
-    }
+                const updatedPed = pedestrianRoute
+                    ? { ...pedestrianRoute, title, description }
+                    : undefined;
+
+                // 2) Redux 상태 갱신
+                if (updatedTemp) dispatch(setTempRoute(updatedTemp));
+                if (updatedPed) dispatch(setPedestrianRoute(updatedPed));
+
+                // 3) 저장할 대상 선택(자동 경로면 tempRoute, 아니면 pedestrianRoute)
+                const routeToSave = automaticRoute ? updatedTemp : updatedPed;
+                if (!routeToSave) {
+                    close(); // 저장할 경로가 없으면 모달만 닫기
+                    return;
+                }
+
+                // 4) 저장 요청
+                await postUserRoute(1, category, routeToSave);
+
+                // 5) 목록으로 이동
+                router.replace("/pages/route-list");
+            },
+        });
+    };
 
     // 1) 보행자 경로 enrich 필요 여부
     function needsEnrich(route?: Route) {

@@ -36,9 +36,9 @@ function setupCrosswalkClustering(viewer: Cesium.Viewer) {
     clustering.clusterEvent.addEventListener((entities, cluster) => {
         // 대표 아이콘(클러스터 심볼) - 기존 횡단보도 아이콘으로 교체
         cluster.billboard.show = true;
-        cluster.billboard.image = "/resource/crosswalk.png";
+        cluster.billboard.image = "/resource/crosswalk.svg";
         cluster.billboard.width = 50;
-        cluster.billboard.height = 50;
+        cluster.billboard.height = 66.456;
         cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
         cluster.billboard.pixelOffset = new Cesium.Cartesian2(0, -10);
         cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
@@ -176,9 +176,9 @@ export async function crosswalkOnClick() {
                 id: iconId,
                 position: Cesium.Cartesian3.fromDegrees(midLon, midLat),
                 billboard: {
-                    image: "/resource/crosswalk.png",
+                    image: "/resource/crosswalk.svg",
                     width: 50,
-                    height: 50,
+                    height: 66.456,
                     verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                     pixelOffset: new Cesium.Cartesian2(0, -10),

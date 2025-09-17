@@ -1,0 +1,72 @@
+.background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.35);
+    pointer-events: auto;
+}
+
+.modal { width: 100%; height: 100%; display: grid; place-items: center; }
+
+.panel {
+    width: 28rem;
+    max-width: calc(100vw - 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+
+    background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(248,250,252,0.88) 100%);
+    border: 1px solid rgba(47,179,222,0.28);
+    backdrop-filter: blur(10px) saturate(1.02);
+    -webkit-backdrop-filter: blur(10px) saturate(1.02);
+    border-radius: 20px;
+    padding: 1.5rem;
+
+    box-shadow:
+            0 12px 30px rgba(0,0,0,0.18),
+            0 2px 6px rgba(0,0,0,0.08),
+            inset 0 0 0 0.5px rgba(255,255,255,0.35);
+}
+
+.header { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.25rem; }
+.dialogTitle { font-size: 1.125rem; font-weight: 800; color: #0e6f8f; margin: 0; }
+
+.label { font-size: 0.875rem; font-weight: 700; color: #1e1e1e; margin-top: 0.25rem; }
+
+/* 공통 입력 */
+.textField, .textArea {
+    width: 100%; box-sizing: border-box;
+    border: 1.5px solid rgba(47,179,222,0.35);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.96);
+    color: #090e18;
+    padding: 0.75rem 0.875rem;
+    outline: none;
+    transition: border-color .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+.textField::placeholder, .textArea::placeholder { color: #9ea4aa; }
+.textField:focus, .textArea:focus { border-color: rgba(47,179,222,0.7); box-shadow: 0 0 0 3px rgba(47,179,222,0.18); }
+
+.textArea { resize: vertical; min-height: 6.5rem; }
+
+/* 버튼 */
+.buttons { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+.cancelButton, .confirmButton {
+    flex: 1 0 0; height: 2.75rem; border: none; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 800; cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s ease, opacity .12s ease;
+}
+.cancelButton { background: #E8EBED; color: #1E1E1E; }
+.confirmButton { background: #ACE5F6; color: #0e6f8f; }
+.cancelButton:hover, .confirmButton:hover { filter: brightness(0.98); }
+.cancelButton:active, .confirmButton:active { transform: translateY(1px) scale(0.99); }
+
+/* 모바일 */
+@media (max-width: 480px) {
+    .panel { width: 22rem; padding: 1.25rem; border-radius: 16px; }
+}

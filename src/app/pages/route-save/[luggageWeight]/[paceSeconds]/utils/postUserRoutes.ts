@@ -9,7 +9,7 @@ export async function postUserRoute(userId: number, categoryName:string, route: 
         route,
         { baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL }
     )
-    const userRoutes:UserRoute = response.data
+    const userRoutes:CommonResponse<UserRoute> = response.data
     if(!userRoutes) {
         alert("경로 저장에 실패하였습니다.")
         throw new Error("User routes not found");

@@ -7,8 +7,6 @@ import { getCameraPosition } from "@/app/components/organisms/cesium/util/getCam
 import {getHospital} from "@/app/staticVariables";
 import CommonResponse from "@/api/response/common_response";
 
-const SAMPLE_RADIUS = 500;
-
 const hospitalEntityId = (name: string, lat: number, lon: number) => `hospital_${name}-${lat}-${lon}`;
 
 /**

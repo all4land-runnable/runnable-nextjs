@@ -3,15 +3,9 @@
 import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
 import ConfirmModal from "@/app/store/modal/confirm-modal/ConfirmModal";
 import AlertModal from "@/app/store/modal/alert-modal/AlertModal";
+import SaveModal from "@/app/store/modal/save-modal/SaveModal";
 
-/**
- * 확인 모달에 필요한 인자
- *
- * @param title
- * @param content
- * @param onConfirm
- * @param onCancel
- */
+/** Confirm 모달 */
 type OpenConfirmProp = {
     title: string;
     content: string;
@@ -19,62 +13,59 @@ type OpenConfirmProp = {
     onCancel?: () => void;
 };
 
-/**
- * 알림 모달에 필요한 인자
- *
- * @param title
- * @param content
- * @param onConfirm
- */
+/** Alert 모달 */
 type OpenAlertProp = {
     title: string;
     content: string;
     onConfirm: () => void;
 };
 
-/**
- * ???
- */
+/** Save 모달 */
+type OpenSaveProp = {
+    dialogTitle: string;
+    initialTitle?: string;
+    initialDescription?: string;
+    initialCategory?: string;
+    onConfirm: (text: string, descript: string, category: string) => void;
+    onCancel?: () => void;
+};
+
 type ModalContext = {
     openConfirm: (args: OpenConfirmProp) => void;
     openAlert: (args: OpenAlertProp) => void;
+    openSave: (args: OpenSaveProp) => void;
     close: () => void;
 };
 
-// 컨텍스트 할당
 const ModalContext = createContext<ModalContext | null>(null);
 
-/**
- * Modal을 요청하는 함수
- */
 export function useModal() {
     const context = useContext(ModalContext);
     if (!context) throw new Error('useModal must be used within <ModalProvider>');
     return context;
 }
 
-type ActiveType = 'confirm' | 'alert' | null;
+type ActiveType = 'confirm' | 'alert' | 'save' | null;
 
-/**
- * 모달창을 제어해주는 Privider 함수이다.
- *
- * @param children 모달과 관련 없는 기본 컴포넌트
- * @constructor
- */
 export default function ModalProvider({ children }: { children: React.ReactNode }) {
-    // 모달창 개폐 여부
     const [isOpen, setOpen] = useState(false);
     const [active, setActive] = useState<ActiveType>(null);
 
-    // 제목 본문 내용
+    // 공통 텍스트
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
 
-    // 확인, 취소 버튼 클릭 리스너
+    // confirm/alert 핸들러
     const [confirmHandler, setConfirmHandler] = useState<() => void>(() => () => {});
     const [cancelHandler, setCancelHandler]   = useState<() => void>(() => () => {});
 
-    // 닫을 때 기본으로 실행될 함수
+    // save 모달 전용 상태
+    const [saveInitTitle, setSaveInitTitle] = useState('');
+    const [saveInitDesc, setSaveInitDesc] = useState('');
+    const [saveInitCategory, setSaveInitCategory] = useState('');
+    const [saveConfirmHandler, setSaveConfirmHandler] =
+        useState<(text: string, descript: string, category: string) => void>(() => () => {});
+
     const close = useCallback(() => {
         setOpen(false);
         setActive(null);
@@ -84,53 +75,83 @@ export default function ModalProvider({ children }: { children: React.ReactNode 
 
         setConfirmHandler(() => () => {});
         setCancelHandler(() => () => {});
+
+        setSaveInitTitle('');
+        setSaveInitDesc('');
+        setSaveInitCategory('');
+        setSaveConfirmHandler(() => () => {});
     }, []);
 
-    // ConfirmModal (확인/취소) 열기
+    // Confirm
     const openConfirm = useCallback((args: OpenConfirmProp) => {
         setActive('confirm');
         setTitle(args.title);
         setContent(args.content);
-        setConfirmHandler(() => () => {
-            args.onConfirm?.();
-            close();
-        });
-        setCancelHandler(() => () => {
-            args.onCancel?.();
-            close();
-        });
+        setConfirmHandler(() => () => { args.onConfirm?.(); close(); });
+        setCancelHandler(() => () => { args.onCancel?.(); close(); });
         setOpen(true);
     }, [close]);
 
-    // ConfirmModal (확인) 열기
+    // Alert
     const openAlert = useCallback((args: OpenAlertProp) => {
         setActive('alert');
         setTitle(args.title);
         setContent(args.content);
-        setConfirmHandler(() => () => {
-            args.onConfirm?.();
-            close();
-        });
-        // Modal1은 취소 버튼이 없으므로 cancelHandler는 사용 안 함
+        setConfirmHandler(() => () => { args.onConfirm?.(); close(); });
         setOpen(true);
     }, [close]);
 
-    // ModalProvider가 노출할 API
+    // Save (제목/설명/카테고리)
+    const openSave = useCallback((args: OpenSaveProp) => {
+        setActive('save');
+        setTitle(args.dialogTitle);
+        setSaveInitTitle(args.initialTitle ?? '');
+        setSaveInitDesc(args.initialDescription ?? '');
+        setSaveInitCategory(args.initialCategory ?? '');
+        setSaveConfirmHandler(() => (t:string, d:string, c:string) => { args.onConfirm?.(t, d, c); close(); });
+        setCancelHandler(() => () => { args.onCancel?.(); close(); });
+        setOpen(true);
+    }, [close]);
+
     const api = useMemo<ModalContext>(() => ({
-        openConfirm, // 확인/취소가 있는 Confirm 모달 띄우기
-        openAlert, // 확인만 있는 Alert 모달 띄우기
-        close, // 현재 떠 있는 모달을 강제로 닫기
-    }), [openConfirm, openAlert, close]);
+        openConfirm, openAlert, openSave, close
+    }), [openConfirm, openAlert, openSave, close]);
 
     return (
         <ModalContext.Provider value={api}>
             {children}
 
-            {/* Confirm 모달(취소/확인) */}
-            {active === 'confirm' && <ConfirmModal confirmModalParam={{open: isOpen, title, content, onConfirm: confirmHandler, onCancel: close}}/>}
+            {active === 'confirm' && (
+                <ConfirmModal
+                    confirmModalParam={{
+                        open: isOpen, title, content,
+                        onConfirm: confirmHandler, onCancel: close
+                    }}
+                />
+            )}
 
-            {/* Alert 모달(확인) */}
-            {active === 'alert' && <AlertModal alertModalParam={{open: isOpen, title, content, onConfirm: confirmHandler, onCancel: cancelHandler}}/>}
+            {active === 'alert' && (
+                <AlertModal
+                    alertModalParam={{
+                        open: isOpen, title, content,
+                        onConfirm: confirmHandler, onCancel: cancelHandler
+                    }}
+                />
+            )}
+
+            {active === 'save' && (
+                <SaveModal
+                    saveModalParam={{
+                        open: isOpen,
+                        dialogTitle: title,
+                        initialTitle: saveInitTitle,
+                        initialDescription: saveInitDesc,
+                        initialCategory: saveInitCategory,
+                        onConfirm: saveConfirmHandler,
+                        onCancel: close,
+                    }}
+                />
+            )}
         </ModalContext.Provider>
     );
 }
