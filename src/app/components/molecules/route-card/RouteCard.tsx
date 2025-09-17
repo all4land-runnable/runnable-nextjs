@@ -1,113 +1,102 @@
-import styles from './RouteCard.module.css'
-import Image from "next/image";
-import { useDispatch } from 'react-redux'
-import { toggleOpen } from "@/app/store/redux/feature/rightSidebarSlice";
-import {Route} from "@/type/route";
-import * as Cesium from "cesium";
-import {setPedestrianRoute} from "@/app/store/redux/feature/routeDrawingSlice";
-import getViewer from "@/app/components/organisms/cesium/util/getViewer";
-import {removePedestrianRoute} from "@/app/pages/route-drawing/utils/drawingTempRoute";
-import {upsertPedestrianMarker} from "@/app/pages/route-drawing/utils/addPedestrianEntity";
-import {removeMarkers} from "@/app/utils/markers/hideMarkers";
-import {getPedestrianRouteMarkers} from "@/app/staticVariables";
+import styles from './RouteCard.module.css';
+import Image from 'next/image';
+import { useDispatch } from 'react-redux';
+import { Route } from '@/type/route';
+import * as Cesium from 'cesium';
+import { setPedestrianRoute } from '@/app/store/redux/feature/routeDrawingSlice';
+import getViewer from '@/app/components/organisms/cesium/util/getViewer';
+import { upsertPedestrianMarker } from '@/app/pages/route-drawing/utils/addPedestrianEntity';
 
-type routeCardProps = {
+type Props = {
     route: Route;
-}
+    /** 부모(LeftSideBar)가 선택 전 처리(열/닫기, 기존 정리)를 수행하고
+     *  'activate'일 때만 RouteCard가 엔티티 생성+flyTo를 실행 */
+    onBeforeSelect?: (route: Route) => 'activate' | 'close';
+};
 
-/**
- * 경로 속성 카드를 구현하는 함수
- *
- * @param routeCard 경로 카드 속성
- * @constructor
- */
-export default function RouteCard({route}: routeCardProps) {
+export default function RouteCard({ route, onBeforeSelect }: Props) {
     const viewer = getViewer();
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
-    /**
-     * RouteCard 선택 함수
-     */
-    const toggleRightSidebarOpen = () => {
-        // NOTE 1. 기존 엔티티 제거
-        removePedestrianRoute() // 보행자 경로 제거
-        removeMarkers(getPedestrianRouteMarkers()) // 보행자 경로 마커 제거
+    const onClick = () => {
+        const decision = onBeforeSelect?.(route) ?? 'activate';
+        if (decision !== 'activate') return; // 부모가 닫기로 결정한 경우 종료
 
-        // NOTE 2. route 직렬화
+        // 1) 경로 좌표 직렬화
         const positions = route.sections
-            .flatMap(section => section.points)
-            .map(point => Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.height ?? 0));
+            .flatMap((s) => s.points)
+            .map((p) => Cesium.Cartesian3.fromDegrees(p.longitude, p.latitude, p.height ?? 0));
 
-        // NOTE 3. 마커 추가
-        route.sections.forEach(section => {
-            const point = section.points[0]
-            upsertPedestrianMarker(Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.height ?? 0 ));
-        })
-        const point = route.sections[route.sections.length - 1].points[route.sections[route.sections.length - 1].points.length-1];
-        upsertPedestrianMarker(Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.height ?? 0 ));
-
-        // NOTE 4. Entity로 추가
-        const routeCardEntity = new Cesium.Entity({
-            id: "pedestrian_entity",
-            polyline: positions.length >= 2
-                ? {
-                    positions,
-                    width: 10,
-                    material: Cesium.Color.fromCssColorString("#F0FD3C"),
-                    clampToGround: true,
-                }
-                : undefined,
+        // 2) 마커(각 섹션 시작점 + 마지막 종료점)
+        route.sections.forEach((s) => {
+            const p0 = s.points[0];
+            upsertPedestrianMarker(Cesium.Cartesian3.fromDegrees(p0.longitude, p0.latitude, p0.height ?? 0));
         });
-        viewer.entities.add(routeCardEntity);
+        const last = route.sections.at(-1)!.points.at(-1)!;
+        upsertPedestrianMarker(Cesium.Cartesian3.fromDegrees(last.longitude, last.latitude, last.height ?? 0));
 
-        flyToFit(viewer, positions, { paddingFactor: 1.2 });  // 화면에 꽉 차게
+        // 3) 엔티티 생성
+        const entity = new Cesium.Entity({
+            id: 'pedestrian_entity',
+            polyline:
+                positions.length >= 2
+                    ? {
+                        positions,
+                        width: 10,
+                        material: Cesium.Color.fromCssColorString('#F0FD3C'),
+                        clampToGround: true,
+                    }
+                    : undefined,
+        });
+        viewer.entities.add(entity);
 
-        // NOTE 5. routeDrawingSlice에 데이터 저장
+        // 4) 화면에 맞게 이동
+        flyToFit(viewer, positions, { paddingFactor: 1.2, duration: 0.3 });
+
+        // 5) 선택 경로 상태 저장 (필요 시)
         dispatch(setPedestrianRoute(route));
-        dispatch(toggleOpen())
-    }
+    };
 
     return (
-        <div className={styles.routeCard} onClick={()=> toggleRightSidebarOpen()}> {/* RouteCard 가장 밖 테두리, 핸들러 지정 */}
-            <div className={styles.imageBox}> {/* 경로 대표 사진 */}
-                <Image src={"/resource/sample-image.png"} fill style={{ objectFit: "cover" }} alt=""/>
+        <div className={styles.routeCard} onClick={onClick}>
+            <div className={styles.imageBox}>
+                <Image src={'/resource/sample-image.png'} fill style={{ objectFit: 'cover' }} alt='' />
             </div>
 
-            <span className={styles.titleFont}>{route.title}</span> {/* 경로 제목 */}
-            {/* 속성 정보 나열 */}
-            <span className={styles.routeInfoFont}>거리: {route.distance}km / 가능 시간:{"TODO"}~{"TODO"}</span>
-            {/* 경로 설명 */}
+            <span className={styles.titleFont}>{route.title}</span>
+            <span className={styles.routeInfoFont}>
+        거리: {route.distance}km / 가능 시간: {'TODO'}~{'TODO'}
+      </span>
             <span className={[styles.description, styles.descriptionFont].join(' ')}>{route.description}</span>
         </div>
-    )
+    );
 }
 
-// positions: Cesium.Cartesian3[]
-function flyToFit(viewer: Cesium.Viewer, positions: Cesium.Cartesian3[], opts?: {
-    paddingFactor?: number;   // 여유비 (기본 1.2 = 20% 패딩)
-    heading?: number;         // 유지할 heading (기본: 현재)
-    pitch?: number;           // 기본: -30도
-    duration?: number;        // 비행 시간
-}) {
-    const scene = viewer.scene;
-    const camera = scene.camera;
-
+/* ---- flyToFit: 타입 안전 & 기본 0.3s ---- */
+function flyToFit(
+    viewer: Cesium.Viewer,
+    positions: Cesium.Cartesian3[],
+    opts?: { paddingFactor?: number; heading?: number; pitch?: number; duration?: number }
+) {
+    const { scene, camera } = viewer;
     const sphere = Cesium.BoundingSphere.fromPoints(positions);
-    // @ts-expect-error // 임시로 추가
-    const fovy = (camera.frustum as undefined).fovy ?? Cesium.Math.toRadians(60);
-    const aspect = scene.canvas.clientWidth / scene.canvas.clientHeight;
 
-    // 세로/가로 기준으로 필요한 거리 계산
-    const fitHeight = sphere.radius / Math.tan(fovy / 2);
-    const fitWidth  = fitHeight / aspect;
-    const padding   = opts?.paddingFactor ?? 1.2;
-    const range     = Math.max(fitHeight, fitWidth) * padding;
+    const frustum = camera.frustum as
+        | Cesium.PerspectiveFrustum
+        | Cesium.OrthographicFrustum
+        | Cesium.PerspectiveOffCenterFrustum;
+    const fovy = 'fovy' in frustum ? frustum.fovy as number : Cesium.Math.toRadians(60);
+
+    const aspect = (scene.canvas.clientWidth || 1) / (scene.canvas.clientHeight || 1);
+    const fitH = sphere.radius / Math.tan(fovy / 2);
+    const fitW = fitH / aspect;
+    const range = Math.max(fitH, fitW) * (opts?.paddingFactor ?? 1.2);
 
     const heading = opts?.heading ?? camera.heading;
-    const pitch   = opts?.pitch   ?? Cesium.Math.toRadians(-30);
+    const pitch = opts?.pitch ?? Cesium.Math.toRadians(-30);
 
     return camera.flyToBoundingSphere(sphere, {
         offset: new Cesium.HeadingPitchRange(heading, pitch, range),
-        duration: opts?.duration ?? 0.5,
+        duration: opts?.duration ?? 0.3,
     });
 }

@@ -9,7 +9,7 @@ import routeDrawingReducer from "@/app/store/redux/feature/routeDrawingSlice";
 export const store = configureStore({
     reducer: {
         leftSidebar: leftSidebarReducer,
-        rightSideBar: rightSidebarReducer,
+        rightSidebar: rightSidebarReducer,
         routeDrawing: routeDrawingReducer,
     },
 });

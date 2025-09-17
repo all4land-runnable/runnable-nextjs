@@ -101,11 +101,11 @@ function routeToGraphData(route?: Route): GraphDatum[] {
 
 export default function SlopeGraph() {
     // 어떤 Route를 그릴지 선택 (boolean: true면 pedestrian, false면 temp) — 프로젝트 로직 준수
-    const usePedestrian = useSelector((s: RootState) => s.rightSideBar.automaticRoute);
+    const usePedestrian = useSelector((s: RootState) => s.rightSidebar.automaticRoute);
     const pedestrianRoute = useSelector((s: RootState) => s.routeDrawing.pedestrianRoute);
     const tempRoute       = useSelector((s: RootState) => s.routeDrawing.tempRoute);
 
-    const route: Route | undefined = usePedestrian ? tempRoute : pedestrianRoute;
+    const route: Route = usePedestrian ? tempRoute! : pedestrianRoute!;
 
     const data  = useMemo(() => routeToGraphData(route), [route]);
 

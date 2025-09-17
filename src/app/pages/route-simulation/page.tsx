@@ -10,7 +10,7 @@ import requestRender from "@/app/components/organisms/cesium/util/requestRender"
 
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/app/store/redux/store";
-import { setAutomaticRoute } from "@/app/store/redux/feature/rightSidebarSlice";
+import {setAutomaticRoute, setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 
 import { useRouter } from "next/navigation";
 import { Chip } from "@/app/components/atom/chip/Chip";
@@ -21,6 +21,7 @@ import hideMarkers from "@/app/utils/markers/hideMarkers";
 
 import { formatSpeed } from "@/app/pages/route-simulation/utils/formatSpeed";
 import { Route } from "@/type/route";
+import {setLeftSidebarOpen} from "@/app/store/redux/feature/leftSidebarSlice";
 
 type Orientation = NonNullable<Parameters<Cesium.Camera['setView']>[0]>['orientation'];
 
@@ -144,7 +145,7 @@ export default function Page() {
     const router   = useRouter();
 
     // (요구 #3) 자동일 때 tempRoute, 아니면 pedestrianRoute 사용
-    const automaticRoute  = useSelector((s: RootState) => s.rightSideBar.automaticRoute);
+    const automaticRoute  = useSelector((s: RootState) => s.rightSidebar.automaticRoute);
     const tempRoute       = useSelector((s: RootState) => s.routeDrawing.tempRoute);
     const pedestrianRoute = useSelector((s: RootState) => s.routeDrawing.pedestrianRoute);
     const currentRoute: Route = automaticRoute ? tempRoute! : pedestrianRoute!;
@@ -174,6 +175,11 @@ export default function Page() {
     const cumLenRef  = useRef<number[]>([]);
     const totalRef   = useRef(0);
 
+    useEffect(()=> {
+        dispatch(setRightSidebarOpen(false));
+        dispatch(setLeftSidebarOpen(false));
+    })
+
     // 배속 변경은 즉시 반영(onTick에서 읽음)
     useEffect(() => {
         const m = formatSpeed(category);
@@ -182,9 +188,12 @@ export default function Page() {
 
     /** 자동경로 토글 시 표시/시뮬 리셋 */
     useEffect(() => {
-        hideMarkers(getTempRouteMarkers(), automaticRoute);
-        const t = viewer.entities.getById(getTempEntity());
-        if (t) t.show = automaticRoute;
+        // TODO: 만약 예외처리가 된다면, 그것은 Route-Simulation에서 경로를 조회한 것이므로, 임시로 예외처리 진행
+        try{
+            const t = viewer.entities.getById(getTempEntity());
+            if (t) t.show = automaticRoute;
+            hideMarkers(getTempRouteMarkers(), automaticRoute);
+        } catch { return }
 
         hideMarkers(getPedestrianRouteMarkers(), !automaticRoute);
         const p = viewer.entities.getById("pedestrian_entity");

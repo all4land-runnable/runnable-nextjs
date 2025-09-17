@@ -17,12 +17,12 @@ import {setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 export default function RightSideBar() {
     const router = useRouter();
     const dispatch = useDispatch()
-    const open = useSelector((state: RootState) => state.rightSideBar.rightSidebarOpen);
+    const open = useSelector((state: RootState) => state.rightSidebar.rightSidebarOpen);
 
     const { openConfirm, close } = useModal(); // 모달 여부 // TODO: 필요한가?
 
     // 자동 경로 여부를 결정하는 상태값
-    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
+    const automaticRoute = useSelector((state: RootState) => state.rightSidebar.automaticRoute);
     // 임시 경로를 결정하는 상태값
     const tempRoute = useSelector((state:RootState) => state.routeDrawing.tempRoute);
     // 보행자 경로를 결정하는 상태값

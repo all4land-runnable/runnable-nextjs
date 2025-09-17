@@ -39,7 +39,7 @@ export default function Page() {
     const { luggageWeight, paceSeconds } = useParams<{ luggageWeight: string; paceSeconds: string }>();
 
     // 자동 경로 여부를 결정하는 상태값
-    const automaticRoute = useSelector((state: RootState) => state.rightSideBar.automaticRoute);
+    const automaticRoute = useSelector((state: RootState) => state.rightSidebar.automaticRoute);
     // 임시 경로를 결정하는 상태값
     const tempRoute = useSelector((state:RootState) => state.routeDrawing.tempRoute);
     // 보행자 경로를 결정하는 상태값
