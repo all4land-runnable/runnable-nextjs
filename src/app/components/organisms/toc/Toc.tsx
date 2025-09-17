@@ -11,11 +11,19 @@ import storageBoxOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/sto
 import {hospitalOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/hospitalOnClick";
 import {drinkingFountainOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/drinkingFountainOnClick";
 import altitudeOnClick from "@/app/utils/tile-chips/altitude-onclick/altitudeOnClick";
-import React from "react";
+import React, {useState} from "react";
 import temperatureOnClick from "@/app/utils/tile-chips/temperature-onclick/temperatureOnClick";
+import {setLayer} from "@/app/utils/tile-chips/setVWorldTile";
 
 
 export default function Toc() {
+    const [vworldOpen, setVworldOpen] = useState<boolean>(false);
+
+    const vworldOpenHandler = () => {
+        setVworldOpen(!vworldOpen);
+        setLayer("vworld", vworldOpen);
+    }
+
     return (
         <div className={styles.topSheet}>
             {/* 강조 구역 버튼 모음 */}
@@ -29,6 +37,7 @@ export default function Toc() {
             </div>
             {/* 타일 버튼 모음 */}
             <div className={styles.tileChips}>
+                <Chip label={"브이월드"} onClickAction={()=>vworldOpenHandler()}/>
                 <Chip label="고도 표시" onClickAction={altitudeOnClick}/>
                 {/*<Chip label="재질 표시" onClickAction={async () => {}}/> /!* TODO: 재질 표시 로직 *!/*/}
                 <Chip label="온도 측정" onClickAction={temperatureOnClick}/> {/* TODO: 온도 측정 로직 */}
