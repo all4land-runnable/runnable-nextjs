@@ -29,6 +29,7 @@ import {addPedestrianEntity} from "@/app/pages/route-drawing/utils/addPedestrian
 import {entitiesToLngLat, getPedestrianRoute} from "@/app/pages/route-drawing/utils/postPedestrianRoute";
 import {getTempPolyline} from "@/app/pages/route-drawing/utils/getTempPolyline";
 import {getCircularPolyline} from "@/app/pages/route-drawing/utils/getCircularPolyline";
+import changeAltitude from "@/app/utils/tile-chips/altitude-onclick/changeAltitude";
 
 /**
  * 홈 화면을 구현하는 함수
@@ -44,32 +45,25 @@ export default function Page() {
     const [limitRange, setLimitRange] = useState<number>(5);
     const [luggageActive, setLuggageActive] = useState(false); // 짐 무게 (kg)
     const [luggageWeight, setLuggageWeight] = useState(0);
-    const [paceActive, setPaceActive] = useState(false); // 희망 속도 (분/㎞를 초로 가정: 180(3'00") ~ 480(8'00"))
-    const [paceSeconds, setPaceSeconds] = useState(0); // 6'30" = 390초
-    const { openConfirm, close } = useModal(); // 모달 여부
-    const [ circular, setCircular ] = useState<boolean>(false); // 원형 경로 설정 여부
+    const [paceActive, setPaceActive] = useState(false); // 희망 속도
+    const [paceSeconds, setPaceSeconds] = useState(0);
+    const { openConfirm, close } = useModal();
+    const [ circular, setCircular ] = useState<boolean>(false);
+    const [altitudeActive, setAltitudeActive] = useState<boolean>(false);
+    const [altitude, setAltitude] = useState<number>(0.3); // [0..1] normalized
 
     /**
      * 이전 페이지로 되돌아가는 함수
      */
     const returnPage = ()=>{
-        // NOTE 1. 오른쪽 사이드 바를 닫는다.
         dispatch(setRightSidebarOpen(false));
-
-        // NOTE 2. 그리고 있던 중인 Drawer를 제거한다.
         try{
-            drawer.reset() // Drawer 초기화
+            drawer.reset()
             try {
-                // 원형 경로가 설정되어 있는 경우만
-                if(circular)
-                    removeCircular() // 원형 경로 제거
-            }catch{} // 자동으로 종료된다.
-
-            // 예외처리: Polyline이 존재하지 않는 경우
-            removeTempRoute(); // Polyline도 제거한다.
+                if(circular) removeCircular()
+            }catch{}
+            removeTempRoute();
         } catch{}
-
-        // NOTE 3. 페이지를 이전으로 이동한다.
         router.back();
     }
 
@@ -78,94 +72,65 @@ export default function Page() {
      */
     const completeDrawing= () => {
         openConfirm({
-            title: "경로 저장", // 제목
-            content: "경로를 저장하시겠습니까?", // 본문
-            // 확인 버튼 눌렀을 때 수행될 동작 구현
+            title: "경로 저장",
+            content: "경로를 저장하시겠습니까?",
             onConfirm: async ()=>{
-                // NOTE 1. 임시 경로 엔티티를 불러온다.
                 const tempEntityMarkers: Entity[] = getTempRouteMarkers();
-
-                // 만약 원형 경로라면 닫는 변까지 시각적으로 보여주고(옵션), 마커 배열에도 첫 점을 다시 넣어준다.
                 getTempPolyline(tempEntityMarkers, getTempEntity(), circular)
 
-                // NOTE 2. 임시 경로를 Route로 파싱한다.
                 const tempRoute = await parseTempRoute(tempEntityMarkers);
-                dispatch(setTempRoute(tempRoute)); // TempRoute를 저장한다.
+                dispatch(setTempRoute(tempRoute));
 
-                // NOTE 4. 자동 경로 API를 요청한다.
                 const pedestrianResponse = await getPedestrianRoute(entitiesToLngLat(tempEntityMarkers));
 
-                // NOTE 5. 자동 경로 엔티티를 불러온다.
                 const pedestrianEntity = addPedestrianEntity(pedestrianResponse);
                 viewer.entities.add(pedestrianEntity);
 
-                // NOTE 6. 자동 경로를 Route로 파싱한다.
                 const pedestrianRoute = await parsePedestrianRoute(pedestrianEntity, pedestrianResponse);
                 dispatch(setPedestrianRoute(pedestrianRoute));
 
-                // NOTE 7. 창을 닫는다.
                 close();
-
-                // NOTE 8. 화면을 이동한다.
                 router.push(`/pages/route-save/${luggageWeight}/${paceSeconds}`);
             },
             onCancel: close
         })
     }
 
-    /**
-     * 원형 경로를 성정하기 위함
-     */
     const circularRoute = () => {
         setCircular(prev => !prev);
-        // 만약 원형이 아닌경우, 원형으로 지정
-        if (!circular)
-            addCircular();
-        // 원형을 설정한 경우, 원형 해제
-        else
-            removeCircular();
+        if (!circular) addCircular(); else removeCircular();
     };
 
-    /**
-     * 원형 경로를 설정하는 함수
-     */
     const addCircular = () => {
         setCircular(true);
-
         const tempEntities = getTempRouteMarkers();
-
-        // NOTE 1. 예외처리: 사용자가 지점을 제대로 찍지 않은 경우
         if (!tempEntities || tempEntities.length < 2) {
             alert("최소한 두개의 지점을 선택해주세요.");
             return;
         }
-
         getCircularPolyline()
     };
 
     const removeCircular = ()=>{
         setCircular(false);
-
         viewer.entities.removeById("circular_line");
         requestRender()
     };
 
-    // NOTE 1. 처음 페이지에 들어오면 자동으로 그리기가 활성화된다.
+    // 처음 페이지에 들어오면 자동으로 그리기 시작
     useEffect(()=>{
         dispatch(resetRouteDrawing())
-
-        // 새 경로 그리기를 시작한다.
         drawer.start({
             type: "POLYLINE",
-            once: true, // 한번만 실행
+            once: true,
             finalOptions: {
                 width: 10,
                 material: Cesium.Color.RED,
                 clampToGround: true,
             },
-            onPointsChange: (points) => { // 경로 제작 반복적으로 실행되는 콜백 함수
+            onPointsChange: (points) => {
                 upsertTempRoute(points);
-                requestRender() // 실시간 렌더링
+                requestRender()
             },
             onEnd: (entity) => {
                 setTempEntity(entity.id)
@@ -173,6 +138,20 @@ export default function Page() {
             }
         });
     }, [dispatch, drawer])
+
+    // ✅ 고도 슬라이더 실시간 반영/토글
+    useEffect(() => {
+        const globe = viewer.scene.globe;
+        if (!altitudeActive) {
+            if (globe.material?.type === "ElevationColorContour") {
+                globe.material = undefined;
+                requestRender();
+            }
+            return;
+        }
+        // 활성화: 현재 값으로 즉시 적용/업데이트
+        changeAltitude(altitude);
+    }, [altitudeActive, altitude, viewer]);
 
     return (
         <>
@@ -187,22 +166,98 @@ export default function Page() {
             </section>
 
             <div className={styles.routeOptions}>
-                <RouteOptionSlider label="거리 제한" value={limitRange} formatValue={formatKm(limitRange)} min={0} max={42200} step={100} active={limitActive} onSlideAction={setLimitRange} onToggleAction={setLimitActive} optionButtons={[
-                    { name: "5km", value: 5000 },
-                    { name: "10km", value: 10000 },
-                    { name: "20km", value: 20000 },
-                ]}/>
-                <RouteOptionSlider label="짐 무게" value={luggageWeight} formatValue={formatKg(luggageWeight*1000)} min={0} max={15} step={0.5} active={luggageActive} onSlideAction={setLuggageWeight} onToggleAction={setLuggageActive} optionButtons={[
-                    { name: "2kg", value: 2.0 },
-                    { name: "5kg", value: 5.0 },
-                    { name: "10kg", value: 10.0 },
-                ]}/>
-                <RouteOptionSlider label="희망 속도" value={paceSeconds} formatValue={formatPace(paceSeconds)} min={180} max={560} step={5} active={paceActive} onSlideAction={setPaceSeconds} onToggleAction={setPaceActive}   optionButtons={[
-                    { name: "5'30''", value: 330 },
-                    { name: "6'00''", value: 360 },
-                    { name: "6'30''", value: 390 },
-                ]}/>
+                <RouteOptionSlider
+                    label={"고도 표시"}
+                    value={altitude}
+                    formatValue={normalizedToAltitude(altitude, { viewer, fallback: { min: -5, max: 40 } }).toFixed(2)}
+                    min={0.0} max={0.85} step={0.01}
+                    active={altitudeActive}
+                    onSlideAction={setAltitude}
+                    onToggleAction={setAltitudeActive}
+                    optionButtons={[ { name: "서울 평균", value: 0.0} ]}
+                />
+                <RouteOptionSlider
+                    label="거리 제한"
+                    value={limitRange}
+                    formatValue={formatKm(limitRange)}
+                    min={0} max={42200} step={100}
+                    active={limitActive}
+                    onSlideAction={setLimitRange}
+                    onToggleAction={setLimitActive}
+                    optionButtons={[
+                        { name: "5km", value: 5000 },
+                        { name: "10km", value: 10000 },
+                        { name: "20km", value: 20000 },
+                    ]}
+                />
+                <RouteOptionSlider
+                    label="짐 무게"
+                    value={luggageWeight}
+                    formatValue={formatKg(luggageWeight*1000)}
+                    min={0} max={15} step={0.5}
+                    active={luggageActive}
+                    onSlideAction={setLuggageWeight}
+                    onToggleAction={setLuggageActive}
+                    optionButtons={[
+                        { name: "2kg", value: 2.0 },
+                        { name: "5kg", value: 5.0 },
+                        { name: "10kg", value: 10.0 },
+                    ]}
+                />
+                <RouteOptionSlider
+                    label="희망 속도"
+                    value={paceSeconds}
+                    formatValue={formatPace(paceSeconds)}
+                    min={180} max={560} step={5}
+                    active={paceActive}
+                    onSlideAction={setPaceSeconds}
+                    onToggleAction={setPaceActive}
+                    optionButtons={[
+                        { name: "5'30''", value: 330 },
+                        { name: "6'00''", value: 360 },
+                        { name: "6'30''", value: 390 },
+                    ]}
+                />
             </div>
         </>
     )
+}
+
+/** 현재 글로브의 ElevationRamp 범위를 읽기 (없으면 null) */
+export function getElevationRampRange(viewer: Cesium.Viewer):
+    | { min: number; max: number }
+    | null {
+    const mat = viewer.scene.globe.material as Cesium.Material | undefined;
+    if (!mat || mat.type !== "ElevationColorContour") return null;
+
+    const sub = mat.materials?.elevationRampMaterial as Cesium.Material | undefined;
+    const min = sub?.uniforms?.minimumHeight;
+    const max = sub?.uniforms?.maximumHeight;
+    return (typeof min === "number" && typeof max === "number")
+        ? { min, max }
+        : null;
+}
+
+/** [0..1] 정규값 → 고도(m) */
+export function normalizedToAltitude(
+    norm: number,
+    opts:
+        | { min: number; max: number }
+        | { viewer: Cesium.Viewer; fallback?: { min: number; max: number } }
+): number {
+    const t = Math.min(1, Math.max(0, norm));
+
+    let min: number, max: number;
+    if ("viewer" in opts) {
+        const range = getElevationRampRange(opts.viewer) ?? opts.fallback;
+        if (!range) throw new Error("ElevationRamp 범위를 찾을 수 없습니다. (viewer/fallback 확인)");
+        ({ min, max } = range);
+    } else {
+        ({ min, max } = opts);
+    }
+
+    if (max === min) return min;
+    if (max < min) [min, max] = [max, min];
+
+    return min + t * (max - min);
 }
