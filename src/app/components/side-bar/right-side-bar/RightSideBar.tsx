@@ -46,7 +46,7 @@ export default function RightSideBar() {
     }
 
     return (
-        open && <section className={styles.rightSideBar}>₩
+        open && <section className={styles.rightSideBar}>
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
                 <SlopeGraph/>
                 <PaceStrategy route={automaticRoute?tempRoute!:pedestrianRoute!}/> {/* 페이스 전략 카드 */}

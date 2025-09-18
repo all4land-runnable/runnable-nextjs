@@ -2,7 +2,9 @@
 
 import styles from './PaceStrategy.module.css';
 import {formatKm} from "@/app/utils/claculator/formatKm";
-import {Route} from "@/type/route";
+import {Route, Section} from "@/type/route";
+import {Button, CardActions, CardContent, Typography} from "@mui/material";
+import React from "react";
 
 /**
  * 구간 전략의 집합은 페이스 전략을 의미한다.
@@ -20,34 +22,37 @@ type PaceStrategyProps = {
 export default function PaceStrategy({route}: PaceStrategyProps) {
     return (
         <section className={styles.sectionStrategyCard}>
-            {/* 카드 이름 */}
-            <span className={styles.titleFont}>페이스 전략</span>
-            {/* 이름 리스트 영역 구분선 */}
-            <hr className={styles.splitter} />
+            <span className={styles.titleFont}>페이스 전략</span> {/* 카드 이름 */}
+            <hr className={styles.splitter} /> {/* 이름 리스트 영역 구분선 */}
 
-            {/* 구간 전략 영역 */}
-            <div className={styles.sectionList}>
+            <div className={styles.sectionList}> {/* 구간 전략 영역 */}
                 {/* 각 전략 선회 */}
-                {route.sections.map((sectionStrategy, index) => (
-                    <div className={styles.sectionStrategy} key={`$section-strategy_${index}`}>
-                        <div className={styles.marker}> {/* 세로 선 구현 */}
-                            <span className={styles.dot} /> {/* TODO: 점 그리기 오류 있음 */}
-                            {/* 세로 라인은 CSS ::after 로 처리 */}
-                        </div>
-
-                        <div className={styles.section}> {/* 각 전략 선회 */}
-                            <span className={styles.startPlaceFont}> {/* 출발 지점 이름 */}
-                                {formatKm(sectionStrategy.distance)} : {sectionStrategy.startPlace}
-                            </span>
-                            <div className={styles.strategies}> {/* 각 구간 별 전략들 선회 */}
-                                {sectionStrategy.strategies.map((strategy, index) => (
-                                    <span className={[styles.strategy, styles.strategyFont].join(' ')} key={`strategy-${index}`}>- {strategy}</span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                ))}
+                {route.sections.map(
+                    (section, index) => StrategyCard(index, section)
+                )}
             </div>
         </section>
     );
+}
+
+function StrategyCard(index:number, section: Section) {
+    const startPoint = section.points[0]
+    return (
+        <CardContent key={`strategy_card_${index}`}>
+            <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
+                {formatKm(section.distance)}
+            </Typography>
+            <Typography variant="h6" component="div">
+                {section.startPlace}
+            </Typography>
+            <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>
+                위도: {startPoint.latitude.toFixed(2)} 경도: {startPoint.longitude.toFixed(2)} 높이: {startPoint.height.toFixed(2)}
+            </Typography>
+            {section.strategies.map((strategy, strategy_index) => (
+                <Typography key={`strategy-${strategy_index}`} variant="body2">
+                - {strategy}
+                </Typography>
+            ))}
+        </CardContent>
+    )
 }
