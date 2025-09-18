@@ -7,7 +7,7 @@ import RouteOptionSlider from "@/app/components/molecules/route-option-slider/Ro
 import {formatKm} from "@/app/utils/claculator/formatKm";
 import {formatKg} from "@/app/utils/claculator/formatKg";
 import {formatPace} from "@/app/utils/claculator/formatPace";
-import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/ChipButton";
 import {useRouter} from "next/navigation";
 import {useModal} from "@/app/store/modal/ModalProvider";
 import {getTempEntity, getTempRouteMarkers, setTempEntity} from "@/app/staticVariables";

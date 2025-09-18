@@ -49,9 +49,8 @@ export function ChipButton({ label, type = CHIP_TYPE.SELECT, selectAction, unSel
             if (select) selectAction?.();
             else unSelectAction?.();
         } catch(e){
-            alert('작업 중 에러발생. 다시 실행해주세요.')
+            alert('작업 중 에러발생.')
             console.error(e);
-            setSelect(false);
         }
     }, [select]);
 

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import styles from './LeftSideBar.module.css';
-import CategorySelect from '@/app/components/atom/category-select/CategorySelect';
 import RouteCard from '@/app/components/molecules/route-card/RouteCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/app/store/redux/store';
@@ -12,6 +11,7 @@ import { removePedestrianRoute } from '@/app/pages/route-drawing/utils/drawingTe
 import { removeMarkers } from '@/app/utils/markers/hideMarkers';
 import { getPedestrianRouteMarkers } from '@/app/staticVariables';
 import type { Route } from '@/type/route';
+import CategorySelect from "@/app/components/atom/CategorySelect";
 
 export default function LeftSideBar() {
     const dispatch = useDispatch();
@@ -51,7 +51,7 @@ export default function LeftSideBar() {
     return (
         <section className={styles.leftSideBar}>
             <CategorySelect
-                categories={['전체 카테고리', '인기 코스', '횡단보도', '도보 경로']}
+                categories={['인기 코스', '횡단보도', '도보 경로']}
                 value={cat}
                 onChangeAction={(value: string) => setCat(value)}
             />

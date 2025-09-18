@@ -2,7 +2,7 @@
 
 import styles from "./RightSideBar.module.css"
 import PaceStrategy from "@/app/components/molecules/pace-strategy/PaceStrategy";
-import {ChipButton} from "@/app/components/atom/chip/ChipButton";
+import {ChipButton} from "@/app/components/atom/ChipButton";
 import SlopeGraph from "@/app/components/molecules/slope-graph/SlopeGraph";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "@/app/store/redux/store";
@@ -46,10 +46,10 @@ export default function RightSideBar() {
     }
 
     return (
-        open && <section className={styles.rightSideBar}>
+        open && <section className={styles.rightSideBar}>₩
             <div className={styles.sidebarTop}> {/* 오른쪽 사이드바 상단 */}
                 <SlopeGraph/>
-                <PaceStrategy route={automaticRoute?tempRoute:pedestrianRoute}/> {/* 페이스 전략 카드 */}
+                <PaceStrategy route={automaticRoute?tempRoute!:pedestrianRoute!}/> {/* 페이스 전략 카드 */}
             </div>
             <div className={styles.sidebarBottom}> {/* 오른쪽 사이드바 하단 */}
                 <div className={styles.detailInfo}>

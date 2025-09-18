@@ -2,7 +2,7 @@
 
 import styles from '../../page.module.scss'
 import React, {useEffect} from "react";
-import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/ChipButton";
 import {useRouter} from "next/navigation";
 import {resetRightSidebar, setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 import {useDispatch} from "react-redux";

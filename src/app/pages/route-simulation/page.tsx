@@ -13,8 +13,6 @@ import { RootState } from "@/app/store/redux/store";
 import {setAutomaticRoute, setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 
 import { useRouter } from "next/navigation";
-import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
-import CategorySelect from "@/app/components/atom/category-select/CategorySelect";
 
 import { getPedestrianRouteMarkers, getTempEntity, getTempRouteMarkers } from "@/app/staticVariables";
 import hideMarkers from "@/app/utils/markers/hideMarkers";
@@ -22,6 +20,8 @@ import hideMarkers from "@/app/utils/markers/hideMarkers";
 import { formatSpeed } from "@/app/pages/route-simulation/utils/formatSpeed";
 import { Route } from "@/type/route";
 import {setLeftSidebarOpen} from "@/app/store/redux/feature/leftSidebarSlice";
+import CategorySelect from "@/app/components/atom/CategorySelect";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/ChipButton";
 
 type Orientation = NonNullable<Parameters<Cesium.Camera['setView']>[0]>['orientation'];
 

@@ -1,7 +1,6 @@
 'use client';
 
 import styles from "./Toc.module.css";
-import {ChipButton} from "@/app/components/atom/chip/ChipButton";
 import popularCourseOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/popularCourseOnClick";
 import {toggleSidewalkVisible} from "@/app/utils/emphasize-chips/emphasize-onclick/sidewalkOnClick";
 import {crosswalkOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/crosswalkOnClick";
@@ -13,6 +12,7 @@ import {drinkingFountainOnClick} from "@/app/utils/emphasize-chips/emphasize-onc
 import React, {useState} from "react";
 import temperatureOnClick, {removeTemperature} from "@/app/utils/tile-chips/temperature-onclick/temperatureOnClick";
 import {setLayer} from "@/app/utils/tile-chips/setVWorldTile";
+import {ChipButton} from "@/app/components/atom/ChipButton";
 
 
 export default function Toc() {

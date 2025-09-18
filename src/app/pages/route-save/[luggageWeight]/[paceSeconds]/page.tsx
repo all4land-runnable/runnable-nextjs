@@ -9,7 +9,7 @@ import {
     setAutomaticRoute,
     setRightSidebarOpen,
 } from "@/app/store/redux/feature/rightSidebarSlice";
-import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/ChipButton";
 import {RootState} from "@/app/store/redux/store";
 import {useParams, useRouter} from "next/navigation";
 import hideMarkers, {removeMarkers} from "@/app/utils/markers/hideMarkers";

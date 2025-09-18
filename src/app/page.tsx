@@ -2,7 +2,7 @@
 
 import React from "react";
 import defaultStyle from '@/app/page.module.scss'
-import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/ChipButton";
 import {useRouter} from "next/navigation";
 
 /**
