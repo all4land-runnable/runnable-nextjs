@@ -7,7 +7,7 @@ import RouteOptionSlider from "@/app/components/molecules/route-option-slider/Ro
 import {formatKm} from "@/app/utils/claculator/formatKm";
 import {formatKg} from "@/app/utils/claculator/formatKg";
 import {formatPace} from "@/app/utils/claculator/formatPace";
-import {Chip} from "@/app/components/atom/chip/Chip";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
 import {useRouter} from "next/navigation";
 import {useModal} from "@/app/store/modal/ModalProvider";
 import {getTempEntity, getTempRouteMarkers, setTempEntity} from "@/app/staticVariables";
@@ -157,11 +157,11 @@ export default function Page() {
         <>
             <section className={defaultStyle.bottomSheet}>
                 <div className={styles.drawingController}>
-                    <Chip label={"뒤로 가기"} activable={false} onClickAction={returnPage}/>
-                    <Chip label={"운동 가능 시간"} onClickAction={workoutAvailabilityOnClick}/>
-                    <Chip label={"음수대 정보 표시"} onClickAction={saveDrinkingFountainsInfoOnClick}/>
-                    <Chip label={"원형 경로"} onClickAction={circularRoute}/>
-                    <Chip label={"경로 완성"} activable={false} onClickAction={completeDrawing}/>
+                    <ChipButton label={"뒤로 가기"} type={CHIP_TYPE.CLICK} selectAction={returnPage}/>
+                    <ChipButton label={"운동 가능 시간"} selectAction={workoutAvailabilityOnClick}/>
+                    <ChipButton label={"음수대 정보 표시"} selectAction={saveDrinkingFountainsInfoOnClick}/>
+                    <ChipButton label={"원형 경로"} selectAction={circularRoute}/>
+                    <ChipButton label={"경로 완성"} type={CHIP_TYPE.CLICK} selectAction={completeDrawing}/>
                 </div>
             </section>
 
@@ -224,7 +224,7 @@ export default function Page() {
 }
 
 /** 현재 글로브의 ElevationRamp 범위를 읽기 (없으면 null) */
-export function getElevationRampRange(viewer: Cesium.Viewer):
+function getElevationRampRange(viewer: Cesium.Viewer):
     | { min: number; max: number }
     | null {
     const mat = viewer.scene.globe.material as Cesium.Material | undefined;

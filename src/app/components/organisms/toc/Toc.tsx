@@ -1,7 +1,7 @@
 'use client';
 
 import styles from "./Toc.module.css";
-import {Chip} from "@/app/components/atom/chip/Chip";
+import {ChipButton} from "@/app/components/atom/chip/ChipButton";
 import popularCourseOnClick from "@/app/utils/emphasize-chips/emphasize-onclick/popularCourseOnClick";
 import {toggleSidewalkVisible} from "@/app/utils/emphasize-chips/emphasize-onclick/sidewalkOnClick";
 import {crosswalkOnClick} from "@/app/utils/emphasize-chips/emphasize-onclick/crosswalkOnClick";
@@ -37,18 +37,18 @@ export default function Toc() {
         <div className={styles.topSheet}>
             {/* 강조 구역 버튼 모음 */}
             <div className={styles.emphasizeChips}>
-                <Chip label={"인기 코스"}  onClickAction={popularCourseOnClick}/> {/* 인기 코스 */}
-                <Chip label={"도보 경로"} onClickAction={toggleSidewalkVisible}/> {/* 횡단보도 */}
-                <Chip label={"횡단보도"} onClickAction={crosswalkOnClick} inActiveOnClickAction={async ()=>clearMarkers(getCrosswalk())} /> {/* 도보 경로 */}
-                <Chip label={"물품보관함"} onClickAction={storageBoxOnClick}/> {/* 물품보관함 */}
-                <Chip label={"병원"} onClickAction={hospitalOnClick} inActiveOnClickAction={async ()=>clearMarkers(getHospital())}/> {/* 병원 */}
-                <Chip label={"음수대"} onClickAction={drinkingFountainOnClick} inActiveOnClickAction={async ()=>clearMarkers(getDrinkingFoundation())}/> {/* 음수대 */}
+                <ChipButton label={"인기 코스"} selectAction={popularCourseOnClick}/> {/* 인기 코스 */}
+                <ChipButton label={"도보 경로"} selectAction={toggleSidewalkVisible}/> {/* 횡단보도 */}
+                <ChipButton label={"횡단보도"} selectAction={crosswalkOnClick} unSelectAction={async ()=>clearMarkers(getCrosswalk())} /> {/* 도보 경로 */}
+                <ChipButton label={"물품보관함"} selectAction={storageBoxOnClick}/> {/* 물품보관함 */}
+                <ChipButton label={"병원"} selectAction={hospitalOnClick} unSelectAction={async ()=>clearMarkers(getHospital())}/> {/* 병원 */}
+                <ChipButton label={"음수대"} selectAction={drinkingFountainOnClick} unSelectAction={async ()=>clearMarkers(getDrinkingFoundation())}/> {/* 음수대 */}
             </div>
             {/* 타일 버튼 모음 */}
             <div className={styles.tileChips}>
-                <Chip label={"브이월드"} onClickAction={()=>vworldOpenHandler()}/>
-                {/*<Chip label="재질 표시" onClickAction={async () => {}}/> /!* TODO: 재질 표시 로직 *!/*/}
-                <Chip label="온도 측정" onClickAction={onTemperatureHandler}/> {/* TODO: 온도 측정 로직 */}
+                <ChipButton label={"브이월드"} selectAction={()=>vworldOpenHandler()}/>
+                {/*<ChipButton label="재질 표시" onClickAction={async () => {}}/> /!* TODO: 재질 표시 로직 *!/*/}
+                <ChipButton label="온도 측정" selectAction={onTemperatureHandler}/> {/* TODO: 온도 측정 로직 */}
             </div>
         </div>
     )

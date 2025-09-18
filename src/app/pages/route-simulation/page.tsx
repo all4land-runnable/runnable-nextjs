@@ -13,7 +13,7 @@ import { RootState } from "@/app/store/redux/store";
 import {setAutomaticRoute, setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 
 import { useRouter } from "next/navigation";
-import { Chip } from "@/app/components/atom/chip/Chip";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
 import CategorySelect from "@/app/components/atom/category-select/CategorySelect";
 
 import { getPedestrianRouteMarkers, getTempEntity, getTempRouteMarkers } from "@/app/staticVariables";
@@ -341,11 +341,11 @@ export default function Page() {
     return (
         <section className={defaultStyle.bottomSheet}>
             <div className={styles.listChips}>
-                <Chip label={"뒤로가기"} activable={false} onClickAction={() => { stopSimulation(); router.back(); }} />
-                <Chip label={isRunningRef.current ? "정지" : "시뮬레이션 시작"} onClickAction={handleToggle} />
-                <Chip
+                <ChipButton label={"뒤로가기"} type={CHIP_TYPE.CLICK} selectAction={() => { stopSimulation(); router.back(); }} />
+                <ChipButton label={isRunningRef.current ? "정지" : "시뮬레이션 시작"} selectAction={handleToggle} />
+                <ChipButton
                     label={"자동 경로"}
-                    onClickAction={() => { dispatch(setAutomaticRoute(!automaticRoute)); }}
+                    selectAction={() => { dispatch(setAutomaticRoute(!automaticRoute)); }}
                 />
                 <CategorySelect
                     categories={["×1.0", "×1.5", "×3.0", "×4.0", "×10.0"]}

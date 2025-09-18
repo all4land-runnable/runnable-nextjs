@@ -2,7 +2,7 @@
 
 import React from "react";
 import defaultStyle from '@/app/page.module.scss'
-import {Chip} from "@/app/components/atom/chip/Chip";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
 import {useRouter} from "next/navigation";
 
 /**
@@ -16,8 +16,8 @@ export default function Page() {
         <section className={defaultStyle.bottomSheet}>
             {/* 경로 관련 버튼 모음 */}
             <div className={defaultStyle.routeChips}>
-                <Chip label={"경로 생성"} activable={false} onClickAction={() => { router.push("/pages/route-drawing"); }}/>
-                <Chip label={"경로 목록"} activable={false} onClickAction={() => { router.push("/pages/route-list"); }}/>
+                <ChipButton label={"경로 생성"} type={CHIP_TYPE.CLICK} selectAction={() => { router.push("/pages/route-drawing"); }}/>
+                <ChipButton label={"경로 목록"} type={CHIP_TYPE.CLICK} selectAction={() => { router.push("/pages/route-list"); }}/>
             </div>
         </section>
     )

@@ -9,7 +9,7 @@ import {
     setAutomaticRoute,
     setRightSidebarOpen,
 } from "@/app/store/redux/feature/rightSidebarSlice";
-import {Chip} from "@/app/components/atom/chip/Chip";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
 import {RootState} from "@/app/store/redux/store";
 import {useParams, useRouter} from "next/navigation";
 import hideMarkers, {removeMarkers} from "@/app/utils/markers/hideMarkers";
@@ -220,9 +220,9 @@ export default function Page() {
         <>
             <section className={defaultStyle.bottomSheet}>
                 <div className={styles.listChips}>
-                    <Chip label={"뒤로가기"} activable={false} onClickAction={backButton}/>
-                    <Chip label={"자동해제"} activable={false} onClickAction={toggleAutomatic}/>
-                    <Chip label={"경로 저장"} activable={false} onClickAction={confirmButton}/>
+                    <ChipButton label={"뒤로가기"} type={CHIP_TYPE.CLICK} selectAction={backButton}/>
+                    <ChipButton label={"자동해제"} type={CHIP_TYPE.CLICK} selectAction={toggleAutomatic}/>
+                    <ChipButton label={"경로 저장"} type={CHIP_TYPE.CLICK} selectAction={confirmButton}/>
                 </div>
             </section>
         </>

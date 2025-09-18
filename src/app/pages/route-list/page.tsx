@@ -2,7 +2,7 @@
 
 import styles from '../../page.module.scss'
 import React, {useEffect} from "react";
-import {Chip} from "@/app/components/atom/chip/Chip";
+import {CHIP_TYPE, ChipButton} from "@/app/components/atom/chip/ChipButton";
 import {useRouter} from "next/navigation";
 import {resetRightSidebar, setRightSidebarOpen} from "@/app/store/redux/feature/rightSidebarSlice";
 import {useDispatch} from "react-redux";
@@ -43,7 +43,7 @@ export default function Page() {
     return (
         <section className={styles.bottomSheet}>
             <div className={styles.listChips}>
-                <Chip label={"홈"} activable={false} onClickAction={()=> {
+                <ChipButton label={"홈"} type={CHIP_TYPE.CLICK} selectAction={()=> {
                     removeMarkers(getPedestrianRouteMarkers())
                     removePedestrianRoute()
                     dispatch(setRightSidebarOpen(false));

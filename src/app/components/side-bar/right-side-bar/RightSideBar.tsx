@@ -2,7 +2,7 @@
 
 import styles from "./RightSideBar.module.css"
 import PaceStrategy from "@/app/components/molecules/pace-strategy/PaceStrategy";
-import {Chip} from "@/app/components/atom/chip/Chip";
+import {ChipButton} from "@/app/components/atom/chip/ChipButton";
 import SlopeGraph from "@/app/components/molecules/slope-graph/SlopeGraph";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "@/app/store/redux/store";
@@ -53,8 +53,8 @@ export default function RightSideBar() {
             </div>
             <div className={styles.sidebarBottom}> {/* 오른쪽 사이드바 하단 */}
                 <div className={styles.detailInfo}>
-                    <Chip label={"구간 속도"} onClickAction={() => {}}/> {/* 구간 속도 */}
-                    <Chip label={"페이스 분석"} onClickAction={() => {}}/> {/* 페이스 분석 */}
+                    <ChipButton label={"구간 속도"} selectAction={() => {}}/> {/* 구간 속도 */}
+                    <ChipButton label={"페이스 분석"} selectAction={() => {}}/> {/* 페이스 분석 */}
                 </div>
                 <button className={[styles.routeSimulation, styles.routeSimulationFont].join(' ')} onClick={similationOnClick}>
                     3D 시뮬레이션
