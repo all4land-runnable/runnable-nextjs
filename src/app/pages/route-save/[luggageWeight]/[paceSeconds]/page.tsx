@@ -234,8 +234,8 @@ async function postPaceMaker(luggageWeight: number, paceSeconds: number, route?:
     const response = await apiClient.post<CommonResponse<PaceMakerResponse>>(
         '/api/v1/pace_maker',
         {
-            luggageWeight: 0,
-            paceSeconds: 420,
+            luggageWeight: luggageWeight,
+            paceSeconds: paceSeconds,
             sections: route.sections.map(section => ({
                 luggageWeight:luggageWeight==0?null:luggageWeight,
                 paceSeconds:paceSeconds==0?null:paceSeconds,
