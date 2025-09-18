@@ -26,7 +26,7 @@ type CategorySelectProps = {
 export default function CategorySelect({ selectId='route-category', addLabel=false, label='카테고리', categories, value, onChangeAction }: CategorySelectProps) {
     return (
         <FormControl  variant="standard" sx={{ m: 1, minWidth: 120 }}>
-            {addLabel ? <InputLabel id={`${selectId}-label`}>경로 카테고리</InputLabel> : null}
+            {addLabel ? <InputLabel id={`${selectId}-label`}>{label}</InputLabel> : null}
             <Select
                 labelId={addLabel?`${selectId}-label`:''}
                 id={selectId}
@@ -34,11 +34,11 @@ export default function CategorySelect({ selectId='route-category', addLabel=fal
                 label={label}
                 onChange={(e) => onChangeAction?.(e.target.value)}
             >
-                <MenuItem key={-1} value={''}>
-                    전체보기
+                <MenuItem key={0} value={''}>
+                    전체 카테고리
                 </MenuItem>
                 {categories.map((category, index) => (
-                    <MenuItem key={index} value={category}>
+                    <MenuItem key={index} value={category+1}>
                         {category}
                     </MenuItem>
                 ))}

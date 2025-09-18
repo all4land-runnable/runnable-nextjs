@@ -1,11 +1,11 @@
 import styles from './RouteCard.module.css';
-import Image from 'next/image';
 import { useDispatch } from 'react-redux';
 import { Route } from '@/type/route';
 import * as Cesium from 'cesium';
 import { setPedestrianRoute } from '@/app/store/redux/feature/routeDrawingSlice';
 import getViewer from '@/app/components/organisms/cesium/util/getViewer';
 import { upsertPedestrianMarker } from '@/app/pages/route-drawing/utils/addPedestrianEntity';
+import {Card, CardContent, CardMedia, Typography} from "@mui/material";
 
 type Props = {
     route: Route;
@@ -58,17 +58,29 @@ export default function RouteCard({ route, onBeforeSelect }: Props) {
     };
 
     return (
-        <div className={styles.routeCard} onClick={onClick}>
-            <div className={styles.imageBox}>
-                <Image src={'/resource/sample-image.png'} fill style={{ objectFit: 'cover' }} alt='' />
-            </div>
+        <>
+            <div className={styles.routeCard} onClick={onClick}>
+                <Card sx={{ maxWidth: 345 }}>
+                    <CardMedia
+                        sx={{ height: 140 }}
+                        image='/resource/sample-image.png'
+                        title='thumbnail'
+                    />
+                    <CardContent>
+                        <Typography gutterBottom variant="h5" component="div">
+                            {route.title}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            거리: {route.distance}km / 가능 시간: {'TODO'}~{'TODO'}
+                        </Typography>
 
-            <span className={styles.titleFont}>{route.title}</span>
-            <span className={styles.routeInfoFont}>
-        거리: {route.distance}km / 가능 시간: {'TODO'}~{'TODO'}
-      </span>
-            <span className={[styles.description, styles.descriptionFont].join(' ')}>{route.description}</span>
-        </div>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {route.description}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </div>
+        </>
     );
 }
 
