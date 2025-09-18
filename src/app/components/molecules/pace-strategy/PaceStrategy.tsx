@@ -3,7 +3,7 @@
 import styles from './PaceStrategy.module.css';
 import {formatKm} from "@/app/utils/claculator/formatKm";
 import {Route, Section} from "@/type/route";
-import {Button, CardActions, CardContent, Typography} from "@mui/material";
+import {CardContent, Typography} from "@mui/material";
 import React from "react";
 
 /**
