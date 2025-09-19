@@ -1,0 +1,61 @@
+.leftSideBar {
+    display: inline-flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+    padding: 0 0 16px 0;
+    height: calc(100% - 80px);
+
+    pointer-events: auto;
+    overflow: hidden; /* 글래스 바깥 잘림 방지용: OK */
+
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.80);
+    backdrop-filter: blur(8px);
+}
+
+/* LeftSideBar.module.scss */
+.routeCardList {
+    overflow-y: auto;
+    display: grid;
+    grid-auto-rows: min-content;
+    grid-template-columns: 1fr;
+    flex: 1;
+    min-height: 0;
+
+    /* 레이아웃 흔들림 방지(필요한 경우에만 여유 공간 예약) */
+    scrollbar-gutter: stable;
+
+    /* 스타일(트랙 투명 + 얇은 thumb) */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: rgba(0,0,0,0.25) transparent;
+
+    &::-webkit-scrollbar { width: 8px; height: 8px; } /* Chrome/Safari */
+    &::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.25);
+        border-radius: 8px;
+    }
+    &::-webkit-scrollbar-track { background: transparent; }
+}
+
+.listWrap {
+    position: relative;
+    flex: 1;        /* 남은 공간 가득 채우기 */
+    min-height: 0;  /* 내부 스크롤 활성화에 필요 */
+    display: contents; /* 레이아웃 그대로 유지하고, 오버레이만 절대배치하려면 contents가 깔끔 */
+    /* 만약 contents가 맞지 않으면 display:block;로 바꾸고
+       .routeCardList에 width/height:100%는 그대로 두면 됩니다. */
+}
+
+.listLoadingOverlay {
+    position: absolute;
+    inset: 0; /* 래퍼(=List 영역) 가득 덮기 */
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.55); /* 필요 없으면 transparent */
+    backdrop-filter: blur(2px);
+    pointer-events: all; /* 로딩 중 입력 차단 */
+}

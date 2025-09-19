@@ -48,9 +48,9 @@ export function ChipButton({ label, type = CHIP_TYPE.SELECT, selectAction, unSel
             // SELECT 모드일 때만 토글의 결과에 따라 액션
             if (select) selectAction?.();
             else unSelectAction?.();
-        } catch(e){
+        } catch(error){
             alert('작업 중 에러발생.')
-            console.error(e);
+            console.error(error);
         }
     }, [select]);
 

@@ -32,13 +32,10 @@ export default function CategorySelect({ selectId='route-category', addLabel=fal
                 id={selectId}
                 value={value}
                 label={label}
-                onChange={(e) => onChangeAction?.(e.target.value)}
+                onChange={(event) => onChangeAction?.(event.target.value)}
             >
-                <MenuItem key={0} value={''}>
-                    전체 카테고리
-                </MenuItem>
                 {categories.map((category, index) => (
-                    <MenuItem key={index} value={category+1}>
+                    <MenuItem key={index} value={category} sx={{ pointerEvents:'auto' }}>
                         {category}
                     </MenuItem>
                 ))}
