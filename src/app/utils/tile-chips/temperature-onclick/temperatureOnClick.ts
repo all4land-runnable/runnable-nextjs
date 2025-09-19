@@ -10,6 +10,8 @@ import type { Feature, FeatureCollection, Geometry } from "geojson";
 type EmdFeature = Feature<Geometry, { bjd_cd: string; bjd_nm: string }>;
 interface EmdResponse { feature: EmdFeature | null; }
 
+let currentRefreshCtrl: AbortController | null = null;
+
 /** 문자열/숫자 섞여 올 수 있는 값을 안전하게 number로 */
 function toNumberOrNull(v: unknown): number | null {
     const n = typeof v === "number" ? v : parseFloat(String(v));
@@ -78,7 +80,13 @@ let moveEndHandler:   (() => void) | null = null;
 let fetchToken = 0; // 최신 요청 토큰 (중복/지연 응답 무시)
 
 /** 실제 조회 + 렌더 (항상 최신 토큰만 반영) */
+/** 실제 조회 + 렌더 (항상 최신 토큰만 반영) */
 async function refreshTemperature(): Promise<void> {
+    // 이전 진행 중 요청 취소
+    currentRefreshCtrl?.abort();
+    const controller = new AbortController();
+    currentRefreshCtrl = controller;
+
     const viewer = getViewer();
     const point = getCameraPosition();
 
@@ -87,7 +95,11 @@ async function refreshTemperature(): Promise<void> {
         // 1) 온도 조회
         const resp = await apiClient.get<CommonResponse<Temperature[]>>(
             "/api/v1/temperature/forecast",
-            { baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL, params: { lat: point.lat, lon: point.lon } }
+            {
+                baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
+                params: { lat: point.lat, lon: point.lon },
+                signal: controller.signal,                    // ★ 추가
+            }
         );
         if (myToken !== fetchToken) return; // 오래된 응답 버림
 
@@ -99,7 +111,11 @@ async function refreshTemperature(): Promise<void> {
         // 2) EMD 폴리곤 조회
         const emdRes = await apiClient.get<{ feature: EmdFeature | null }>(
             "/api/v1/geoms/emd",
-            { baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL, params: { lat: point.lat, lon: point.lon } }
+            {
+                baseURL: process.env.NEXT_PUBLIC_FASTAPI_URL,
+                params: { lat: point.lat, lon: point.lon },
+                signal: controller.signal,                    // ★ 추가
+            }
         );
         if (myToken !== fetchToken) return;
 
@@ -129,9 +145,7 @@ async function refreshTemperature(): Promise<void> {
                 e.polygon.outlineColor = new Cesium.ConstantProperty(Cesium.Color.BLACK.withAlpha(0.9));
             }
             e.label = new Cesium.LabelGraphics({
-                text: new Cesium.ConstantProperty(
-                    temp != null ? `${temp.toFixed(1)}℃` : "N/A"
-                ),
+                text: new Cesium.ConstantProperty(temp != null ? `${temp.toFixed(1)}℃` : "N/A"),
                 fillColor: new Cesium.ConstantProperty(Cesium.Color.WHITE),
                 font: new Cesium.ConstantProperty("16px sans-serif"),
                 pixelOffset: new Cesium.ConstantProperty(new Cesium.Cartesian2(0, -20)),
@@ -142,10 +156,15 @@ async function refreshTemperature(): Promise<void> {
         }
 
         await viewer.dataSources.add(ds);
-    } catch (e) {
-        // 실패 시 기존 레이어만 제거하고 조용히 무시(원하면 토스트)
+    } catch (e: any) {
+        // 취소는 정상 흐름: 조용히 무시
+        if (e?.name === 'AbortError' || e?.code === 'ERR_CANCELED') return;
+        // 실패 시 기존 레이어만 제거
         removeTemperature();
         // console.error(e);
+    } finally {
+        // 자신이 마지막 컨트롤러라면 해제
+        if (currentRefreshCtrl === controller) currentRefreshCtrl = null;
     }
 }
 
@@ -174,23 +193,4 @@ export default async function temperatureOnClick() {
 
     // 최초 1회 렌더
     await refreshTemperature();
-}
-
-/** 토글 OFF: 리스너 해제 + 레이어 제거 */
-export function stopTemperatureTracking() {
-    if (!tracking) return;
-    const viewer = getViewer();
-
-    if (moveStartHandler) viewer.camera.moveStart.removeEventListener(moveStartHandler);
-    if (moveEndHandler)   viewer.camera.moveEnd.removeEventListener(moveEndHandler);
-
-    moveStartHandler = null;
-    moveEndHandler = null;
-    tracking = false;
-
-    // 떠 있는 폴리곤 제거
-    removeTemperature();
-
-    // 이후 들어올 수 있는 늦은 응답들 무시
-    fetchToken++;
 }
